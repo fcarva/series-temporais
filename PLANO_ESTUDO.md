@@ -30,7 +30,7 @@ Sair da primeira parte do curso capaz de três coisas:
 | 4 | [04 Estimação e seleção](04_estimacao_selecao/04_lista.md) | AU02, AU03 | Q13–Q14 | grade de 64 SARIMA, AIC × BIC |
 | 5 | [05 Previsão](05_previsao/05_lista.md) | AU02, AU03 | Q15 | previsão 12 meses, IC, Winkler |
 | 6 | [06 SARIMA aplicado](06_aplicacao_sarima/06_lista.md) | AU03 | Q16 | comparar modelos aninhados |
-| 7 | [Trabalho INPC](trabalho_inpc/README.md) | AU03 | — | tudo junto |
+| 7 | [Trabalho INPC (Lista 01)](trabalho_inpc/README.md) | AU03, AU04, AU05 | LST01 | tudo junto |
 
 Em cada módulo, a sequência é sempre a mesma:
 1. ler a teoria e refazer as demonstrações `DNN.k` no papel;
@@ -42,9 +42,9 @@ Em cada módulo, a sequência é sempre a mesma:
 
 | Parte | O que fazer | Arquivo |
 |---|---|---|
-| A | dados, amostra, identificação e raiz unitária | [relatório](trabalho_inpc/relatorio.md) §1–2 |
-| B | estimação, seleção e diagnóstico | §3–4 |
-| A + B | estabilidade, previsão e conclusão; revisar o texto um do outro | §5–8 |
+| A | dados, inspeção, raiz unitária e identificação | [relatório](trabalho_inpc/relatorio.md), Q1–Q3 |
+| B | estimação, seleção, diagnóstico e sobrediferenciação | Q4–Q6 |
+| A + B | previsão fora da amostra, complementos e conclusão; revisar o texto um do outro; cada um resolve à mão os dois exercícios da Q8 | Q7 e Q8 |
 
 O código é um só ([inpc.R](trabalho_inpc/inpc.R)). As duas pessoas rodam o mesmo script e obtêm os mesmos números.
 

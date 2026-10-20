@@ -1,5 +1,5 @@
 ---
-title: "Trabalho em dupla — INPC (roteiro)"
+title: "Lista 01 — INPC (roteiro)"
 disciplina: Econometria II (PPGEco/UFES)
 professor: Guilherme Pereira
 periodo: 2026
@@ -12,45 +12,47 @@ aliases:
   - Trabalho INPC
 ---
 
-# Trabalho em dupla: INPC
+# Lista 01: modelagem Box-Jenkins do INPC
 
-A tarefa é estimar um modelo da família ARIMA/SARIMA para o INPC mensal e defender a escolha. O relatório está em [relatorio.md](relatorio.md), e todos os números saem de [inpc.R](inpc.R).
+Este é o trabalho da Lista 01 (LST01, avaliação parcial). A tarefa é modelar uma série real pelo ciclo de Box-Jenkins, da inspeção gráfica à previsão avaliada fora da amostra. O relatório está em [relatorio.md](relatorio.md), e todos os números saem de [inpc.R](inpc.R).
 
 ## Arquivos
 
 | Arquivo | O que é |
 |---|---|
-| [inpc.R](inpc.R) | script único: identificação → estimação → diagnóstico → estabilidade → previsão |
+| [inpc.R](inpc.R) | script único, na ordem das questões Q1 a Q7, mais dois complementos |
 | [relatorio.md](relatorio.md) | o texto, com tabelas e figuras; os números são conferidos pelo build |
+| `dados_utilizados.csv` | o banco efetivamente usado (jan/2000 a set/2026), gerado pelo script |
+| `sessionInfo.txt` | versões do R e dos pacotes, gerado pelo script |
 | [grade_sarima.csv](grade_sarima.csv) | log-verossimilhança, AIC e BIC dos 64 SARIMA estimados |
 | [previsao_m1.csv](previsao_m1.csv) | previsão de out/2026 a set/2027, com IC de 95% |
-| `figuras/` | seis figuras: séries, sazonalidade, FAC/FACP, resíduos, estabilidade e previsão |
+| `figuras/` | nove figuras: série, sazonalidade, FAC/FACP, raízes, resíduos, sobrediferenciação, validação, estabilidade e previsão |
 | [../dados/inpc.csv](../dados/inpc.csv) | número-índice e variação mensal, mar/1979 a set/2026 (SIDRA, tabela 1736) |
 
-## Roteiro (o ciclo de Box-Jenkins da AU03)
+## Roteiro (as questões da Lista 01)
 
-| Etapa | Pergunta | Ferramenta | Seção |
+| Questão | Pergunta | Ferramenta | Resposta |
 |---|---|---|---|
-| 1. Dados | Qual série e qual amostra? | variação mensal, jan/2000 a set/2026 | §1 |
-| 2. Identificação | É estacionária? Tem sazonalidade? Qual ordem? | gráficos, ADF, KPSS, FAC/FACP | §2 |
-| 3. Estimação | Qual modelo? | MV exata, grade SARIMA, AIC/BIC | §3 |
-| 4. Diagnóstico | Os resíduos são ruído branco? | Ljung-Box, ARCH-LM, Jarque-Bera, QQ-plot | §4 |
-| 5. Estabilidade | Os parâmetros são constantes? | Chow (mar/2020), CUSUM, estimação recursiva | §5 |
-| 6. Avaliação | Prevê bem fora da amostra? | janela recursiva, RMSE/MAD/MASE, DM, Winkler | §6 |
-| 7. Previsão | E os próximos 12 meses? | M1 com IC de 95% | §7 |
+| 1 | O que o gráfico mostra? É preciso transformar? | série em nível, boxplot mensal | sazonal, sem tendência; nenhuma transformação |
+| 2 | Qual é $d$? E $D$? DS ou TS? | ADF (3 especificações), PP, KPSS, OCSB | $d=D=0$ para a variação; o índice é DS |
+| 3 | Quais candidatos? | FAC/FACP com 36 defasagens | M1, M2 e M3 (AR(1) com SAR, SMA ou os dois) |
+| 4 | Qual modelo? | MV exata, AIC/BIC, raízes | AIC: M1; BIC: M2; fica o M1, para prever |
+| 5 | Os resíduos são ruído branco? | Ljung-Box, JB, ARCH-LM, sobreajuste | sim, menos a normalidade |
+| 6 | Quanto custa diferenciar demais? | M1 com $d=1$ | raiz MA exatamente unitária |
+| 7 | Prevê bem fora da amostra? | 24 meses, origem fixa e móvel, RW e SN | bate o RW, não o SN |
+| 8 | Teoria (manuscrita) | dois exercícios da lista teórica | sugestão: Q9 e Q12 |
 
 ## Escolhas que a dupla precisa saber defender
 
-1. **Variação mensal, não o índice.** O índice é I(1), e a variação, que é a sua diferença logarítmica, é I(0). O modelo ARMA da variação é um ARIMA(p,1,q) do log do índice (lista, Q10a).
-2. **Não diferenciar a inflação.** Ela já é estacionária, e diferenciar de novo cria MA não invertível (Q9).
-3. **Início em 2000.** O regime de metas começa em 1999. Antes disso há quebras de regime óbvias.
-4. **M1 ou M2.** O AIC e o BIC discordam, como previsto pela teoria (Q14b). A escolha depende do objetivo (prever ou identificar) e deve ser dita explicitamente.
-5. **JB rejeita, e isso não invalida o modelo.** O problema é de caudas, por choques identificáveis. Isso afeta os intervalos, não a consistência.
-
-## O que ainda depende do enunciado do professor
+1. **Modelar a variação, não o índice.** O índice é I(1), e a variação, que é a sua diferença logarítmica, é I(0). O modelo da variação com $d=0$ é um ARIMA($p$,1,$q$) do log do índice.
+2. **A constante no ADF.** Sem ela, o teste não rejeita a raiz unitária, mas essa especificação está errada para uma série de média 0,5 (Q2b).
+3. **M1 e não M2.** O AIC e o BIC discordam, como a teoria prevê. Como o objetivo é prever, vale o critério eficiente (Q4e).
+4. **O JB rejeita, e isso não invalida o modelo.** O problema é de caudas, por choques identificáveis. Afeta os intervalos, não a consistência.
+5. **Perder para o ingênuo sazonal é um resultado.** O enunciado proíbe mudar o modelo para virar o resultado (Q7f).
 
 > [!WARNING]
-> **Confira antes de entregar**
-> - **Período amostral e tamanho do teste.** Se o enunciado fixar outra amostra, mude `INICIO` e `N_TESTE` em `inpc.R` e rode o build: ele aponta cada frase que precisa ser reescrita.
-> - **Formato da entrega** (PDF, script, apresentação). O relatório em Markdown vira PDF com `pandoc relatorio.md -o relatorio.pdf`, se houver LaTeX instalado.
-> - **Se o professor pedir a série em nível** (índice) em vez da variação: o caminho é ARIMA($p$,1,$q$) no log. O §2 já justifica, e basta ajustar o `ajusta()`.
+> **Antes de entregar**
+> - Comunicar ao professor a escolha da série.
+> - Gerar o PDF: `Rscript caderno/montar_caderno.R`. O volume 3 traz este roteiro e o relatório.
+> - Entregar `inpc.R`, `dados_utilizados.csv` e `sessionInfo.txt` junto com o PDF.
+> - Resolver à mão a Questão 8.

@@ -6,8 +6,13 @@ inpc_media,0.500903426791
 inpc_dp,0.444198850482
 inpc_min,         -0.6
 inpc_max,         3.39
+inpc_max_ano,         2002
+inpc_max_mes,           11
 inpc_ultimo,         0.82
 inpc_acum12,4.29363313673
+inpc_n_negativos,           25
+inpc_dp_2000_2003,0.694543289656
+inpc_dp_2004_fim,0.362090822199
 inpc_media_mes01,0.701851851852
 inpc_media_mes02,0.594444444444
 inpc_media_mes03,0.607407407407
@@ -20,157 +25,289 @@ inpc_media_mes09,0.386666666667
 inpc_media_mes10,0.509615384615
 inpc_media_mes11,0.592692307692
 inpc_media_mes12,0.687692307692
-inpc_fac1,0.627695625708
-inpc_fac2,0.417153336093
-inpc_fac12,0.211959980647
-inpc_fac24,0.0489087995851
-inpc_facp1,0.627695625708
-inpc_facp2,0.0382039707445
-inpc_facp12,0.115448416951
-inpc_banda,0.109396532148
-inpc_lb24_serie,277.300377689
-inpc_adf_li_tau,-3.25741330128
-inpc_adf_li_c5,        -3.42
-inpc_adf_dli_tau,-6.9807953467
-inpc_adf_y_tau,-6.9969670579
-inpc_adf_y_c5,        -2.87
-inpc_kpss_li,0.415339548696
-inpc_kpss_li_c5,        0.146
-inpc_kpss_y,0.352250800681
-inpc_kpss_y_c5,        0.463
-inpc_cor_dli_y,0.99998423573
+inpc_adf_y_n_tau,-1.61391966988
+inpc_adf_y_n_c5,        -1.95
+inpc_adf_y_n_p,0.100430284583
+inpc_adf_y_n_lags,           12
+inpc_adf_y_c_tau,-6.9969670579
+inpc_adf_y_c_c5,        -2.87
+inpc_adf_y_c_p,1.27438499315e-09
+inpc_adf_y_c_lags,            1
+inpc_adf_y_t_tau,-7.15453168593
+inpc_adf_y_t_c5,        -3.42
+inpc_adf_y_t_p,5.37807882986e-09
+inpc_adf_y_t_lags,            1
+inpc_pp_y_c_z,-8.57261612609
+inpc_pp_y_c_c5,-2.87073789062
+inpc_pp_y_c_p,1.53900531382e-13
+inpc_pp_y_c_lag,            5
+inpc_pp_y_t_z,-8.68806372437
+inpc_pp_y_t_c5,-3.42539599609
+inpc_pp_y_t_p,5.33121943128e-13
+inpc_pp_y_t_lag,            5
+inpc_kpss_y_c_s,0.352250800681
+inpc_kpss_y_c_c5,        0.463
+inpc_kpss_y_c_lag,            5
+inpc_kpss_y_t_s,0.0755944548723
+inpc_kpss_y_t_c5,        0.146
+inpc_kpss_y_t_lag,            5
+inpc_adf_y_c_const_t, 5.4581470285
+inpc_adf_y_t_tend_t,-1.43909593544
+inpc_adf_y_t_tend_p,0.151152163398
+inpc_adf_y_c_phi1,24.4791136207
+inpc_adf_c5_phi1,         4.61
+inpc_adf_y_t_phi3,25.6002289415
+inpc_adf_c5_phi3,          6.3
+inpc_adf_dy_c_tau,-7.30989032628
+inpc_adf_dy_c_c5,        -2.87
+inpc_adf_dy_c_p,2.24432908598e-10
+inpc_adf_dy_c_lags,           12
+inpc_pp_dy_c_z,-23.6982683874
+inpc_pp_dy_c_c5,-2.87076522538
+inpc_pp_dy_c_p,9.44219022548e-30
+inpc_pp_dy_c_lag,            5
+inpc_kpss_dy_c_s,0.0122203050201
+inpc_kpss_dy_c_c5,        0.463
+inpc_kpss_dy_c_lag,            5
 inpc_ndiffs,            0
 inpc_nsdiffs,            0
-inpc_grade_n,           64
+inpc_ocsb,-12.791432577
+inpc_ocsb_c5,-1.80296279118
+inpc_adf_li_t_tau,-3.25741330128
+inpc_adf_li_t_c5,        -3.42
+inpc_adf_li_t_p,0.0753984638067
+inpc_adf_li_t_lags,            1
+inpc_pp_li_t_z,-2.18172469149
+inpc_pp_li_t_c5,-3.42539599609
+inpc_pp_li_t_p,0.497689436769
+inpc_pp_li_t_lag,            5
+inpc_kpss_li_t_s,0.415339548696
+inpc_kpss_li_t_c5,        0.146
+inpc_kpss_li_t_lag,            5
+inpc_cor_dli_y,0.99998423573
+inpc_fac1,0.627695625708
+inpc_fac2,0.417153336093
+inpc_fac11,0.160854218813
+inpc_fac12,0.211959980647
+inpc_fac13,0.122944531815
+inpc_fac24,0.0489087995851
+inpc_fac36,0.0138647982515
+inpc_facp1,0.627695625708
+inpc_facp2,0.0382039707445
+inpc_facp11,-0.00618472445248
+inpc_facp12,0.115448416951
+inpc_facp13,-0.131533314283
+inpc_facp24,0.0377966490678
+inpc_banda,0.109396532148
+inpc_lb24_serie,277.300377689
 inpc_m1_ar1,0.633045545035
-inpc_m1_ar1_ep,0.0430589599541
-inpc_m1_ar1_p,6.27401844928e-49
-inpc_m1_sar1,0.830413065876
-inpc_m1_sar1_ep,0.138056179113
-inpc_m1_sar1_p,1.79845292438e-09
-inpc_m1_sma1,-0.685201053369
-inpc_m1_sma1_ep,0.177038411771
-inpc_m1_sma1_p,0.000108678111766
-inpc_m1_intercept,0.50714698772
-inpc_m1_intercept_ep,0.0860804427979
-inpc_m1_intercept_p,3.82596450708e-09
+inpc_m1_ar1_ep,0.0430589599614
+inpc_m1_ar1_t,14.7018308292
+inpc_m1_ar1_p,6.27401868096e-49
+inpc_m1_sar1,0.830413065913
+inpc_m1_sar1_ep,0.13805618098
+inpc_m1_sar1_t,6.01503721178
+inpc_m1_sar1_p,1.79845382483e-09
+inpc_m1_sma1,-0.685201053416
+inpc_m1_sma1_ep,0.177038414118
+inpc_m1_sma1_t,-3.87035241378
+inpc_m1_sma1_p,0.000108678134529
+inpc_m1_intercept,0.507146987705
+inpc_m1_intercept_ep,0.0860804429472
+inpc_m1_intercept_t, 5.8915471429
+inpc_m1_intercept_p,3.82596474779e-09
 inpc_m1_loglik,-105.799619876
 inpc_m1_aic,221.599239753
 inpc_m1_bic,240.456445368
-inpc_m1_aic_t,0.690340310756
-inpc_m1_bic_t,0.74908549959
 inpc_m1_sigma2,0.113920623601
 inpc_m1_k,            5
+inpc_m1_n,          321
 inpc_m2_ar1,0.623086414113
-inpc_m2_ar1_ep,0.0434531284433
-inpc_m2_ar1_p,1.2434536351e-46
+inpc_m2_ar1_ep,0.0434531284515
+inpc_m2_ar1_t,14.3392762804
+inpc_m2_ar1_p,1.24345368367e-46
 inpc_m2_sar1,0.202398676906
-inpc_m2_sar1_ep,0.056163347876
-inpc_m2_sar1_p,0.000313658507166
+inpc_m2_sar1_ep,0.0561633478782
+inpc_m2_sar1_t,3.60375021349
+inpc_m2_sar1_p,0.000313658507331
 inpc_m2_intercept,0.500935295724
-inpc_m2_intercept_ep,0.0618675602684
-inpc_m2_intercept_p,5.63785240206e-16
+inpc_m2_intercept_ep,0.0618675602855
+inpc_m2_intercept_t,8.09689752452
+inpc_m2_intercept_p,5.63785250566e-16
 inpc_m2_loglik,-107.826891535
 inpc_m2_aic,223.653783071
 inpc_m2_bic,238.739547564
-inpc_m2_aic_t,0.69674075723
-inpc_m2_bic_t,0.743736908298
 inpc_m2_sigma2,0.115351932625
 inpc_m2_k,            4
-inpc_m3_ar1,0.609611687636
-inpc_m3_ar1_ep,0.044112375971
-inpc_m3_ar1_p,1.94372183914e-43
-inpc_m3_intercept,0.689265511506
-inpc_m3_intercept_ep,0.0818461467233
-inpc_m3_intercept_p,3.7176462914e-17
-inpc_m3_jan,0.0147964144087
-inpc_m3_jan_ep,0.0723665206395
-inpc_m3_jan_p,0.837990207489
-inpc_m3_feb,-0.0934829955827
-inpc_m3_feb_ep,0.0911546252019
-inpc_m3_feb_p,0.305107006607
-inpc_m3_mar,-0.0810507760991
-inpc_m3_mar_ep,0.100720665252
-inpc_m3_mar_p,0.420987909685
-inpc_m3_apr,-0.134717311073
-inpc_m3_apr_ep,0.105844431533
-inpc_m3_apr_p,0.203093988952
-inpc_m3_may,-0.206049460987
-inpc_m3_may_ep,0.108393757086
-inpc_m3_may_p,0.0573105579872
-inpc_m3_jun,-0.365476862434
-inpc_m3_jun_ep,0.109177484123
-inpc_m3_jun_p,0.000815298840323
-inpc_m3_jul,-0.355253842155
-inpc_m3_jul_ep,0.108430304081
-inpc_m3_jul_p,0.00105164284082
-inpc_m3_aug,-0.443195833182
-inpc_m3_aug_ep,0.105926722687
-inpc_m3_aug_p,2.86442848644e-05
-inpc_m3_sep,-0.30303940056
-inpc_m3_sep_ep,0.100869791506
-inpc_m3_sep_p,0.00266224926046
-inpc_m3_oct,-0.170275023748
-inpc_m3_oct_ep,0.0916377201524
-inpc_m3_oct_p,0.0631502041442
-inpc_m3_nov,-0.091705015441
-inpc_m3_nov_ep,0.0725101259741
-inpc_m3_nov_p,0.205971673785
-inpc_m3_loglik,-102.330103281
-inpc_m3_aic,232.660206562
-inpc_m3_bic,285.460382285
-inpc_m3_aic_t,0.724798151282
-inpc_m3_bic_t,0.889284680017
-inpc_m3_sigma2,0.115277570201
-inpc_m3_k,           14
-inpc_m1_raiz_ar,1.57966517234
-inpc_m1_raiz_sar, 1.0156065322
-inpc_m1_raiz_sma,1.03200507148
-inpc_m1_ar13,-0.525689291892
-inpc_m1_mu_anual,6.25841720786
+inpc_m2_n,          321
+inpc_m3_ar1,0.621587743513
+inpc_m3_ar1_ep,0.0435627884125
+inpc_m3_ar1_t,14.2687776923
+inpc_m3_ar1_p,3.42529636072e-46
+inpc_m3_sma1,0.166628625267
+inpc_m3_sma1_ep,0.050338680979
+inpc_m3_sma1_t,3.31015080306
+inpc_m3_sma1_p,0.00093245719039
+inpc_m3_intercept,0.50152904039
+inpc_m3_intercept_ep,0.0577905181188
+inpc_m3_intercept_t,8.67839667676
+inpc_m3_intercept_p,4.01386958541e-18
+inpc_m3_loglik,-108.955353005
+inpc_m3_aic, 225.91070601
+inpc_m3_bic,240.996470502
+inpc_m3_sigma2,0.11622640253
+inpc_m3_k,            4
+inpc_m3_n,          321
+inpc_grade_n,           64
+inpc_m1_raiz_ar,1.57966517235
+inpc_m1_raiz_sar,1.01560653219
+inpc_m1_raiz_sma,1.03200507147
+inpc_m1_raiz_ar_min,1.01560653219
+inpc_m1_raiz_ma_min,1.03200507147
+inpc_m1_ar13,-0.525689291915
+inpc_m1_mu_anual,6.25841720767
 inpc_m1_jb,462.960203371
 inpc_m1_jb_p,            0
-inpc_m1_lb12,9.14891182068
-inpc_m1_lb12_p,0.423643520756
+inpc_m1_lb12,9.14891182074
+inpc_m1_lb12_p,0.42364352075
+inpc_m1_lb12_gl,            9
 inpc_m1_lb24,14.4556232045
-inpc_m1_lb24_p,0.849244527481
-inpc_m1_arch12,10.7368932612
-inpc_m1_arch12_p,0.55159142153
-inpc_m1_assim,0.937541393367
+inpc_m1_lb24_p,0.849244527478
+inpc_m1_lb24_gl,           21
+inpc_m1_arch12,10.7368932614
+inpc_m1_arch12_p,0.551591421513
+inpc_m1_assim,0.937541393372
 inpc_m1_curt,8.57655014537
 inpc_m2_jb,445.426356058
 inpc_m2_jb_p,            0
 inpc_m2_lb12,9.22243669154
 inpc_m2_lb12_p,0.511131796758
+inpc_m2_lb12_gl,           10
 inpc_m2_lb24,17.3015197871
 inpc_m2_lb24_p,0.746505311034
-inpc_m2_arch12,  9.478792488
+inpc_m2_lb24_gl,           22
+inpc_m2_arch12,9.47879248801
 inpc_m2_arch12_p,0.661582030388
 inpc_m2_assim,0.897999237076
 inpc_m2_curt,8.48427703592
-inpc_m3_jb,591.728439576
+inpc_m3_jb,454.715426092
 inpc_m3_jb_p,            0
-inpc_m3_lb12,14.4394000252
-inpc_m3_lb12_p,0.209625745705
-inpc_m3_lb24, 23.130954677
-inpc_m3_lb24_p,0.453145789909
-inpc_m3_arch12,8.56805705011
-inpc_m3_arch12_p,0.739313871815
-inpc_m3_assim,1.15251300584
-inpc_m3_curt,9.23924945369
-inpc_lb12_c5_m1,16.9189776046
-inpc_lb24_c5_m1,32.6705733409
+inpc_m3_lb12,8.98114123809
+inpc_m3_lb12_p,0.533894277394
+inpc_m3_lb12_gl,           10
+inpc_m3_lb24, 19.134240844
+inpc_m3_lb24_p,0.637024930615
+inpc_m3_lb24_gl,           22
+inpc_m3_arch12,8.94248284231
+inpc_m3_arch12_p,0.707835164482
+inpc_m3_assim,0.928985153527
+inpc_m3_curt, 8.5267858085
 inpc_chi2_2_c5,5.99146454711
 inpc_chi2_12_c5,21.0260698175
-inpc_m1_out1_z,6.25971369448
+inpc_lb12_c5_m1,16.9189776046
+inpc_lb24_c5_m1,32.6705733409
+inpc_m1_out1_z,6.25971369449
 inpc_m1_out1_ano,         2002
 inpc_m1_out1_mes,           11
-inpc_m1_out2_z,-3.57187596217
+inpc_m1_out2_z,-3.57187596212
 inpc_m1_out2_ano,         2022
 inpc_m1_out2_mes,            7
-inpc_m1_out3_z,3.51621944903
+inpc_m1_out3_z,3.51621944904
 inpc_m1_out3_ano,         2025
 inpc_m1_out3_mes,            2
+inpc_desc_ar1_aic,234.325525465
+inpc_desc_ar1_lb12,20.2375910652
+inpc_desc_ar1_lb12_p,0.0421868104954
+inpc_desc_ar2_aic,235.987449571
+inpc_desc_ar2_lb12,19.6131863874
+inpc_desc_ar2_lb12_p,0.0331310243014
+inpc_desc_arma11_aic,236.026091497
+inpc_desc_arma11_lb12,19.7055236275
+inpc_desc_arma11_lb12_p,0.0321642390828
+inpc_desc_ma1_aic,285.183525803
+inpc_desc_ma1_lb12, 90.164637444
+inpc_desc_ma1_lb12_p,1.54321000423e-14
+inpc_sobre_ar2,0.0389583170891
+inpc_sobre_ar2_ep,0.0570081741847
+inpc_sobre_ar2_t,0.683381245694
+inpc_sobre_ar2_p,0.494365967577
+inpc_sobre_ar2_aic,223.133606141
+inpc_sobre_ar2_lr_p,0.495002799651
+inpc_sobre_ma1,-0.0568898211507
+inpc_sobre_ma1_ep,0.0870848708068
+inpc_sobre_ma1_t,-0.65326870929
+inpc_sobre_ma1_p,0.513583061283
+inpc_sobre_ma1_aic,223.170790334
+inpc_sobre_ma1_lr_p,0.512750777358
+inpc_sd_ma1,-0.999996764119
+inpc_sd_ma1_ep,0.0139818803083
+inpc_sd_raiz_ma,1.00000323589
+inpc_sd_o1_sigma2,0.114199003028
+inpc_sd_o0_sigma2,0.132605316551
+inpc_sd_o1_var_pct,0.244362625683
+inpc_sd_o0_var_pct,16.4015016416
+inpc_sd_n,          320
+inpc_sd_o1_aic,224.606030032
+inpc_sd_fac1_m1,-0.0221570936376
+inpc_sd_fac1_o0,-0.0251901224259
+inpc_sd_fac1_o1,-0.0294710599707
+inpc_sd_fac1_dy,-0.208707858073
+inpc_sd_fac1_dy_teoria,-0.186152187146
+inpc_sd_var_y,0.197312618769
+inpc_sd_var_dy,0.147024332876
+inpc_sd_o0_lb12_p,0.00142180208307
+inpc_H,           24
+inpc_T0,          297
+inpc_t0_ano,         2024
+inpc_t0_mes,            9
+inpc_m1_t0_ar1,0.660054971674
+inpc_m2_t0_ar1,0.650845462405
+inpc_m3_t0_ar1,0.650097095233
+inpc_e1_m1_rmse,0.363627644329
+inpc_e1_m1_mae,0.292572316386
+inpc_e1_m1_mape,369.499098039
+inpc_e2_m1_rmse,0.409959935607
+inpc_e2_m1_mae,0.293419449322
+inpc_e2_m1_mape, 237.50972859
+inpc_e1_m2_rmse,0.390230247491
+inpc_e1_m2_mae,0.306190645097
+inpc_e1_m2_mape,426.553062672
+inpc_e2_m2_rmse,0.416014569863
+inpc_e2_m2_mae,0.303158464655
+inpc_e2_m2_mape,264.593083309
+inpc_e1_m3_rmse,0.396341668161
+inpc_e1_m3_mae,0.310100102545
+inpc_e1_m3_mape,433.788874868
+inpc_e2_m3_rmse,0.421309560894
+inpc_e2_m3_mae,0.306946083079
+inpc_e2_m3_mape,269.578541054
+inpc_e1_rw_rmse,0.39932755978
+inpc_e1_rw_mae,      0.30875
+inpc_e1_rw_mape,411.534416222
+inpc_e2_rw_rmse,0.516058782182
+inpc_e2_rw_mae,0.361666666667
+inpc_e2_rw_mape,210.619458629
+inpc_e1_sn_rmse,0.317037064079
+inpc_e1_sn_mae,0.247083333333
+inpc_e1_sn_mape,183.717037958
+inpc_e2_sn_rmse,0.366458274114
+inpc_e2_sn_mae,         0.29
+inpc_e2_sn_mape,269.251599238
+inpc_val_n_zero,            1
+inpc_val_n_mape,           23
+inpc_val_min_abs_nz,         0.01
+inpc_e1_m1_cob,95.8333333333
+inpc_e1_m1_fora,            1
+inpc_e1_m2_cob,95.8333333333
+inpc_e1_m2_fora,            1
+inpc_e1_m3_cob,95.8333333333
+inpc_e1_m3_fora,            1
+inpc_dm_m1_sn,0.520494918253
+inpc_dm_m1_sn_p,0.607693389461
+inpc_dm_m1_rw,-2.11428494453
+inpc_dm_m1_rw_p,0.0455416197213
+inpc_dm_m1_m2,-0.66220970859
+inpc_dm_m1_m2_p,0.514418021031
 inpc_ols_phi,0.611429956584
 inpc_chow_f,3.14430012048
 inpc_chow_p,0.00020154949988
@@ -179,94 +316,27 @@ inpc_cusum_stat,0.582344711304
 inpc_cusum_p,0.448040471515
 inpc_rec_phi_min,0.611429956584
 inpc_rec_phi_max,0.787433102567
-inpc_m1_h1_rmse,0.371172879901
-inpc_m1_h1_mad,0.272712734289
-inpc_m1_h1_mase,0.669158515738
-inpc_n_h1,           36
-inpc_m1_h3_rmse,0.346863412944
-inpc_m1_h3_mad,0.27578143955
-inpc_m1_h3_mase,0.676688234739
-inpc_n_h3,           34
-inpc_m1_h12_rmse,0.345502011066
-inpc_m1_h12_mad,0.277759220558
-inpc_m1_h12_mase,0.681541139784
-inpc_n_h12,           25
-inpc_m2_h1_rmse,0.373763642236
-inpc_m2_h1_mad,0.276551200657
-inpc_m2_h1_mase,0.678577006826
-inpc_m2_h3_rmse,0.363895219101
-inpc_m2_h3_mad,0.290865178195
-inpc_m2_h3_mase,0.713699385648
-inpc_m2_h12_rmse,0.366655332055
-inpc_m2_h12_mad,0.285882747235
-inpc_m2_h12_mase,0.701473934884
-inpc_m3_h1_rmse,0.402281498599
-inpc_m3_h1_mad,0.286484936896
-inpc_m3_h1_mase,0.702951534896
-inpc_m3_h3_rmse,0.370744504031
-inpc_m3_h3_mad,0.29591562363
-inpc_m3_h3_mase,0.726091724349
-inpc_m3_h12_rmse,0.386023294106
-inpc_m3_h12_mad,0.313744541854
-inpc_m3_h12_mase,0.769838755402
-inpc_sn_h1_rmse,0.34127212993
-inpc_sn_h1_mad,0.277777777778
-inpc_sn_h1_mase,0.681586673857
-inpc_sn_h3_rmse,0.342649709659
-inpc_sn_h3_mad,0.275588235294
-inpc_sn_h3_mase,0.676214167134
-inpc_sn_h12_rmse,0.366600600109
-inpc_sn_h12_mad,       0.2932
-inpc_sn_h12_mase,0.71942836599
-inpc_med_h1_rmse,0.375939769109
-inpc_med_h1_mad,0.29229089368
-inpc_med_h1_mase,0.717197680879
-inpc_med_h3_rmse,0.374490640127
-inpc_med_h3_mad,0.285697236939
-inpc_med_h3_mase,0.701018746041
-inpc_med_h12_rmse,0.399114235403
-inpc_med_h12_mad,0.305740171908
-inpc_med_h12_mase,0.750198336606
-inpc_q_mase,0.407545787546
-inpc_n_zero_teste,            1
-inpc_n_perto_zero_teste,            5
-inpc_dm_m1_m2,-0.320400372461
-inpc_dm_m1_m2_p,0.750569949897
-inpc_dm_m1_m3,-1.55470343612
-inpc_dm_m1_m3_p,0.129013754443
-inpc_dm_m2_m3,-1.5663945173
-inpc_dm_m2_m3_p,0.126254098775
-inpc_dm_m1_sn,0.494037396566
-inpc_dm_m1_sn_p,0.624366222489
-inpc_dm_m1_med,-0.106745305979
-inpc_dm_m1_med_p,0.915600556927
-inpc_m1_winkler,2.04592567124
-inpc_m1_cobertura,94.4444444444
-inpc_m2_winkler,2.09091976092
-inpc_m2_cobertura,94.4444444444
-inpc_m3_winkler,2.32002587853
-inpc_m3_cobertura,91.6666666667
-inpc_m1_prev1,0.671240127576
-inpc_m1_prev1_li,0.0097105481425
-inpc_m1_prev1_ls,1.33276970701
-inpc_m1_prev12_acum,6.32452035244
+inpc_m1_prev1,0.671240127583
+inpc_m1_prev1_li,0.00971054815001
+inpc_m1_prev1_ls,1.33276970702
+inpc_m1_prev12_acum,6.32452035236
 inpc_m2_prev1,0.602019211991
-inpc_m2_prev1_li,-0.0636531541685
+inpc_m2_prev1_li,-0.0636531541687
 inpc_m2_prev1_ls,1.26769157815
 inpc_m2_prev12_acum, 6.3449698506
-inpc_m3_prev1,0.783424120316
-inpc_m3_prev1_li,0.117966353904
-inpc_m3_prev1_ls,1.44888188673
-inpc_m3_prev12_acum,6.92576688021
-inpc_m1_prev_h01,0.671240127576
-inpc_m1_prev_h02,0.54433868545
-inpc_m1_prev_h03,0.599298915225
-inpc_m1_prev_h04,0.498550802476
-inpc_m1_prev_h05,0.699175328864
-inpc_m1_prev_h06,0.61660510225
-inpc_m1_prev_h07,0.556753599648
-inpc_m1_prev_h08,0.506122406213
-inpc_m1_prev_h09,0.385611232269
-inpc_m1_prev_h10,0.327414125724
-inpc_m1_prev_h11,0.226658495723
-inpc_m1_prev_h12,0.517566262084
+inpc_m3_prev1,0.614636507289
+inpc_m3_prev1_li,-0.0535542882155
+inpc_m3_prev1_ls,1.28282730279
+inpc_m3_prev12_acum,6.43871971117
+inpc_m1_prev_h01,0.671240127583
+inpc_m1_prev_h02,0.544338685451
+inpc_m1_prev_h03,0.599298915234
+inpc_m1_prev_h04,0.498550802472
+inpc_m1_prev_h05,0.699175328863
+inpc_m1_prev_h06,0.616605102247
+inpc_m1_prev_h07,0.556753599636
+inpc_m1_prev_h08,0.506122406201
+inpc_m1_prev_h09,0.385611232258
+inpc_m1_prev_h10,0.327414125707
+inpc_m1_prev_h11,0.226658495708
+inpc_m1_prev_h12,0.517566262065

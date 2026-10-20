@@ -132,7 +132,8 @@ if (dir.exists(file.path(RAIZ, ".git"))) {
 # arrastados para dentro de materiais/ no Obsidian) — some do git no próximo commit
 if (dir.exists(file.path(RAIZ, ".git"))) {
   st <- tryCatch(system2("git", c("status", "--porcelain"), stdout = TRUE), error = function(e) character(0))
-  sumidos <- sub("^\\s*D\\s+", "", grep("^\\s*D\\s", st, value = TRUE))
+  # só a coluna da árvore de trabalho (" D"): "D " é remoção já registrada com git rm
+  sumidos <- sub("^.D\\s+", "", grep("^.D\\s", st, value = TRUE))
   if (length(sumidos)) {
     E("%d arquivo(s) versionado(s) sumiram do diretório — foram movidos para fora do repo?", length(sumidos))
     for (p in utils::head(sumidos, 8)) E("   sumiu: %s", p)

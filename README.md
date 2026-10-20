@@ -15,7 +15,7 @@ aliases:
 Material de estudo da **primeira parte** de Econometria II (PPGEco/UFES, 2026, Prof. Guilherme Pereira): processos ARMA, ARIMA e SARIMA. O repositório tem dois produtos:
 
 1. **A lista de exercícios resolvida.** São as 16 questões da lista "Processos ARMA, ARIMA e SARIMA", com a demonstração passo a passo e cada número conferido em R.
-2. **O trabalho em dupla.** É a modelagem Box-Jenkins do **INPC** mensal: identificação, estimação, diagnóstico, estabilidade e previsão, com relatório e código reprodutível.
+2. **O trabalho em dupla (Lista 01, avaliação parcial).** É a modelagem Box-Jenkins do **INPC** mensal, questão por questão: inspeção, raiz unitária, identificação, estimação, diagnóstico, sobrediferenciação e previsão fora da amostra, com relatório e código reprodutível.
 
 É o mesmo desenho do repositório de Econometria I: notas em Markdown compatíveis com o Obsidian (abra **a raiz do repositório** como cofre), scripts R que geram todos os números, testes e um build que confere nota contra R.
 
@@ -44,7 +44,7 @@ Para só o trabalho do INPC: `Rscript trabalho_inpc/inpc.R`. Para atualizar a s�
 
 | Para… | Abra |
 |---|---|
-| **Fazer o trabalho em dupla** | [trabalho_inpc/](trabalho_inpc/README.md): roteiro, [relatório](trabalho_inpc/relatorio.md) e [código](trabalho_inpc/inpc.R) |
+| **Fazer o trabalho em dupla (Lista 01)** | [trabalho_inpc/](trabalho_inpc/README.md): roteiro, [relatório](trabalho_inpc/relatorio.md) e [código](trabalho_inpc/inpc.R) |
 | Entender a lógica e a ordem de estudo | [PLANO_ESTUDO.md](PLANO_ESTUDO.md) |
 | Revisar fórmulas | [formulario/formulario.md](formulario/formulario.md) |
 | Estudar no papel | `caderno/`: três volumes em PDF (ver [caderno/README.md](caderno/README.md)) |
@@ -82,12 +82,12 @@ Para só o trabalho do INPC: `Rscript trabalho_inpc/inpc.R`. Para atualizar a s�
 | 15 | Previsão ARMA | $E(\cdot\mid\mathcal F_T)$; erro MA($h-1$); ARIMA(0,1,1) = SES com $\alpha=1-\theta$ |
 | 16 | SARIMA(1,1,1)(0,1,1)$_{12}$ | 4 parâmetros; FAC com grupo 11-12-13; BIC ou LR |
 
-## O trabalho do INPC em quatro linhas
+## O trabalho do INPC (Lista 01) em quatro linhas
 
-1. O log do índice é I(1), e a variação mensal é I(0): ADF e KPSS concordam.
-2. A FAC e a FACP apontam para um AR(1) com sazonalidade de 12 meses. O AIC escolhe o SARIMA(1,0,0)(1,0,1)₁₂, e o BIC escolhe o SARIMA(1,0,0)(1,0,0)₁₂.
-3. Os resíduos são ruído branco e não têm efeito ARCH, mas não são normais: há choques de oferta. O teste de Chow indica quebra em mar/2020.
-4. Nenhum modelo bate o ingênuo sazonal de forma significativa (Diebold-Mariano). A previsão acumula cerca de 6,3% em out/2026–set/2027.
+1. A variação mensal é I(0), sem raiz unitária sazonal ($d=D=0$). ADF com constante, PP e KPSS concordam, e o log do índice é I(1).
+2. A FAC e a FACP apontam para um AR(1) com sazonalidade de 12 meses. O AIC escolhe o SARIMA(1,0,0)(1,0,1)₁₂, e o BIC escolhe o SARIMA(1,0,0)(1,0,0)₁₂. Fica o primeiro, porque o objetivo é prever.
+3. Os resíduos são ruído branco, sem ARCH, mas não normais. O sobreajuste não acrescenta nada, e uma diferença a mais leva o MA à raiz unitária.
+4. Nos 24 meses de validação, o modelo bate o passeio aleatório, mas não o ingênuo sazonal.
 
 Os detalhes estão em [trabalho_inpc/relatorio.md](trabalho_inpc/relatorio.md).
 
@@ -96,7 +96,7 @@ Os detalhes estão em [trabalho_inpc/relatorio.md](trabalho_inpc/relatorio.md).
 ```text
 series-temporais/
 ├── NN_tema/          módulo: NN_teoria.md, NN_lista.md, NN_tema.R, figuras/
-├── trabalho_inpc/    trabalho em dupla: inpc.R, relatorio.md, figuras/, grade e previsões em CSV
+├── trabalho_inpc/    Lista 01: inpc.R, relatorio.md, figuras/, dados usados, sessionInfo, grade e previsões em CSV
 ├── dados/            inpc.csv (IBGE/SIDRA, público)
 ├── formulario/       todas as fórmulas
 ├── caderno/          gera o caderno em PDF (pandoc + LuaLaTeX); o PDF fica fora do git
@@ -109,4 +109,4 @@ series-temporais/
 
 ## Estado atual
 
-Build completo passando em 20/10/2026 (dados até set/2026): **221 testes** do testthat, **7 scripts** executados, **365 números** das notas conferidos contra o R e lint sem erros.
+Build completo passando em 20/10/2026 (dados até set/2026): **221 testes** do testthat, **7 scripts** executados, **474 números** das notas conferidos contra o R e lint sem erros. O trabalho do INPC segue o enunciado da Lista 01, questão por questão.
