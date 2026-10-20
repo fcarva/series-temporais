@@ -14,8 +14,8 @@
 #
 # O que vai: todos os arquivos versionados (notas, figuras, scripts, dados), os PDFs
 # do caderno, se já tiverem sido gerados, e os PDFs de materiais/ (aulas, listas,
-# livros), se estiverem neste clone. Não vai: .git, materiais/_txt e arquivos de
-# configuração do repositório.
+# livros), se estiverem neste clone. Não vai: .git, materiais/_txt, .gitignore e
+# .gitattributes. O .repo-root vai, para os scripts R rodarem de dentro do cofre.
 # A cópia é um espelho: um manifesto (.exportado_do_repo.txt) lembra o que foi
 # exportado da última vez, e só esses arquivos são apagados se saírem do repositório.
 # Notas suas criadas na mesma pasta não são tocadas.
@@ -60,7 +60,7 @@ cat("Cofre:   ", cofre, "\nDestino: ", destino, "\n", sep = "")
 versionados <- tryCatch(system2("git", c("-C", shQuote(RAIZ), "ls-files"), stdout = TRUE),
                         error = function(e) character(0))
 if (!length(versionados)) stop("git ls-files não retornou nada: rode a partir do clone do repositório.")
-fora <- c(".gitattributes", ".gitignore", ".repo-root")
+fora <- c(".gitattributes", ".gitignore")  # .repo-root vai: os scripts R acham a raiz no cofre
 arquivos <- setdiff(versionados, fora)
 pdfs <- list.files(file.path(RAIZ, "caderno", "pdf"), pattern = "\\.pdf$")
 arquivos <- c(arquivos, if (length(pdfs)) file.path("caderno", "pdf", pdfs))
