@@ -1,0 +1,16 @@
+chave,valor
+m05_q15_dif_h1,            0
+m05_q15_dif_h2,            0
+m05_q15_dif_var,4.4408920985e-16
+m05_q15_var_h1,            1
+m05_q15_var_h2,         1.09
+m05_q15_var_h12,1.17640159139
+m05_q15_gamma0,1.17647058824
+m05_q15_psi1,          0.3
+m05_q15_ic_h1_meia,         1.96
+m05_q15_ic_h2_meia,2.04630007575
+m05_q15_alpha,          0.4
+m05_q15_ses_dif,2.22044604925e-16
+m05_q15_ses_const,            0
+m05_q15_peso0,          0.4
+m05_q15_peso3,       0.0864

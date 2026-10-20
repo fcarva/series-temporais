@@ -1,0 +1,37 @@
+chave,valor
+m03_q9_var_w,         1.25
+m03_q9_var_w_formula,         1.25
+m03_q9_var_y,       1.5625
+m03_q9_rho1_w,         -0.2
+m03_q9_rho1_w_formula,         -0.2
+m03_q9_raiz_ma,            1
+m03_q9_pi_j,         -0.4
+m03_q9_mc_n,          500
+m03_q9_mc_frac_099,        0.628
+m03_q9_mc_media_theta,0.933550195407
+m03_q10_coef_b1,          1.5
+m03_q10_coef_b2,         -0.5
+m03_q10_rho1_dif_sim,-0.495374451611
+m03_q11_g0,       1.5625
+m03_q11_g0_formula,       1.5625
+m03_q11_rho4,          0.6
+m03_q11_rho8,         0.36
+m03_q11_rho12,        0.216
+m03_q11_rho_nao_mult,            0
+m03_q11_facp4,          0.6
+m03_q11_facp_outros,            0
+m03_q11_ar5_c1,          0.5
+m03_q11_ar5_c2,-7.40148683083e-17
+m03_q11_ar5_c3,1.85037170771e-17
+m03_q11_ar5_c4,          0.6
+m03_q11_ar5_c5,         -0.3
+m03_q11_ar5_c5_formula,         -0.3
+m03_q12_c1,          1.4
+m03_q12_c2,         -0.4
+m03_q12_c3,           -0
+m03_q12_c4,            1
+m03_q12_c5,         -1.4
+m03_q12_c6,          0.4
+m03_q12_perda,            5
+m03_q12_dif_max_predict,7.73070496507e-12
+m03_q12_n_par,            3

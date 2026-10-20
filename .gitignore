@@ -1,0 +1,20 @@
+# Material de terceiros e pessoal: NUNCA versionar (repo público)
+materiais/
+*.pdf
+*.PDF
+*.jpg
+*.jpeg
+
+# Obsidian (abra a raiz do repo como cofre)
+.obsidian/
+.trash/
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+Rplots.pdf
+
+# Sistema
+Thumbs.db
+desktop.ini

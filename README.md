@@ -1,0 +1,109 @@
+---
+title: "Econometria II — séries temporais"
+disciplina: Econometria II (PPGEco/UFES)
+professor: Guilherme Pereira
+periodo: 2026
+tags:
+  - series-temporais
+  - mestrado/ppgeco
+aliases:
+  - Séries temporais — repositório
+---
+
+# Econometria II: séries temporais
+
+Material de estudo da **primeira parte** de Econometria II (PPGEco/UFES, 2026, Prof. Guilherme Pereira): processos ARMA, ARIMA e SARIMA. O repositório tem dois produtos:
+
+1. **A lista de exercícios resolvida.** São as 16 questões da lista "Processos ARMA, ARIMA e SARIMA", com a demonstração passo a passo e cada número conferido em R.
+2. **O trabalho em dupla.** É a modelagem Box-Jenkins do **INPC** mensal: identificação, estimação, diagnóstico, estabilidade e previsão, com relatório e código reprodutível.
+
+É o mesmo desenho do repositório de Econometria I: notas em Markdown compatíveis com o Obsidian (abra **a raiz do repositório** como cofre), scripts R que geram todos os números, testes e um build que confere nota contra R.
+
+> [!IMPORTANT]
+> **Material de terceiros fica fora do git**
+> Aulas, lista e livros moram em `materiais/`, que está no `.gitignore`: o repositório é público. As notas citam os materiais por id (`AU02`, `LST`, `MAT`). Ver [MATERIAIS_INDEX.md](MATERIAIS_INDEX.md).
+
+## Início rápido
+
+Linux ou macOS, da raiz:
+
+```bash
+Rscript R/00_setup.R          # instala forecast, tseries, urca, lmtest, strucchange, testthat, jsonlite
+bash scripts/build.sh         # testes, todos os scripts, conferência dos números e lint
+```
+
+Windows:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\build.ps1
+```
+
+Para só o trabalho do INPC: `Rscript trabalho_inpc/inpc.R`. Para atualizar a série com o último mês do IBGE: `Rscript scripts/baixar_inpc.R` e, depois, o build. Ele aponta quais números do relatório mudaram.
+
+## Como estudar
+
+| Para… | Abra |
+|---|---|
+| **Fazer o trabalho em dupla** | [trabalho_inpc/](trabalho_inpc/README.md): roteiro, [relatório](trabalho_inpc/relatorio.md) e [código](trabalho_inpc/inpc.R) |
+| Entender a lógica e a ordem de estudo | [PLANO_ESTUDO.md](PLANO_ESTUDO.md) |
+| Revisar fórmulas | [formulario/formulario.md](formulario/formulario.md) |
+| Saber qual sinal usar no MA | [CONVENCOES.md](CONVENCOES.md) §2 |
+| Achar um exercício | o mapa abaixo |
+
+## Mapa da lista (16 questões)
+
+| Bloco da lista | Questões | Módulo | Resolução | Teoria |
+|---|---|---|---|---|
+| 1. Processos, estacionariedade e momentos | Q1–Q4 | 01 | [01_lista](01_processos_estacionariedade/01_lista.md) | [01_teoria](01_processos_estacionariedade/01_teoria.md) |
+| 2. AR, MA e ARMA | Q5–Q8 | 02 | [02_lista](02_arma/02_lista.md) | [02_teoria](02_arma/02_teoria.md) |
+| 3. Integrados, ARIMA e SARIMA | Q9–Q12 | 03 | [03_lista](03_arima_sarima/03_lista.md) | [03_teoria](03_arima_sarima/03_teoria.md) |
+| 4. Identificação, estimação e diagnóstico | Q13–Q14 | 04 | [04_lista](04_estimacao_selecao/04_lista.md) | na própria nota |
+| 5. Previsão | Q15 | 05 | [05_lista](05_previsao/05_lista.md) | na própria nota |
+| 6. Aplicações | Q16 | 06 | [06_lista](06_aplicacao_sarima/06_lista.md) | — |
+
+| Q | Em uma linha | Resposta-chave |
+|---|---|---|
+| 1 | Momentos do passeio com drift | $E=10+ct$, $\operatorname{Var}=t\sigma^2$, $\operatorname{Cov}=(t-k)\sigma^2$: não estacionário |
+| 2 | Passeio com drift e tendência | média quadrática, mesma variância; $\Delta$ e depois tirar a tendência |
+| 3 | FAC de $z_1+2z_2$ | $\gamma=(9{,}70;\ -5{,}52;\ 1{,}20;\ 0,\dots)$: MA(2) |
+| 4 | Wold | AR(1): $\psi_j=\phi^j$; invertibilidade ⇒ AR($\infty$) convergente |
+| 5 | Três modelos em $B$ | AR(1); MA(2) invertível; o terceiro é um **MA(1) disfarçado** (fator comum) |
+| 6 | ARMA(1,1) | $\rho_k=\phi^{k-1}\rho_1$; $\psi_j=(\phi-\theta)\phi^{j-1}$, $\pi_j=(\phi-\theta)\theta^{j-1}$ |
+| 7 | AR(2) | $\rho_1=\phi_1/(1-\phi_2)$; $\gamma_0$ fechado |
+| 8 | V ou F | V, F, F, F, F |
+| 9 | Sobrediferenciação | $(1-\phi B)w_t=(1-B)\varepsilon_t$: MA não invertível |
+| 10 | ARIMA × tendência determinística | DS × TS; diferenciar TS cria MA(1) com $\theta=1$ |
+| 11 | SAR(1)$_4$ | FAC só em $4m$; o multiplicativo é um AR(5) com 3 restrições |
+| 12 | SARIMA(1,1,0)(0,1,1)$_4$ | perde 5 obs.; equações de previsão; o MA some a partir de $h=5$ |
+| 13 | MV condicional do AR(1) | é o MQO |
+| 14 | AIC e BIC | os dois escolhem o ARMA(1,1); BIC consistente, AIC eficiente |
+| 15 | Previsão ARMA | $E(\cdot\mid\mathcal F_T)$; erro MA($h-1$); ARIMA(0,1,1) = SES com $\alpha=1-\theta$ |
+| 16 | SARIMA(1,1,1)(0,1,1)$_{12}$ | 4 parâmetros; FAC com grupo 11-12-13; BIC ou LR |
+
+## O trabalho do INPC em quatro linhas
+
+1. O log do índice é I(1), e a variação mensal é I(0): ADF e KPSS concordam.
+2. A FAC e a FACP apontam para um AR(1) com sazonalidade de 12 meses. O AIC escolhe o SARIMA(1,0,0)(1,0,1)₁₂, e o BIC escolhe o SARIMA(1,0,0)(1,0,0)₁₂.
+3. Os resíduos são ruído branco e não têm efeito ARCH, mas não são normais: há choques de oferta. O teste de Chow indica quebra em mar/2020.
+4. Nenhum modelo bate o ingênuo sazonal de forma significativa (Diebold-Mariano). A previsão acumula cerca de 6,3% em out/2026–set/2027.
+
+Os detalhes estão em [trabalho_inpc/relatorio.md](trabalho_inpc/relatorio.md).
+
+## Estrutura
+
+```text
+series-temporais/
+├── NN_tema/          módulo: NN_teoria.md, NN_lista.md, NN_tema.R, figuras/
+├── trabalho_inpc/    trabalho em dupla: inpc.R, relatorio.md, figuras/, grade e previsões em CSV
+├── dados/            inpc.csv (IBGE/SIDRA, público)
+├── formulario/       todas as fórmulas
+├── R/                helpers (raiz, resultados, estilo gráfico, séries: pesos, raízes, FAC teórica)
+├── tests/testthat/   identidades da teoria conferidas contra o R
+├── scripts/          build.sh, build.ps1, run_all, check_numbers, lint, baixar_inpc
+├── resultados/       números gerados pelos scripts (conferidos contra as notas)
+└── materiais/        (fora do git) aulas, lista, livros, texto extraído
+```
+
+## Estado atual
+
+Build completo passando em 20/10/2026 (dados até set/2026): **221 testes** do testthat, **7 scripts** executados, **365 números** das notas conferidos contra o R e lint sem erros.
