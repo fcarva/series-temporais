@@ -111,4 +111,4 @@ series-temporais/
 
 ## Estado atual
 
-Build completo passando em 20/10/2026 (dados até set/2026): **229 testes** do testthat, **8 scripts** executados, **556 números** das notas conferidos contra o R e lint sem erros. O trabalho do INPC segue o enunciado da Lista 01, questão por questão.
+Build completo passando em 20/10/2026 (dados até set/2026): **229 testes** do testthat, **8 scripts** executados, **648 números** das notas conferidos contra o R e lint sem erros. O trabalho do INPC segue o enunciado da Lista 01, questão por questão.

@@ -40,6 +40,8 @@ O MA está na convenção **Box-Jenkins**, $\theta(B)=1-\theta_1B-\cdots$, salvo
 - **AR(2):** $\phi_1+\phi_2\lt1$, $\phi_2-\phi_1\lt1$ e $\lvert\phi_2\rvert\lt1$.
 - **MA(1):** $\lvert\rho_1\rvert\le\frac12$.
 - **Média e constante:** $c=(1-\sum\phi_i)\mu$.
+- **Equação de diferenças (D02.4):** $y_{t+1}+ay_t=c$ dá $y_t=(y_0-\frac{c}{1+a})(-a)^t+\frac{c}{1+a}$, estável se $\lvert a\rvert\lt1$. No AR(2), raízes características complexas dão um ciclo de período $2\pi/\omega$, com $\cos\omega=\phi_1/(2\sqrt{-\phi_2})$.
+- **Banda da FAC (D02.5):** $\pm1{,}96/\sqrt T$ vale para ruído branco. Num MA($q$) e $k\gt q$, use $\operatorname{Var}(\widehat\rho_k)\approx(1+2\sum_{j\le q}\rho_j^2)/T$.
 
 ## Integração e sazonalidade
 
@@ -54,6 +56,8 @@ O MA está na convenção **Box-Jenkins**, $\theta(B)=1-\theta_1B-\cdots$, salvo
 - **ADF:** $\Delta y_t=\alpha+\beta t+\gamma y_{t-1}+\sum\delta_i\Delta y_{t-i}+e_t$, com $H_0:\gamma=0$.
 - **Críticos assintóticos de 5%:** −1,95 sem determinísticos, −2,86 com constante e −3,41 com constante e tendência.
 - **KPSS:** $H_0$ é estacionariedade.
+- **Poder (D03.3):** com $\phi=0{,}95$ e $T=100$, o DF rejeita só uma vez em oito. Não rejeitar não é aceitar a raiz unitária: cruze com o KPSS.
+- **Quebra de nível (D03.4):** ignorada, ela empurra o ADF para "raiz unitária". Com a data conhecida, ponha a dummy na regressão e use o crítico próprio.
 
 ## Estimação e seleção
 
@@ -81,6 +85,8 @@ O MA está na convenção **Box-Jenkins**, $\theta(B)=1-\theta_1B-\cdots$, salvo
 - **ARIMA(0,1,1) = SES:** $y_{T+1\mid T}=(1-\theta)y_T+\theta y_{T\mid T-1}$, com $\alpha=1-\theta$.
 - **MASE:** $\frac{1}{n}\sum\lvert e_t\rvert/Q$, com $Q=\frac{1}{T_{tr}-m}\sum\lvert y_t-y_{t-m}\rvert$.
 - **Winkler:** $W=(u-\ell)+\frac{2}{\alpha}(\ell-y)\mathbf 1\{y\lt\ell\}+\frac{2}{\alpha}(y-u)\mathbf 1\{y\gt u\}$.
+- **CRPS da normal (D05.2):** $\sigma\big[z(2\Phi(z)-1)+2\varphi(z)-1/\sqrt\pi\big]$, com $z=(y-\mu)/\sigma$; com $\sigma\to0$, vira $\lvert y-\mu\rvert$.
+- **Christoffersen:** $\text{LR}_{cc}=\text{LR}_{uc}+\text{LR}_{ind}\sim\chi^2_2$. A taxa de violações certa não basta: elas também têm de ser independentes.
 
 ## Regressão dinâmica (AU06)
 
