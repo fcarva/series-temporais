@@ -14,3 +14,25 @@ m05_q15_ses_dif,2.22044604925e-16
 m05_q15_ses_const,            0
 m05_q15_peso0,          0.4
 m05_q15_peso3,       0.0864
+m05_crps_larga,0.46738995451
+m05_crps_deslocada,1.45279182169
+m05_crps_calibrada,0.116847488628
+m05_crps_pontual,0.399999994358
+m05_chr_iid_taxa,            4
+m05_chr_iid_uc,1.12670582004
+m05_chr_iid_ind,1.67063175628
+m05_chr_iid_cc,2.79733757632
+m05_chr_iid_p11,            0
+m05_chr_iid_p_uc,0.288479085699
+m05_chr_iid_p_ind,0.196173937289
+m05_chr_iid_p_cc,0.246925455337
+m05_chr_mk_taxa,          4.8
+m05_chr_mk_uc,0.0426480503612
+m05_chr_mk_ind, 33.621496142
+m05_chr_mk_cc,33.6641441924
+m05_chr_mk_p11,0.416666666667
+m05_chr_mk_p_uc,0.836389395666
+m05_chr_mk_p_ind,6.69487623913e-09
+m05_chr_mk_p_cc,4.89693083052e-08
+m05_chr_n,          500
+m05_chr_mk_estac, 4.7619047619

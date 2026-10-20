@@ -57,6 +57,69 @@ $$\boxed{y_{T+h\mid T}=E(y_{T+h}\mid\mathcal F_T)\ \text{é o previsor de mínim
 
 ---
 
+### D05.2 · Avaliar a distribuição prevista: CRPS e os testes de Christoffersen
+
+> [!NOTE]
+> **O que se quer provar**
+> - (a) O CRPS, $\int_{-\infty}^{\infty}\big[F_t(x)-\mathbf 1\{x\ge y_t\}\big]^2dx$, tem forma fechada quando a previsão é normal. Ele pune ao mesmo tempo o erro de localização e a dispersão, e vira o erro absoluto quando a previsão é um ponto (AU03).
+> - (b) A cobertura certa "na média" não basta: os testes de Christoffersen (1998) separam a taxa de violações (LR$_{uc}$) da independência delas (LR$_{ind}$).
+
+**Passo a passo.**
+
+1. **CRPS da normal.** Com $F_t=N(\mu,\sigma^2)$ e $z=(y-\mu)/\sigma$, integrar o quadrado da diferença entre as duas funções de distribuição dá
+   $$\text{CRPS}=\sigma\Big[z\big(2\Phi(z)-1\big)+2\varphi(z)-\tfrac{1}{\sqrt\pi}\Big].$$
+   Conferimos contra a integral numérica em [05_previsao.R](05_previsao.R).
+2. **O caso pontual.** Com $\sigma\to0$, $F_t$ vira um degrau em $\mu$, a área entre os dois degraus é $\lvert y-\mu\rvert$, e o CRPS vira o **erro absoluto**. Para $\mu=1{,}4$ e $y=1$, o CRPS dá 0,40. É por isso que o CRPS se lê na unidade da variável, como o MAE.
+3. **Três previsões para o mesmo $y=1$:**
+   - **larga**, $N(1,2^2)$: centrada, mas dispersa demais. CRPS = 0,467;
+   - **deslocada**, $N(3,1)$: estreita, mas no lugar errado. CRPS = 1,453;
+   - **calibrada e afiada**, $N(1;0{,}5^2)$: CRPS = 0,117.
+
+   O CRPS ordena as três como se espera, e premia quem é preciso **e** está no lugar certo.
+4. **As violações.** Seja $I_t=1$ se $y_t$ cai fora do IC de $95\%$, com $p=0{,}05$ nominal e $\widehat\pi=n_1/n$ a taxa observada.
+   - **Cobertura incondicional:** $\text{LR}_{uc}=-2\ln\frac{(1-p)^{n_0}p^{n_1}}{(1-\widehat\pi)^{n_0}\widehat\pi^{n_1}}\sim\chi^2_1$.
+   - **Independência:** modele $I_t$ como cadeia de Markov, com $\pi_{01}=P(I_t=1\mid I_{t-1}=0)$ e $\pi_{11}=P(I_t=1\mid I_{t-1}=1)$. Compare com a cadeia restrita, $\pi_{01}=\pi_{11}$: $\text{LR}_{ind}\sim\chi^2_1$.
+   - **Cobertura condicional:** $\text{LR}_{cc}=\text{LR}_{uc}+\text{LR}_{ind}\sim\chi^2_2$.
+5. **Dois intervalos simulados, com $n=500$:**
+
+   | Violações | Taxa | LR$_{uc}$ (p) | LR$_{ind}$ (p) | LR$_{cc}$ (p) | $\widehat\pi_{11}$ |
+   |---|---|---|---|---|---|
+   | i.i.d., $P=0{,}05$ | 4,0% | 1,13 (0,29) | 1,67 (0,20) | 2,80 (0,25) | 0 |
+   | em blocos: $P(1\mid0)=0{,}03$, $P(1\mid1)=0{,}40$ | 4,8% | 0,04 (0,84) | 33,62 (0,0000) | 33,66 (0,0000) | 0,417 |
+
+   A cadeia em blocos tem taxa estacionária $0{,}03/(0{,}03+0{,}60)=4{,}76\%$. Ela passa no teste de cobertura incondicional, mas **reprova** na independência: depois de uma violação, a chance de outra é de 42%, e não 5%. É o padrão de um intervalo que não acompanha a volatilidade: erra várias vezes seguidas nos períodos agitados.
+
+$$\boxed{\text{CRPS}\xrightarrow{\sigma\to0}\lvert y-\mu\rvert;\qquad \text{LR}_{cc}=\text{LR}_{uc}+\text{LR}_{ind}\sim\chi^2_2}$$
+
+O Winkler e o CRPS **ordenam** modelos. Os testes de Christoffersen **testam a calibração** de um modelo só. No [INPC](../trabalho_inpc/relatorio.md), Questão 7g, as 24 observações de validação têm 1 violação, poucas demais para testar a independência: com $n_1=1$, $\widehat\pi_{11}$ nem é estimável.
+
+<!-- conferência numérica
+| chave_R | nota |
+|---|---|
+| m05_crps_pontual | 0,40 |
+| m05_crps_larga | 0,467 |
+| m05_crps_deslocada | 1,453 |
+| m05_crps_calibrada | 0,117 |
+| m05_chr_n | 500 |
+| m05_chr_iid_taxa | 4,0 |
+| m05_chr_iid_uc | 1,13 |
+| m05_chr_iid_p_uc | 0,29 |
+| m05_chr_iid_ind | 1,67 |
+| m05_chr_iid_p_ind | 0,20 |
+| m05_chr_iid_cc | 2,80 |
+| m05_chr_iid_p_cc | 0,25 |
+| m05_chr_iid_p11 | 0 |
+| m05_chr_mk_taxa | 4,8 |
+| m05_chr_mk_uc | 0,04 |
+| m05_chr_mk_p_uc | 0,84 |
+| m05_chr_mk_ind | 33,62 |
+| m05_chr_mk_p_ind | 0,0000 |
+| m05_chr_mk_cc | 33,66 |
+| m05_chr_mk_p_cc | 0,0000 |
+| m05_chr_mk_p11 | 0,417 |
+| m05_chr_mk_estac | 4,76 |
+-->
+
 ## Q15 — Previsão em ARMA($p,q$) estacionário e invertível
 
 **(a)** É a D05.1. A estacionariedade garante momentos finitos. A invertibilidade garante que $\mathcal F_T=\sigma(y_T,y_{T-1},\dots)$ contém os $a_T,a_{T-1},\dots$, que são então conhecidos em $T$.

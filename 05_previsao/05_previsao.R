@@ -52,4 +52,49 @@ salvar_figura(file.path(FIG, "m05_q15_leque"), function() {
                    fonte = "cálculo teórico", obs = "pontilhado = limite de longo prazo do intervalo")
 })
 
+## ---- D05.x: CRPS e testes de Christoffersen (AU03, p. 56-60) ----------------------
+set.seed(2026)
+# CRPS de uma previsão N(mu, sigma^2) para o observado y: forma fechada (Gneiting e Raftery)
+crps_normal <- function(mu, sigma, y) {
+  z <- (y - mu) / sigma
+  sigma * (z * (2 * stats::pnorm(z) - 1) + 2 * stats::dnorm(z) - 1 / sqrt(pi))
+}
+crps_integral <- function(mu, sigma, y) {
+  f <- function(x) (stats::pnorm(x, mu, sigma) - (x >= y))^2
+  stats::integrate(f, -Inf, y)$value + stats::integrate(f, y, Inf)$value
+}
+casos <- list(larga = c(1, 2), deslocada = c(3, 1), calibrada = c(1, 0.5))
+for (nm in names(casos)) {
+  m <- casos[[nm]][1]; s <- casos[[nm]][2]
+  registrar(sprintf("m05_crps_%s", nm), crps_normal(m, s, 1))
+  stopifnot(abs(crps_normal(m, s, 1) - crps_integral(m, s, 1)) < 1e-6)
+}
+# previsão pontual perfeita (sigma -> 0): CRPS vira o erro absoluto
+registrar("m05_crps_pontual", crps_normal(1.4, 1e-8, 1))
+
+# Christoffersen (1998): violações I_t = 1{y_t fora do IC}; p = 0,05 nominal
+christoffersen <- function(I, p = 0.05) {
+  n1 <- sum(I); n0 <- length(I) - n1; pih <- n1 / length(I)
+  lr_uc <- -2 * ((n0 * log(1 - p) + n1 * log(p)) - (n0 * log(1 - pih) + n1 * log(pih)))
+  a <- I[-length(I)]; b <- I[-1]
+  n00 <- sum(a == 0 & b == 0); n01 <- sum(a == 0 & b == 1); n10 <- sum(a == 1 & b == 0); n11 <- sum(a == 1 & b == 1)
+  p01 <- n01 / (n00 + n01); p11 <- n11 / (n10 + n11); p2 <- (n01 + n11) / (n00 + n01 + n10 + n11)
+  ll <- function(x, k) if (k == 0) 0 else k * log(x)
+  l_ind <- ll(1 - p01, n00) + ll(p01, n01) + ll(1 - p11, n10) + ll(p11, n11)
+  l_res <- ll(1 - p2, n00 + n10) + ll(p2, n01 + n11)
+  lr_ind <- -2 * (l_res - l_ind)
+  c(taxa = 100 * pih, uc = lr_uc, ind = lr_ind, cc = lr_uc + lr_ind, p11 = p11,
+    p_uc = stats::pchisq(lr_uc, 1, lower.tail = FALSE), p_ind = stats::pchisq(lr_ind, 1, lower.tail = FALSE),
+    p_cc = stats::pchisq(lr_uc + lr_ind, 2, lower.tail = FALSE))
+}
+n_c <- 500
+I_iid <- stats::rbinom(n_c, 1, 0.05)                         # intervalo calibrado: violações i.i.d.
+# intervalo com violações em blocos: cadeia de Markov com P(1|0) = 0,03 e P(1|1) = 0,40
+I_mk <- numeric(n_c); for (t in 2:n_c) I_mk[t] <- stats::rbinom(1, 1, if (I_mk[t - 1] == 1) 0.40 else 0.03)
+for (nm in c("iid", "mk")) {
+  r <- christoffersen(if (nm == "iid") I_iid else I_mk)
+  for (k in names(r)) registrar(sprintf("m05_chr_%s_%s", nm, k), r[[k]])
+}
+registrar("m05_chr_n", n_c); registrar("m05_chr_mk_estac", 100 * 0.03 / (0.03 + 0.60))   # taxa estacionária da cadeia
+
 gravar_resultados("m05")
