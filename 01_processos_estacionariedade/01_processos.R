@@ -101,4 +101,25 @@ salvar_figura(file.path(FIG, "m01_fac_rw_ar1"), function() {
   }
 }, largura = 10)
 
+## ---- D01.4: fraca x estrita e ergodicidade (simulação) -------------------------
+# (a) fraca sem ser estrita: t par ~ N(0,1), t ímpar ~ U(-sqrt 3, sqrt 3), independentes.
+#     Média 0, variância 1, gamma_k = 0: estacionário de 2ª ordem; a distribuição muda com t.
+n_a <- 200000
+z_par <- stats::rnorm(n_a); z_imp <- stats::runif(n_a, -sqrt(3), sqrt(3))
+curt <- function(x) mean((x - mean(x))^4) / mean((x - mean(x))^2)^2
+registrar("m01_d4_var_par", stats::var(z_par)); registrar("m01_d4_var_imp", stats::var(z_imp))
+registrar("m01_d4_curt_par", curt(z_par)); registrar("m01_d4_curt_imp", curt(z_imp))
+# (b) estacionário mas não ergódico: y_t = Z + e_t, Z ~ N(0,1) sorteado uma vez por realização.
+#     ybar -> Z, não mu = 0: o dp de ybar entre realizações não cai com T.
+# (c) AR(1) com phi = 0,8: ergódico para a média, Var(ybar) ~ gamma_0 (1+phi)/((1-phi) T).
+R_d4 <- 2000; phi_d4 <- 0.8
+for (n in c(100, 1000)) {
+  yb_z <- replicate(R_d4, stats::rnorm(1) + mean(stats::rnorm(n)))
+  yb_ar <- replicate(R_d4, mean(stats::arima.sim(list(ar = phi_d4), n)))
+  registrar(sprintf("m01_d4_dp_z_t%d", n), stats::sd(yb_z))
+  registrar(sprintf("m01_d4_dp_ar_t%d", n), stats::sd(yb_ar))
+  registrar(sprintf("m01_d4_dp_ar_teo_t%d", n), sqrt((1 / (1 - phi_d4^2)) * (1 + phi_d4) / ((1 - phi_d4) * n)))
+}
+registrar("m01_d4_R", R_d4)
+
 gravar_resultados("m01")

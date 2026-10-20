@@ -36,6 +36,55 @@ Daí seguem $\gamma_k=\gamma_{-k}$ e $\rho_k=\gamma_k/\gamma_0$.
 
 **Ruído branco.** $\varepsilon_t\sim RB(0,\sigma^2)$: média zero, variância $\sigma^2$ e $\gamma_k=0$ para $k\neq0$. Não exige independência nem normalidade.
 
+### D01.4 · Estacionariedade fraca, estrita e ergodicidade: três processos que separam os conceitos
+
+> [!NOTE]
+> **O que se quer provar**
+> Os conceitos são diferentes, e cada um pode valer sem o outro:
+> - (a) um processo pode ter estacionariedade fraca sem ter estacionariedade estrita;
+> - (b) um processo estritamente estacionário pode não ser ergódico;
+> - (c) o AR(1) estacionário é ergódico para a média, com $\operatorname{Var}(\bar y)\approx\dfrac{\gamma_0}{T}\cdot\dfrac{1+\phi}{1-\phi}$.
+
+**Passo a passo.**
+
+1. **(a) Fraca sem estrita.** Tome $y_t$ independentes, com $y_t\sim N(0,1)$ em $t$ par e $y_t\sim U(-\sqrt3,\sqrt3)$ em $t$ ímpar.
+   - A média é 0 e a variância é 1 nos dois casos, porque a uniforme em $(-a,a)$ tem variância $a^2/3=1$. Além disso, $\gamma_k=0$ para $k\ne0$. Os três momentos da definição fraca não dependem de $t$.
+   - A distribuição muda com $t$: a curtose é 3 na normal e 1,8 na uniforme. A estacionariedade estrita falha.
+   - Na simulação, as variâncias dão 0,996 e 1,001, e as curtoses, 3,03 e 1,80.
+2. **(b) Estacionário sem ser ergódico.** Tome $y_t=Z+\varepsilon_t$, com $Z\sim N(0,1)$ sorteado **uma vez** por realização e independente de $\varepsilon_t\sim RB(0,1)$.
+   - A distribuição conjunta não depende de $t$, então o processo é estritamente estacionário, com $\mu=0$ e $\gamma_k=1$ para todo $k\ne0$.
+   - Mas $\bar y=Z+\bar\varepsilon\to Z$, e não 0. Uma realização longa só revela o seu próprio $Z$.
+   - O sinal é que $\gamma_k$ não vai a zero. Na simulação, com 2000 realizações, o desvio-padrão de $\bar y$ entre realizações não cai com $T$: 1,02 com $T=100$ e 1,02 com $T=1000$.
+3. **(c) O AR(1) é ergódico.** $\operatorname{Var}(\bar y)=\frac{1}{T^2}\sum_{s,t}\gamma_{t-s}=\frac{\gamma_0}{T}\big(1+2\sum_{k=1}^{T-1}(1-\tfrac kT)\phi^k\big)\to\frac{\gamma_0}{T}\cdot\frac{1+\phi}{1-\phi}$. Ela vai a zero com $T$, porque $\sum_k\lvert\gamma_k\rvert\lt\infty$.
+   - Com $\phi=0{,}8$ e $\sigma^2=1$, o desvio-padrão teórico de $\bar y$ é 0,50 com $T=100$ e 0,158 com $T=1000$. A simulação dá 0,493 e 0,159.
+   - O fator $(1+\phi)/(1-\phi)=9$ diz que 1000 observações de um AR(1) com $\phi=0{,}8$ valem, para estimar a média, cerca de 111 observações independentes.
+
+$$\boxed{\text{estrita (com 2º momento)}\Rightarrow\text{fraca};\quad\text{nenhuma das duas}\Rightarrow\text{ergódica};\quad \sum_k\lvert\gamma_k\rvert\lt\infty\Rightarrow\bar y\xrightarrow{p}\mu}$$
+
+A condição suficiente $\gamma_k\to0$ depressa (somabilidade) vale para todo ARMA estacionário. Por isso a ergodicidade quase nunca é discutida nas aplicações: ela vem de graça com as raízes fora do círculo (D02.1). O caso (b) é o que ela exclui, e (c) mostra o preço da persistência.
+
+<!-- conferência numérica
+| chave_R | nota |
+|---|---|
+| m01_d4_var_par | 0,996 |
+| m01_d4_var_imp | 1,001 |
+| m01_d4_curt_par | 3,03 |
+| m01_d4_curt_imp | 1,80 |
+| m01_d4_R | 2000 |
+| m01_d4_dp_z_t100 | 1,02 |
+| m01_d4_dp_z_t1000 | 1,02 |
+| m01_d4_dp_ar_teo_t100 | 0,50 |
+| m01_d4_dp_ar_teo_t1000 | 0,158 |
+| m01_d4_dp_ar_t100 | 0,493 |
+| m01_d4_dp_ar_t1000 | 0,159 |
+-->
+
+> [!TIP]
+> **Como o professor pode torcer**
+> - Perguntar se o ruído branco é estritamente estacionário. Só se for i.i.d.: a definição de RB fixa apenas dois momentos.
+> - Dar um processo gaussiano estacionário de 2ª ordem: aí fraca e estrita coincidem.
+> - Perguntar por que se pode estimar a FAC com uma só série: a ergodicidade, garantida pela somabilidade das autocovariâncias.
+
 ## 2. Os quatro processos de referência
 
 Todos têm $y_0$ dado e $u_t\sim RB(0,\sigma^2)$.
