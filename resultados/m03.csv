@@ -35,3 +35,22 @@ m03_q12_c6,          0.4
 m03_q12_perda,            5
 m03_q12_dif_max_predict,7.73070496507e-12
 m03_q12_n_par,            3
+m03_df_q05_nc,-1.93324224672
+m03_df_media_nc,-0.413356225984
+m03_df_rej_normal_nc,         8.95
+m03_df_q05_c,-2.88360934552
+m03_df_media_c,-1.52113563456
+m03_df_rej_normal_c,        45.28
+m03_df_q05_ct,-3.45619236512
+m03_df_media_ct,-2.18533920566
+m03_df_rej_normal_ct,        77.19
+m03_df_R,        10000
+m03_df_T,          100
+m03_df_poder_t100_phi80,         87.7
+m03_df_poder_t100_phi90,         32.4
+m03_df_poder_t100_phi95,        12.65
+m03_df_poder_t100_phi99,          5.9
+m03_df_poder_t400_phi80,          100
+m03_df_poder_t400_phi90,          100
+m03_df_poder_t400_phi95,         86.1
+m03_df_poder_t400_phi99,        10.35

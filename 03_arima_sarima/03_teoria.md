@@ -80,6 +80,61 @@ O teste é $H_0:\gamma=0$ (raiz unitária) vs. $H_1:\gamma\lt0$, pela estatísti
 >
 > A especificação certa importa. Use **tendência** se a série tem tendência sob a alternativa; caso contrário, o teste perde poder.
 
+### D03.3 · A distribuição de Dickey-Fuller e o baixo poder do teste (Monte Carlo)
+
+> [!NOTE]
+> **O que se quer provar**
+> Sob $H_0:\gamma=0$, a estatística $\tau$ não é normal nem $t$: ela fica deslocada para a esquerda, e mais ainda quanto mais termos determinísticos houver (AU04). Sob a alternativa estacionária com $\phi$ perto de 1, o teste quase não rejeita em amostras do tamanho usual.
+
+**Passo a passo.**
+
+1. **Por que a distribuição muda.** Sob $H_0$, $y_{t-1}$ é um passeio aleatório, e a variância amostral dele cresce como $T^2$, não como $T$. O numerador e o denominador de $\widehat\gamma$ convergem para funcionais do movimento browniano, e não para uma normal. Com constante, $y_{t-1}$ entra centrado na média, que puxa $\widehat\gamma$ para baixo. Com tendência, o efeito se repete.
+2. **A simulação.** Simulamos 10000 passeios aleatórios de $T=100$ e rodamos a regressão de DF:
+
+   | Especificação | Quantil de 5% de $\tau$ | Média de $\tau$ | Rejeições com −1,645 (normal) |
+   |---|---|---|---|
+   | sem determinísticos, $\tau$ | −1,93 | −0,41 | 9,0% |
+   | constante, $\tau_\mu$ | −2,88 | −1,52 | 45,3% |
+   | constante e tendência, $\tau_\tau$ | −3,46 | −2,19 | 77,2% |
+
+   Os quantis batem com os críticos tabelados acima. Usar o crítico da normal por engano faz o teste rejeitar uma raiz unitária **verdadeira** em quase metade das vezes com constante, e em três de cada quatro com tendência.
+3. **O poder.** Agora o processo verdadeiro é um AR(1) estacionário. Mostramos a porcentagem de rejeições a 5% do DF com constante, em 2000 réplicas, com o crítico exato da simulação:
+
+   | $\phi$ | 0,80 | 0,90 | 0,95 | 0,99 |
+   |---|---|---|---|---|
+   | $T=100$ | 87,7% | 32,4% | 12,6% | 5,9% |
+   | $T=400$ | 100% | 100% | 86,1% | 10,3% |
+
+   Com $\phi=0{,}95$ e oito anos e meio de dados mensais, o teste acerta só uma vez em oito. Com $\phi=0{,}99$, não se distingue de um palpite: o poder fica perto do tamanho de 5%.
+
+$$\boxed{\tau\ \text{sob } H_0\ \text{segue Dickey-Fuller, não } N(0,1);\qquad \text{não rejeitar } H_0 \ne \text{aceitar a raiz unitária}}$$
+
+**O que isso muda na prática.** É o motivo para cruzar o ADF com o KPSS, cuja nula é a estacionariedade (Mattos, MAT, sobre o poder). No [INPC](../trabalho_inpc/relatorio.md), Questão 2d, o ADF do log do índice dá $p=0{,}075$. Sozinho, ele seria ambíguo, mas o PP e o KPSS decidem. Mais dados ajudam muito mais que mais defasagens: passar de $T=100$ a $T=400$ leva o poder com $\phi=0{,}95$ de 12,6% a 86,1%.
+
+<!-- conferência numérica
+| chave_R | nota |
+|---|---|
+| m03_df_R | 10000 |
+| m03_df_T | 100 |
+| m03_df_q05_nc | -1,93 |
+| m03_df_media_nc | -0,41 |
+| m03_df_rej_normal_nc | 9,0 |
+| m03_df_q05_c | -2,88 |
+| m03_df_media_c | -1,52 |
+| m03_df_rej_normal_c | 45,3 |
+| m03_df_q05_ct | -3,46 |
+| m03_df_media_ct | -2,19 |
+| m03_df_rej_normal_ct | 77,2 |
+| m03_df_poder_t100_phi80 | 87,7 |
+| m03_df_poder_t100_phi90 | 32,4 |
+| m03_df_poder_t100_phi95 | 12,6 |
+| m03_df_poder_t100_phi99 | 5,9 |
+| m03_df_poder_t400_phi80 | 100 |
+| m03_df_poder_t400_phi90 | 100 |
+| m03_df_poder_t400_phi95 | 86,1 |
+| m03_df_poder_t400_phi99 | 10,3 |
+-->
+
 **KPSS:** as hipóteses são invertidas, com $H_0$ = estacionária (em nível ou em tendência). A leitura padrão é cruzar os dois: ADF não rejeita e KPSS rejeita aponta I(1); ADF rejeita e KPSS não rejeita aponta I(0).
 
 ## 3. Sazonalidade

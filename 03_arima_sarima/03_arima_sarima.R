@@ -103,4 +103,29 @@ for (h in 1:5) {
 registrar("m03_q12_dif_max_predict", max(abs(yy[TT + 1:5] - as.numeric(pr))))
 registrar("m03_q12_n_par", 2 + 1)   # phi, Theta e sigma2
 
+## ---- D03.3: distribuição de Dickey-Fuller e poder (Monte Carlo) -----------------
+# tau = gamma_hat / ep na regressão Δy_t = [a + b t] + gamma y_{t-1} + e_t (DF simples).
+tau_df <- function(y, tipo) {
+  n <- length(y); dy <- diff(y); y1 <- y[-n]
+  X <- switch(tipo, nc = cbind(y1), c = cbind(1, y1), ct = cbind(1, seq_len(n - 1), y1))
+  f <- stats::lm.fit(X, dy); k <- ncol(X)
+  s2 <- sum(f$residuals^2) / (n - 1 - k)
+  f$coefficients[k] / sqrt(s2 * solve(crossprod(X))[k, k])
+}
+R_df <- 10000; T_df <- 100
+for (tp in c("nc", "c", "ct")) {
+  tt <- replicate(R_df, tau_df(cumsum(stats::rnorm(T_df)), tp))
+  registrar(sprintf("m03_df_q05_%s", tp), unname(stats::quantile(tt, 0.05)))
+  registrar(sprintf("m03_df_media_%s", tp), mean(tt))
+  registrar(sprintf("m03_df_rej_normal_%s", tp), 100 * mean(tt < stats::qnorm(0.05)))   # usar -1,645 por engano
+  if (tp == "c") tau_c <- tt
+}
+registrar("m03_df_R", R_df); registrar("m03_df_T", T_df)
+# poder do DF com constante, crítico de 5% da própria simulação, para phi perto de 1
+c5 <- unname(stats::quantile(tau_c, 0.05))
+for (n in c(100, 400)) for (ph in c(0.80, 0.90, 0.95, 0.99)) {
+  rej <- mean(replicate(2000, tau_df(as.numeric(stats::arima.sim(list(ar = ph), n)), "c") < c5))
+  registrar(sprintf("m03_df_poder_t%d_phi%d", n, round(100 * ph)), 100 * rej)
+}
+
 gravar_resultados("m03")
