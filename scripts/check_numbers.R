@@ -47,7 +47,7 @@ casas_decimais <- function(txt) {
 
 # ---- varre os .md -----------------------------------------------------------
 mds <- list.files(RAIZ, pattern = "\\.md$", recursive = TRUE, full.names = TRUE)
-ignorar <- c("/materiais/", "/.git/")
+ignorar <- c("/materiais/", "/.git/", "/caderno/_build/")
 mds <- mds[!Reduce(`|`, lapply(ignorar, function(p) grepl(p, mds, fixed = TRUE)))]
 
 erros <- character(0)

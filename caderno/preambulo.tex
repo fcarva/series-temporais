@@ -1,0 +1,91 @@
+% Preâmbulo do caderno de estudo (LuaLaTeX). Incluído pelo pandoc via --include-in-header.
+% Paleta Flexoki, a mesma de R/estilo_grafico.R.
+
+% ---- fontes: Libertinus + reserva para símbolos que ela não tem (●, ✔, ⚠...) ----
+% Funciona no Windows (Segoe UI Symbol, Consolas) e no Linux/TeX Live (DejaVu).
+\IfFontExistsTF{Segoe UI Symbol}{%
+  \directlua{luaotfload.add_fallback("simbolos", {"Segoe UI Symbol:mode=harf;", "Cambria Math:mode=harf;"})}%
+}{%
+  \directlua{luaotfload.add_fallback("simbolos", {"DejaVu Sans:mode=harf;", "DejaVu Sans Mono:mode=harf;"})}%
+}
+\setmainfont{Libertinus Serif}[RawFeature={fallback=simbolos}]
+\setsansfont{Libertinus Sans}[RawFeature={fallback=simbolos}]
+\IfFontExistsTF{Consolas}{%
+  \setmonofont{Consolas}[Scale=0.84, RawFeature={fallback=simbolos}]%
+}{%
+  \setmonofont{DejaVu Sans Mono}[Scale=0.80, RawFeature={fallback=simbolos}]%
+}
+\setmathfont{Libertinus Math}
+
+% macros do MathJax que o LaTeX não conhece
+\providecommand{\gt}{>}
+\providecommand{\lt}{<}
+
+% ---- cores ----
+\usepackage{xcolor}
+\definecolor{fxpapel}{HTML}{FFFCF0}
+\definecolor{fxtexto}{HTML}{100F0F}
+\definecolor{fxeixo}{HTML}{6F6E69}
+\definecolor{fxgrade}{HTML}{E6E4D9}
+\definecolor{fxazul}{HTML}{205EA6}
+\definecolor{fxverde}{HTML}{66800B}
+\definecolor{fxteal}{HTML}{24837B}
+\definecolor{fxroxo}{HTML}{5E409D}
+\definecolor{fxlaranja}{HTML}{BC5215}
+\definecolor{fxvermelho}{HTML}{AF3029}
+\definecolor{fxamarelo}{HTML}{D0A215}
+
+% ---- callouts do Obsidian/GitHub ----
+\usepackage[most]{tcolorbox}
+\newtcolorbox{callout}[2]{%
+  enhanced, breakable, colback=#1!5!white, colframe=#1, boxrule=0pt,
+  leftrule=2.6pt, arc=1.5pt, outer arc=1.5pt,
+  left=7pt, right=7pt, top=5pt, bottom=5pt, before skip=8pt, after skip=8pt,
+  fonttitle=\sffamily\bfseries\small, coltitle=#1!80!black, colbacktitle=#1!12!white,
+  titlerule=0pt, toptitle=2pt, bottomtitle=2pt,
+  title={#2}}
+
+% ---- código: quebra de linha longa e fundo discreto ----
+\usepackage{fvextra}
+\fvset{breaklines=true, breakanywhere=true, fontsize=\small}
+\makeatletter
+\@ifundefined{Shaded}{}{\renewenvironment{Shaded}{\begin{tcolorbox}[enhanced, breakable, colback=fxgrade!35!white, boxrule=0pt, arc=1pt, left=4pt, right=4pt, top=3pt, bottom=3pt]}{\end{tcolorbox}}}
+\makeatother
+\RecustomVerbatimEnvironment{verbatim}{Verbatim}{breaklines=true, breakanywhere=true, fontsize=\small}
+
+% ---- títulos ----
+\usepackage{titlesec}
+\ifdefined\chapter
+\titleformat{\chapter}[display]
+  {\normalfont\sffamily\bfseries\color{fxtexto}}
+  {\small\mdseries\color{fxteal}\MakeUppercase{\chaptertitlename}~\thechapter}
+  {3pt}{\LARGE\raggedright}
+\titlespacing*{\chapter}{0pt}{-12pt}{16pt}
+\fi
+\titleformat{\section}{\normalfont\sffamily\bfseries\Large\color{fxtexto}\raggedright}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\normalfont\sffamily\bfseries\large\color{fxtexto}\raggedright}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}{\normalfont\sffamily\bfseries\normalsize\color{fxeixo}\raggedright}{\thesubsubsection}{0.6em}{}
+
+% ---- cabeçalho e rodapé ----
+\usepackage{fancyhdr}
+\setlength{\headheight}{22pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\sffamily\footnotesize\color{fxeixo}\nouppercase{\leftmark}}
+\fancyhead[R]{\sffamily\footnotesize\color{fxeixo}Econometria II · séries temporais}
+\fancyfoot[C]{\sffamily\footnotesize\color{fxeixo}\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{fxgrade}\leaders\hrule height \headrulewidth\hfill}}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\sffamily\footnotesize\color{fxeixo}\thepage}\renewcommand{\headrulewidth}{0pt}}
+\ifdefined\chapter
+\renewcommand{\chaptermark}[1]{\markboth{#1}{#1}}
+\else
+\fancyhead[L]{\sffamily\footnotesize\color{fxeixo}Séries temporais}
+\fi
+
+% ---- tabelas e texto ----
+\renewcommand{\arraystretch}{1.18}
+\setlength{\emergencystretch}{3em}
+\setlength{\parskip}{4pt plus 1pt}
+\setlength{\parindent}{0pt}
+% hyperref é carregado pelo template do pandoc; as cores vêm de -V linkcolor/urlcolor

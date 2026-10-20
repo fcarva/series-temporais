@@ -6,7 +6,7 @@ tags:
   - series-temporais
   - mestrado/ppgeco
 aliases:
-  - Formulário
+  - Formulário — séries temporais
 ---
 
 # Formulário

@@ -4,7 +4,7 @@ tags:
   - series-temporais
   - meta
 aliases:
-  - Convenções
+  - Convenções — séries temporais
 ---
 
 # Convenções do repositório

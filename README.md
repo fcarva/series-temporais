@@ -47,6 +47,8 @@ Para só o trabalho do INPC: `Rscript trabalho_inpc/inpc.R`. Para atualizar a s�
 | **Fazer o trabalho em dupla** | [trabalho_inpc/](trabalho_inpc/README.md): roteiro, [relatório](trabalho_inpc/relatorio.md) e [código](trabalho_inpc/inpc.R) |
 | Entender a lógica e a ordem de estudo | [PLANO_ESTUDO.md](PLANO_ESTUDO.md) |
 | Revisar fórmulas | [formulario/formulario.md](formulario/formulario.md) |
+| Estudar no papel | `caderno/`: três volumes em PDF (ver [caderno/README.md](caderno/README.md)) |
+| Levar tudo para o Obsidian | `Rscript scripts/exportar_obsidian.R`: espelha o repositório numa pasta do cofre `88f5c4b837449c13` |
 | Saber qual sinal usar no MA | [CONVENCOES.md](CONVENCOES.md) §2 |
 | Achar um exercício | o mapa abaixo |
 
@@ -97,6 +99,7 @@ series-temporais/
 ├── trabalho_inpc/    trabalho em dupla: inpc.R, relatorio.md, figuras/, grade e previsões em CSV
 ├── dados/            inpc.csv (IBGE/SIDRA, público)
 ├── formulario/       todas as fórmulas
+├── caderno/          gera o caderno em PDF (pandoc + LuaLaTeX); o PDF fica fora do git
 ├── R/                helpers (raiz, resultados, estilo gráfico, séries: pesos, raízes, FAC teórica)
 ├── tests/testthat/   identidades da teoria conferidas contra o R
 ├── scripts/          build.sh, build.ps1, run_all, check_numbers, lint, baixar_inpc

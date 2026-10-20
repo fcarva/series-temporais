@@ -4,7 +4,7 @@ tags:
   - series-temporais
   - meta
 aliases:
-  - Materiais
+  - Materiais — séries temporais
 ---
 
 # Índice de materiais
