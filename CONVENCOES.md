@@ -15,7 +15,7 @@ Este arquivo é o contrato para quem escreve aqui, seja você, seja um agente. E
 
 | Pasta | Conteúdo | id dos resultados |
 |---|---|---|
-| `NN_tema/` (01–06) | `NN_teoria.md` (01–03), `NN_lista.md`, `NN_tema.R`, `figuras/` | `m01` … `m06` |
+| `NN_tema/` (01–07) | `NN_teoria.md` (01–03 e 07), `NN_lista.md`, `NN_tema.R`, `figuras/` | `m01` … `m07` |
 | `trabalho_inpc/` | trabalho em dupla: `inpc.R`, `relatorio.md`, `figuras/`, CSVs gerados | `inpc` |
 | `dados/` | `inpc.csv` (SIDRA/IBGE, dado público, versionado) | — |
 | `R/` | helpers: `raiz.R`, `resultados.R`, `estilo_grafico.R`, `series.R` | — |

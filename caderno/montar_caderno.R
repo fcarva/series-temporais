@@ -211,7 +211,9 @@ volume_teoria <- function() {
   partes <- list(
     "Revisão rápida" = c("formulario/formulario.md", "CONVENCOES.md"),
     "Teoria" = c("01_processos_estacionariedade/01_teoria.md", "02_arma/02_teoria.md",
-                 "03_arima_sarima/03_teoria.md")
+                 "03_arima_sarima/03_teoria.md"),
+    "Regressão com séries temporais (AU06)" = c("07_regressao_dinamica/07_teoria.md",
+                                                "07_regressao_dinamica/07_lista.md")
   )
   md <- file.path(BUILD, "volume1.md"); montar_md(partes, md)
   capa("Volume 1", "Revisão, convenções e teoria", file.path(BUILD, "capa1.tex"))

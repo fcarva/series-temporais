@@ -15,7 +15,7 @@ Esta pasta transforma as notas do repositório em livros para imprimir, no mesmo
 
 | Arquivo gerado | Conteúdo | Para quê |
 |---|---|---|
-| `caderno_volume1_teoria.pdf` | formulário, convenções (o sinal do MA) e a teoria dos módulos 01–03 | estudar e anotar à mão |
+| `caderno_volume1_teoria.pdf` | formulário, convenções (o sinal do MA) e a teoria dos módulos 01–03 e o módulo 07 (AU06), com os exercícios | estudar e anotar à mão |
 | `caderno_volume2_lista.pdf` | a lista ARMA, ARIMA e SARIMA resolvida (Q1–Q16), com a teoria de estimação e previsão | conferir depois de resolver |
 | `caderno_volume3_trabalho_inpc.pdf` | roteiro e relatório do trabalho em dupla do INPC, com as figuras | revisar o texto da dupla no papel |
 

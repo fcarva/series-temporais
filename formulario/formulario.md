@@ -81,3 +81,14 @@ O MA está na convenção **Box-Jenkins**, $\theta(B)=1-\theta_1B-\cdots$, salvo
 - **ARIMA(0,1,1) = SES:** $y_{T+1\mid T}=(1-\theta)y_T+\theta y_{T\mid T-1}$, com $\alpha=1-\theta$.
 - **MASE:** $\frac{1}{n}\sum\lvert e_t\rvert/Q$, com $Q=\frac{1}{T_{tr}-m}\sum\lvert y_t-y_{t-m}\rvert$.
 - **Winkler:** $W=(u-\ell)+\frac{2}{\alpha}(\ell-y)\mathbf 1\{y\lt\ell\}+\frac{2}{\alpha}(y-u)\mathbf 1\{y\gt u\}$.
+
+## Regressão dinâmica (AU06)
+
+- **Exogeneidade:** contemporânea, $E(\varepsilon_t\mid x_t)=0$; predeterminação, $E(x_s\varepsilon_t)=0$ para $s\le t$; estrita, $E(\varepsilon_t\mid x_1,\dots,x_T)=0$. Sem a estrita, o MQO é viesado mas consistente; sem a contemporânea, inconsistente.
+- **DL($q$):** o choque temporário dá $\partial y_{t+k}/\partial x_t=\beta_k$; o permanente acumula até $\beta(1)=\sum_j\beta_j$.
+- **ARDL($p,q$):** os multiplicadores seguem $m_k=\beta_k+\sum_i\phi_im_{k-i}$. No ARDL(1,1), $m_0=\beta_0$ e $m_k=\phi_1^{k-1}(\phi_1\beta_0+\beta_1)$.
+- **Longo prazo:** $\theta=\beta(1)/\lambda(1)=\sum_j\beta_j/(1-\sum_i\phi_i)$, com erro padrão pelo método delta.
+- **Omitir $y_{t-1}$**, com $x$ AR(1) de parâmetro $\rho$: $\operatorname{plim}\widehat\beta_0=\beta_0/(1-\phi_1\rho)$.
+- **ECM do ARDL(1,1):** $\Delta y_t=\phi_0+\beta_0\Delta x_t+\alpha(y_{t-1}-\theta x_{t-1})+\varepsilon_t$, com $\alpha=\phi_1-1$. A meia-vida é $\ln0{,}5/\ln\phi_1$.
+- **Granger:** $F$ de exclusão de $x_{t-1},\dots,x_{t-p}$ na equação de $y$, sem $x_t$. Teste nas duas direções. *Feedback* $x_t=gx_{t-1}+\gamma y_{t-1}+v_t$ implica $E(\varepsilon_tx_{t+1})=\gamma\sigma_\varepsilon^2$.
+- **Diagnóstico:** Breusch-Godfrey, não Durbin-Watson, quando $y_{t-1}$ é regressor. Resíduo autocorrelacionado pede mais defasagens, não HAC.

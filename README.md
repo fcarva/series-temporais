@@ -12,10 +12,11 @@ aliases:
 
 # Econometria II: séries temporais
 
-Material de estudo da **primeira parte** de Econometria II (PPGEco/UFES, 2026, Prof. Guilherme Pereira): processos ARMA, ARIMA e SARIMA. O repositório tem dois produtos:
+Material de estudo de Econometria II (PPGEco/UFES, 2026, Prof. Guilherme Pereira). A **primeira parte** cobre os processos ARMA, ARIMA e SARIMA. A **segunda** começa com a regressão com séries temporais: DL, ARDL, ECM e Granger, no [módulo 07](07_regressao_dinamica/07_teoria.md). O repositório tem três produtos:
 
 1. **A lista de exercícios resolvida.** São as 16 questões da lista "Processos ARMA, ARIMA e SARIMA", com a demonstração passo a passo e cada número conferido em R.
-2. **O trabalho em dupla (Lista 01, avaliação parcial).** É a modelagem Box-Jenkins do **INPC** mensal, questão por questão: inspeção, raiz unitária, identificação, estimação, diagnóstico, sobrediferenciação e previsão fora da amostra, com relatório e código reprodutível.
+2. **O módulo de regressão dinâmica (AU06).** Teoria com demonstrações e sete exercícios próprios, alguns de Monte Carlo, também conferidos em R.
+3. **O trabalho em dupla (Lista 01, avaliação parcial).** É a modelagem Box-Jenkins do **INPC** mensal, questão por questão: inspeção, raiz unitária, identificação, estimação, diagnóstico, sobrediferenciação e previsão fora da amostra, com relatório e código reprodutível.
 
 É o mesmo desenho do repositório de Econometria I: notas em Markdown compatíveis com o Obsidian (abra **a raiz do repositório** como cofre), scripts R que geram todos os números, testes e um build que confere nota contra R.
 
@@ -50,6 +51,7 @@ Para só o trabalho do INPC: `Rscript trabalho_inpc/inpc.R`. Para atualizar a s�
 | Estudar no papel | `caderno/`: três volumes em PDF (ver [caderno/README.md](caderno/README.md)) |
 | Levar tudo para o Obsidian | `Rscript scripts/exportar_obsidian.R`: espelha o repositório numa pasta do cofre `88f5c4b837449c13` |
 | Saber qual sinal usar no MA | [CONVENCOES.md](CONVENCOES.md) §2 |
+| Estudar DL, ARDL, ECM e Granger (AU06) | [07_teoria](07_regressao_dinamica/07_teoria.md) e [07_lista](07_regressao_dinamica/07_lista.md) |
 | Achar um exercício | o mapa abaixo |
 
 ## Mapa da lista (16 questões)
@@ -95,12 +97,12 @@ Os detalhes estão em [trabalho_inpc/relatorio.md](trabalho_inpc/relatorio.md).
 
 ```text
 series-temporais/
-├── NN_tema/          módulo: NN_teoria.md, NN_lista.md, NN_tema.R, figuras/
+├── NN_tema/          módulo: NN_teoria.md, NN_lista.md, NN_tema.R, figuras/ (01–06: parte 1; 07: regressão dinâmica)
 ├── trabalho_inpc/    Lista 01: inpc.R, relatorio.md, figuras/, dados usados, sessionInfo, grade e previsões em CSV
 ├── dados/            inpc.csv (IBGE/SIDRA, público)
 ├── formulario/       todas as fórmulas
 ├── caderno/          gera o caderno em PDF (pandoc + LuaLaTeX); o PDF fica fora do git
-├── R/                helpers (raiz, resultados, estilo gráfico, séries: pesos, raízes, FAC teórica)
+├── R/                helpers (raiz, resultados, estilo gráfico, séries: pesos, raízes, FAC teórica, multiplicadores do ARDL)
 ├── tests/testthat/   identidades da teoria conferidas contra o R
 ├── scripts/          build.sh, build.ps1, run_all, check_numbers, lint, baixar_inpc
 ├── resultados/       números gerados pelos scripts (conferidos contra as notas)
@@ -109,4 +111,4 @@ series-temporais/
 
 ## Estado atual
 
-Build completo passando em 20/10/2026 (dados até set/2026): **221 testes** do testthat, **7 scripts** executados, **474 números** das notas conferidos contra o R e lint sem erros. O trabalho do INPC segue o enunciado da Lista 01, questão por questão.
+Build completo passando em 20/10/2026 (dados até set/2026): **229 testes** do testthat, **8 scripts** executados, **556 números** das notas conferidos contra o R e lint sem erros. O trabalho do INPC segue o enunciado da Lista 01, questão por questão.

@@ -31,6 +31,7 @@ Sair da primeira parte do curso capaz de três coisas:
 | 5 | [05 Previsão](05_previsao/05_lista.md) | AU02, AU03 | Q15 | previsão 12 meses, IC, Winkler |
 | 6 | [06 SARIMA aplicado](06_aplicacao_sarima/06_lista.md) | AU03 | Q16 | comparar modelos aninhados |
 | 7 | [Trabalho INPC (Lista 01)](trabalho_inpc/README.md) | AU03, AU04, AU05 | LST01 | tudo junto |
+| 8 | [07 Regressão dinâmica](07_regressao_dinamica/07_teoria.md) | AU06 | E1–E7 (próprios) | parte 2: começa a regressão com séries |
 
 Em cada módulo, a sequência é sempre a mesma:
 1. ler a teoria e refazer as demonstrações `DNN.k` no papel;

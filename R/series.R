@@ -59,3 +59,19 @@ winkler <- function(y, li, ls, alpha = 0.05) {
 
 # Formata número em pt-BR para texto de nota: fmt(0.6330, 4) -> "0,6330"
 fmt <- function(x, casas = 4) formatC(x, format = "f", digits = casas, decimal.mark = ",")
+
+# ARDL(p, q) na forma y_t = c + sum phi_i y_{t-i} + sum_{j=0}^q beta_j x_{t-j} + e_t (AU06).
+# Multiplicadores de impacto m_k = dy_{t+k}/dx_t, k = 0..n, pela recursão
+# m_k = beta_k + sum_i phi_i m_{k-i} (beta_k = 0 para k > q). Um DL é o caso phi = numeric(0).
+multiplicadores_ardl <- function(phi = numeric(0), beta, n = 10) {
+  m <- numeric(n + 1)
+  for (k in 0:n) {
+    b <- if (k + 1 <= length(beta)) beta[k + 1] else 0
+    ar <- if (length(phi) && k > 0) sum(phi[seq_len(min(k, length(phi)))] * m[k - seq_len(min(k, length(phi))) + 1]) else 0
+    m[k + 1] <- b + ar
+  }
+  m
+}
+
+# Multiplicador de longo prazo theta = beta(1)/lambda(1) = sum(beta)/(1 - sum(phi))
+longo_prazo_ardl <- function(phi = numeric(0), beta) sum(beta) / (1 - sum(phi))

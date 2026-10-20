@@ -21,7 +21,7 @@ Os PDFs ficam em `materiais/`, que está **no `.gitignore`**: o repositório é 
 | AU03 | [aula_03_ppgeco_2026.pdf](materiais/aulas/aula_03_ppgeco_2026.pdf) | Diagnóstico e avaliação: Box-Jenkins, JB, Ljung-Box, Breusch-Godfrey, ARCH, Chow, CUSUM, janelas, previsão iterada × direta, RMSE/MAD/MAPE/MASE, Diebold-Mariano, Winkler, CRPS, Christoffersen | 60 | 04, 05, trabalho |
 | AU04 | [aula_04_ppgeco_2026.pdf](materiais/aulas/aula_04_ppgeco_2026.pdf) | Tendência determinística × estocástica e testes de raiz unitária | 42 | 03 |
 | AU05 | [aula_05_ppgeco_2026.pdf](materiais/aulas/aula_05_ppgeco_2026.pdf) | ARIMA e SARIMA | 21 | 03, 06 |
-| AU06 | [aula_06_ppgeco_2026.pdf](materiais/aulas/aula_06_ppgeco_2026.pdf) | Regressão com séries temporais: exogeneidade, DL, ARDL, ECM, causalidade de Granger | 56 | — |
+| AU06 | [aula_06_ppgeco_2026.pdf](materiais/aulas/aula_06_ppgeco_2026.pdf) | Regressão com séries temporais: exogeneidade, DL, ARDL, ECM, causalidade de Granger | 56 | 07 |
 | MAT | [tendencias_raizes_unitarias.pdf](materiais/aulas/tendencias_raizes_unitarias.pdf) | MATTOS, R. S. *Tendências e raízes unitárias*. UFJF, 2019: tendência determinística × estocástica, Beveridge-Nelson, Dickey-Fuller | 50 | 01, 03 |
 
 ## Listas
