@@ -64,6 +64,59 @@ $$\boxed{\text{AR estacionário}\iff\phi(z)\neq0\ \text{para}\ \lvert z\rvert\le
 >
 > A invertibilidade ainda **identifica** o modelo: $\theta$ e $1/\theta$ (com $\sigma^2$ ajustado) geram a mesma FAC. Consequência útil: no MA(1), $\lvert\rho_1\rvert\le\frac12$.
 
+### D02.4 · Equações de diferenças: a mesma conta da estacionariedade
+
+> [!NOTE]
+> **O que se quer provar**
+> A parte determinística de um AR é uma equação de diferenças (revisão EQD; Chiang e Wainwright, caps. 17–18).
+> - Na equação de diferenças de primeira ordem $y_{t+1}+ay_t=c$, a solução converge se e somente se $\lvert a\rvert\lt1$.
+> - Na de segunda ordem, $y_{t+2}+a_1y_{t+1}+a_2y_t=c$, a solução converge se e somente se as raízes da equação característica $b^2+a_1b+a_2=0$ têm $\lvert b\rvert\lt1$. Essas raízes são as **inversas** das raízes de $\phi(z)$, então a condição é a de D02.1.
+
+**Passo a passo.**
+
+1. **Solução geral = particular + homogênea.** A particular é qualquer solução da equação completa. A homogênea resolve a equação com $c=0$ e carrega a constante que a condição inicial fixa.
+2. **Primeira ordem, particular.** Tente $y_t=k$: $k+ak=c$, então $y_p=c/(1+a)$ se $a\ne-1$. Se $a=-1$, tente $y_t=kt$: $k(t+1)-kt=c$, então $y_p=ct$, que é a tendência linear do passeio com drift.
+3. **Primeira ordem, homogênea.** Tente $y_t=Ab^t$: $Ab^{t+1}+aAb^t=0$, então $b=-a$. Com $y_0$ dado, $A=y_0-y_p$:
+   $$y_t=\big(y_0-\tfrac{c}{1+a}\big)(-a)^t+\tfrac{c}{1+a}.$$
+   O método iterativo, substituir $y_1,y_2,\dots$ um a um, chega na mesma fórmula.
+4. **Estabilidade.** O termo $Ab^t$ some se e somente se $\lvert b\rvert\lt1$. Com $b\lt0$, a trajetória oscila; com $b\gt0$, é monótona.
+5. **Segunda ordem.** A particular é $y_p=c/(1+a_1+a_2)$. A homogênea tenta $Ab^t$ e chega à equação característica $b^2+a_1b+a_2=0$. Com raízes distintas, $y_t=A_1b_1^t+A_2b_2^t+y_p$.
+   - Se o discriminante $a_1^2-4a_2$ for negativo, as raízes são complexas, $b=r(\cos\omega\pm i\sin\omega)$, e a solução é $r^t$ vezes uma combinação de $\cos\omega t$ e $\sin\omega t$: um **ciclo amortecido** se $r\lt1$.
+6. **A ligação com o AR(2).** $y_t=\phi_1y_{t-1}+\phi_2y_{t-2}$ é a equação de segunda ordem com $a_1=-\phi_1$ e $a_2=-\phi_2$. A equação característica é $b^2-\phi_1b-\phi_2=0$. Dividindo $\phi(z)=1-\phi_1z-\phi_2z^2=0$ por $z^2$ e trocando $b=1/z$, obtém-se a mesma equação. Então $\lvert b\rvert\lt1\iff\lvert z\rvert\gt1$.
+
+$$\boxed{y_t=\Big(y_0-\frac{c}{1+a}\Big)(-a)^t+\frac{c}{1+a}\ \text{converge}\iff\lvert a\rvert\lt1;\qquad \text{2ª ordem: }\lvert b_i\rvert\lt1\iff\text{raízes de }\phi(z)\text{ fora do círculo}}$$
+
+**Dois exemplos** (conferidos em [02_arma.R](02_arma.R)):
+
+- **Primeira ordem.** $y_{t+1}-0{,}5y_t=3$ com $y_0=10$. Aqui $y_p=6$, $b=0{,}5$ e $A=4$, então $y_t=4\cdot0{,}5^t+6$. A trajetória converge monotonamente para 6. Em $t=3$, a fórmula e a iteração dão 6,5.
+- **Segunda ordem, o AR(2) com ciclo.** $y_t=y_{t-1}-0{,}5y_{t-2}$. O discriminante é $\phi_1^2+4\phi_2=-1\lt0$, então as raízes são complexas:
+  - $b=0{,}5\pm0{,}5i$, com módulo $r=0{,}707$ e ângulo $\omega=0{,}785$ ($\pi/4$);
+  - o ciclo tem período $2\pi/\omega=8$ períodos e amortece, porque $r\lt1$;
+  - as raízes de $\phi(z)$ têm módulo $1/r=1{,}414\gt1$, a mesma conclusão por D02.1.
+
+  Com termo constante 2, o equilíbrio é $y_p=2/(1-\phi_1-\phi_2)=4$. É a média $\mu=c/\phi(1)$ do AR.
+
+<!-- conferência numérica
+| chave_R | nota |
+|---|---|
+| m02_eqd1_yp | 6 |
+| m02_eqd1_b | 0,5 |
+| m02_eqd1_A | 4 |
+| m02_eqd1_y3 | 6,5 |
+| m02_eqd2_disc | -1 |
+| m02_eqd2_mod | 0,707 |
+| m02_eqd2_ang | 0,785 |
+| m02_eqd2_periodo | 8 |
+| m02_eqd2_mod_z | 1,414 |
+| m02_eqd2_yp | 4 |
+-->
+
+> [!TIP]
+> **Como o professor pode torcer**
+> - Escrever a equação "para a frente" ($y_{t+1}+ay_t=c$) num exercício e "para trás" ($y_t=\phi y_{t-1}+c$) no outro: $a=-\phi$, e a condição é a mesma.
+> - Pedir o caso $a=-1$: não há equilíbrio. A solução particular é $ct$, a raiz unitária do passeio com drift (D01.1).
+> - Pedir o período do ciclo de um AR(2) com raízes complexas: $2\pi/\omega$, com $\cos\omega=\phi_1/(2\sqrt{-\phi_2})$.
+
 ## 3. FAC
 
 ### D02.2 · FAC de MA($q$), AR($p$) e ARMA($p,q$)

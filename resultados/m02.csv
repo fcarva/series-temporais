@@ -60,3 +60,13 @@ m02_q8_z_media_correta,          102
 m02_q8_z_media_af4,          100
 m02_q8_z_var_sim,39.6236443097
 m02_q8_z_var_af5,          4.5
+m02_eqd1_yp,            6
+m02_eqd1_A,            4
+m02_eqd1_b,          0.5
+m02_eqd1_y3,          6.5
+m02_eqd2_mod,0.707106781187
+m02_eqd2_ang,0.785398163397
+m02_eqd2_periodo,            8
+m02_eqd2_mod_z,1.41421356237
+m02_eqd2_disc,           -1
+m02_eqd2_yp,            4

@@ -103,4 +103,24 @@ salvar_figura(file.path(FIG, "m02_assinaturas"), function() {
   }
 }, largura = 11, altura = 6.5)
 
+## ---- EQD: equações de diferenças (revisão, Chiang e Wainwright, caps. 17-18) ----
+# 1ª ordem: y_{t+1} - 0,5 y_t = 3, y_0 = 10  ->  y_t = A b^t + y_p
+a1 <- -0.5; c1 <- 3; y0 <- 10
+yp1 <- c1 / (1 + a1); A1 <- y0 - yp1; b1 <- -a1
+it <- numeric(6); it[1] <- y0
+for (t in 1:5) it[t + 1] <- c1 - a1 * it[t]                 # solução iterativa
+stopifnot(isTRUE(all.equal(it, A1 * b1^(0:5) + yp1)))       # bate com a fechada
+registrar("m02_eqd1_yp", yp1); registrar("m02_eqd1_A", A1); registrar("m02_eqd1_b", b1)
+registrar("m02_eqd1_y3", it[4])
+# 2ª ordem ligada ao AR(2): y_t = 1,0 y_{t-1} - 0,5 y_{t-2}  <=>  y_{t+2} - y_{t+1} + 0,5 y_t = 0
+ph <- c(1.0, -0.5)
+b2 <- polyroot(c(-ph[2], -ph[1], 1))                         # b^2 - phi1 b - phi2 = 0
+registrar("m02_eqd2_mod", Mod(b2[1])); registrar("m02_eqd2_ang", abs(Arg(b2[1])))
+registrar("m02_eqd2_periodo", 2 * pi / abs(Arg(b2[1])))
+registrar("m02_eqd2_mod_z", min(modulo_raizes_ar(ph)))       # raízes de phi(z): inversas das de b
+stopifnot(abs(Mod(b2[1]) * min(modulo_raizes_ar(ph)) - 1) < 1e-10)
+registrar("m02_eqd2_disc", ph[1]^2 + 4 * ph[2])              # discriminante: < 0 -> raízes complexas
+# 2ª ordem com termo constante: y_{t+2} - y_{t+1} + 0,5 y_t = 2  ->  y_p = 2/(1 - 1 + 0,5)
+registrar("m02_eqd2_yp", 2 / (1 - ph[1] - ph[2]))
+
 gravar_resultados("m02")
