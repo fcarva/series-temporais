@@ -138,4 +138,17 @@ registrar("m02_bart_rej_ma2_ingenua", 100 * mean(abs(r_ma) > 1.96 / sqrt(T_b)))
 registrar("m02_bart_rej_ma2_bartlett", 100 * mean(abs(r_ma) > 1.96 * sqrt((1 + 2 * rho1_b^2) / T_b)))
 registrar("m02_bart_T", T_b); registrar("m02_bart_R", R_b)
 
+## ---- Seção 1: álgebra do operador de defasagem --------------------------------
+# (1 - 1,1B + 0,3B^2) = (1 - 0,5B)(1 - 0,6B): produto de polinômios = convolução dos coeficientes
+fat <- stats::convolve(c(1, -0.5), rev(c(1, -0.6)), type = "open")
+registrar("m02_op_b1", fat[2]); registrar("m02_op_b2", fat[3])
+r_op <- sort(modulo_raizes_ar(c(1.1, -0.3)))
+registrar("m02_op_raiz1", r_op[1]); registrar("m02_op_raiz2", r_op[2])
+# inversa de (1 - 0,5B)(1 - 0,6B): pesos psi_j = sum_{i=0}^j 0,5^i 0,6^(j-i)
+psi_op <- pesos_psi(c(1.1, -0.3), n = 3)
+stopifnot(isTRUE(all.equal(psi_op[4], sum(0.5^(0:3) * 0.6^(3:0)))))
+registrar("m02_op_psi1", psi_op[2]); registrar("m02_op_psi2", psi_op[3]); registrar("m02_op_psi3", psi_op[4])
+# fator comum: (1 - 1,1B + 0,3B^2) y = (1 - 0,5B) e  <=>  (1 - 0,6B) y = e
+stopifnot(isTRUE(all.equal(pesos_psi(c(1.1, -0.3), 0.5, 10), pesos_psi(0.6, numeric(0), 10))))
+
 gravar_resultados("m02")

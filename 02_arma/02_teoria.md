@@ -35,6 +35,29 @@ $$
 
 A relação com a média é $c=\phi(1)\mu=(1-\phi_1-\dots-\phi_p)\mu$. No R, o "intercept" de `arima` é $\mu$, não $c$.
 
+### Exercício · Álgebra do operador de defasagem
+
+Seja $\phi(B)=1-1{,}1B+0{,}3B^2$. (a) Fatore. (b) Ache as raízes e diga se o AR(2) é estacionário. (c) Escreva $\phi(B)^{-1}$ como série em $B$ até $B^3$. (d) Simplifique $\phi(B)y_t=(1-0{,}5B)\varepsilon_t$.
+
+**Solução.** O operador de defasagem se manipula como uma variável comum de polinômio: produto, fatoração e inversa valem termo a termo (AU02).
+
+- **(a)** $(1-0{,}5B)(1-0{,}6B)=1-(0{,}5+0{,}6)B+0{,}5\cdot0{,}6\,B^2$, com coeficientes −1,1 e 0,3. O produto de polinômios é a convolução dos coeficientes, conferida em [02_arma.R](02_arma.R).
+- **(b)** As raízes de $\phi(z)=0$ são $1/0{,}5=2$ e $1/0{,}6=1{,}667$, as duas fora do círculo unitário. O AR(2) é estacionário (D02.1).
+- **(c)** Cada fator se inverte por série geométrica, $(1-aB)^{-1}=\sum_{j\ge0}a^jB^j$, válida se $\lvert a\rvert\lt1$. O produto das duas séries dá $\psi_j=\sum_{i=0}^{j}0{,}5^i\,0{,}6^{\,j-i}$, com $\psi_1=1{,}1$, $\psi_2=0{,}91$ e $\psi_3=0{,}671$. São os pesos de Wold do AR(2).
+- **(d)** $\phi(B)=(1-0{,}5B)(1-0{,}6B)$, e o fator $(1-0{,}5B)$ aparece dos dois lados. Cancelando, $(1-0{,}6B)y_t=\varepsilon_t$: o "ARMA(2,1)" é um AR(1) disfarçado. É o fator comum da Q5, modelo 3, com os papéis trocados.
+
+<!-- conferência numérica
+| chave_R | nota |
+|---|---|
+| m02_op_b1 | -1,1 |
+| m02_op_b2 | 0,3 |
+| m02_op_raiz1 | 1,667 |
+| m02_op_raiz2 | 2 |
+| m02_op_psi1 | 1,1 |
+| m02_op_psi2 | 0,91 |
+| m02_op_psi3 | 0,671 |
+-->
+
 ## 2. Estacionariedade e invertibilidade
 
 ### D02.1 · Raízes fora do círculo unitário
@@ -189,6 +212,8 @@ $$\boxed{\operatorname{Var}(\widehat\rho_k)\approx\frac{1}{T}\Big(1+2\sum_{j=1}^
 | m02_bart_dp_ma2_teo | 0,0812 |
 | m02_bart_rej_ma2_ingenua | 8,2 |
 | m02_bart_rej_ma2_bartlett | 4,5 |
+| inpc_fac13 | 0,123 |
+| inpc_banda | 0,109 |
 -->
 
 ## 4. A tabela de identificação

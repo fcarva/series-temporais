@@ -80,3 +80,10 @@ m02_bart_rej_ma2_ingenua,          8.2
 m02_bart_rej_ma2_bartlett,         4.54
 m02_bart_T,          200
 m02_bart_R,         5000
+m02_op_b1,         -1.1
+m02_op_b2,          0.3
+m02_op_raiz1,1.66666666667
+m02_op_raiz2,            2
+m02_op_psi1,          1.1
+m02_op_psi2,         0.91
+m02_op_psi3,        0.671
