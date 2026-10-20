@@ -123,4 +123,19 @@ registrar("m02_eqd2_disc", ph[1]^2 + 4 * ph[2])              # discriminante: < 
 # 2ª ordem com termo constante: y_{t+2} - y_{t+1} + 0,5 y_t = 2  ->  y_p = 2/(1 - 1 + 0,5)
 registrar("m02_eqd2_yp", 2 / (1 - ph[1] - ph[2]))
 
+## ---- D02.5: a banda da FAC amostral (Bartlett) ---------------------------------
+# Ruído branco: Var(rho_hat_k) ~ 1/T. MA(q): para k > q, Var ~ (1 + 2 sum_{j<=q} rho_j^2)/T.
+set.seed(2026)
+T_b <- 200; R_b <- 5000
+r_wn <- replicate(R_b, stats::acf(stats::rnorm(T_b), lag.max = 2, plot = FALSE)$acf[2:3])
+registrar("m02_bart_dp_wn", stats::sd(r_wn[1, ])); registrar("m02_bart_dp_wn_teo", 1 / sqrt(T_b))
+registrar("m02_bart_rej_wn", 100 * mean(abs(r_wn[1, ]) > 1.96 / sqrt(T_b)))
+th_b <- 0.5; rho1_b <- th_b / (1 + th_b^2)                     # MA(1), sinal do R: y = e + 0,5 e_{t-1}
+r_ma <- replicate(R_b, stats::acf(stats::arima.sim(list(ma = th_b), T_b), lag.max = 2, plot = FALSE)$acf[3])
+registrar("m02_bart_rho1_ma", rho1_b)
+registrar("m02_bart_dp_ma2", stats::sd(r_ma)); registrar("m02_bart_dp_ma2_teo", sqrt((1 + 2 * rho1_b^2) / T_b))
+registrar("m02_bart_rej_ma2_ingenua", 100 * mean(abs(r_ma) > 1.96 / sqrt(T_b)))
+registrar("m02_bart_rej_ma2_bartlett", 100 * mean(abs(r_ma) > 1.96 * sqrt((1 + 2 * rho1_b^2) / T_b)))
+registrar("m02_bart_T", T_b); registrar("m02_bart_R", R_b)
+
 gravar_resultados("m02")

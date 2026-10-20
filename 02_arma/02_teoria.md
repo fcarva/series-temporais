@@ -156,6 +156,41 @@ $$\boxed{\boldsymbol\phi=\mathbf R^{-1}\mathbf r,\qquad \phi_{kk}=\text{último 
 
 A FACP $\phi_{kk}$ sai de Yule-Walker resolvido para ordens crescentes: $\phi_{11}=\rho_1$ e $\phi_{22}=(\rho_2-\rho_1^2)/(1-\rho_1^2)$.
 
+### D02.5 · De onde vem a banda $\pm1{,}96/\sqrt T$ e quando ela engana
+
+> [!NOTE]
+> **O que se quer provar**
+> - Para um ruído branco, $\widehat\rho_k$ é aproximadamente $N(0,1/T)$, e daí vem a banda de 95%, $\pm1{,}96/\sqrt T$.
+> - Para um MA($q$) e $k\gt q$, a fórmula de Bartlett dá $\operatorname{Var}(\widehat\rho_k)\approx\frac1T\big(1+2\sum_{j=1}^{q}\rho_j^2\big)$. Com ela, a banda do ruído branco fica **estreita demais** a partir da defasagem $q+1$.
+
+**Passo a passo.**
+
+1. **A fórmula de Bartlett.** Para um processo linear com $\sum\lvert\psi_j\rvert\lt\infty$, $\sqrt T(\widehat\rho_k-\rho_k)$ é assintoticamente normal, com variância $\sum_{j}\big(\rho_{j+k}+\rho_{j-k}-2\rho_j\rho_k\big)^2$.
+2. **Ruído branco.** $\rho_j=0$ para $j\ne0$. Na soma só sobra $j=\pm k$, com $\rho_0=1$, e a variância é 1. Então $\widehat\rho_k\approx N(0,1/T)$.
+3. **MA($q$) e $k\gt q$.** $\rho_k=0$, e a soma vira $\sum_j\rho_{j-k}^2=\sum_{\lvert i\rvert\le q}\rho_i^2=1+2\sum_{j=1}^{q}\rho_j^2$.
+4. **A simulação**, com $T=200$ e 5000 réplicas:
+   - **ruído branco:** o desvio-padrão de $\widehat\rho_1$ dá 0,0699, contra $1/\sqrt T=0{,}0707$. A banda rejeita 4,8% das vezes, perto dos 5% nominais;
+   - **MA(1) com $\theta=0{,}5$** (sinal do R), $\rho_1=0{,}4$: o desvio-padrão de $\widehat\rho_2$ dá 0,0800, contra 0,0812 por Bartlett. A banda **ingênua** acusa um pico espúrio em $k=2$ em 8,2% das vezes. A de Bartlett, em 4,5%.
+
+$$\boxed{\operatorname{Var}(\widehat\rho_k)\approx\frac{1}{T}\Big(1+2\sum_{j=1}^{q}\rho_j^2\Big),\quad k\gt q;\qquad\text{ruído branco: }\pm1{,}96/\sqrt T}$$
+
+**O que isso muda na prática.** A banda que o R desenha no `acf` é a do ruído branco. Ela serve para a pergunta "a série é ruído branco?". Também serve para os resíduos (Questão 5 do [INPC](../trabalho_inpc/relatorio.md)) e para a FACP de um AR, cuja variância depois de $p$ é mesmo $1/T$. Para decidir onde a FAC de um MA corta, porém, um pico pouco acima da banda depois de $q$ não prova nada: a banda certa é mais larga. No INPC, a FAC em $k=13$ (0,123) fica pouco acima de 0,109, e é por isso que a decisão sobre o grupo 11-12-13 veio dos critérios de informação, e não só do correlograma.
+
+<!-- conferência numérica
+| chave_R | nota |
+|---|---|
+| m02_bart_T | 200 |
+| m02_bart_R | 5000 |
+| m02_bart_dp_wn | 0,0699 |
+| m02_bart_dp_wn_teo | 0,0707 |
+| m02_bart_rej_wn | 4,8 |
+| m02_bart_rho1_ma | 0,4 |
+| m02_bart_dp_ma2 | 0,0800 |
+| m02_bart_dp_ma2_teo | 0,0812 |
+| m02_bart_rej_ma2_ingenua | 8,2 |
+| m02_bart_rej_ma2_bartlett | 4,5 |
+-->
+
 ## 4. A tabela de identificação
 
 | Processo | FAC | FACP |

@@ -70,3 +70,13 @@ m02_eqd2_periodo,            8
 m02_eqd2_mod_z,1.41421356237
 m02_eqd2_disc,           -1
 m02_eqd2_yp,            4
+m02_bart_dp_wn,0.0698903678438
+m02_bart_dp_wn_teo,0.0707106781187
+m02_bart_rej_wn,         4.76
+m02_bart_rho1_ma,          0.4
+m02_bart_dp_ma2,0.0800398883574
+m02_bart_dp_ma2_teo,0.0812403840464
+m02_bart_rej_ma2_ingenua,          8.2
+m02_bart_rej_ma2_bartlett,         4.54
+m02_bart_T,          200
+m02_bart_R,         5000
