@@ -105,6 +105,7 @@ for (md in mds) {
         if (grepl("[$\\ ]", alvo)) next          # é matemática, não link
         alvo <- sub("#.*$", "", alvo)
         if (!nzchar(alvo)) next
+        if (startsWith(alvo, "materiais/")) next  # fora do git: só existe nos clones locais
         if (!file.exists(file.path(dirname(md), alvo)))
           E("%s:%d: link relativo quebrado: %s", rel, i, alvo)
       }

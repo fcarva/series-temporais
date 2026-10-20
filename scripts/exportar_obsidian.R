@@ -12,9 +12,10 @@
 #   1. id do cofre ou caminho absoluto da pasta do cofre (padrão: 88f5c4b837449c13)
 #   2. nome da pasta dentro do cofre (padrão: "Econometria II - Séries temporais")
 #
-# O que vai: todos os arquivos versionados (notas, figuras, scripts, dados) mais os
-# PDFs do caderno, se já tiverem sido gerados. Não vai: .git, materiais/ (fora do git)
-# e arquivos de configuração do repositório.
+# O que vai: todos os arquivos versionados (notas, figuras, scripts, dados), os PDFs
+# do caderno, se já tiverem sido gerados, e os PDFs de materiais/ (aulas, listas,
+# livros), se estiverem neste clone. Não vai: .git, materiais/_txt e arquivos de
+# configuração do repositório.
 # A cópia é um espelho: um manifesto (.exportado_do_repo.txt) lembra o que foi
 # exportado da última vez, e só esses arquivos são apagados se saírem do repositório.
 # Notas suas criadas na mesma pasta não são tocadas.
@@ -63,6 +64,9 @@ fora <- c(".gitattributes", ".gitignore", ".repo-root")
 arquivos <- setdiff(versionados, fora)
 pdfs <- list.files(file.path(RAIZ, "caderno", "pdf"), pattern = "\\.pdf$")
 arquivos <- c(arquivos, if (length(pdfs)) file.path("caderno", "pdf", pdfs))
+# materiais/ fica fora do git (repo público), mas o cofre é local: vai se existir aqui.
+mats <- list.files(file.path(RAIZ, "materiais"), recursive = TRUE)
+arquivos <- c(arquivos, if (length(mats)) file.path("materiais", mats[!startsWith(mats, "_txt/")]))
 
 ## ---- 3. copiar (só o que mudou) --------------------------------------------------------
 copiados <- 0L
