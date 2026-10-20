@@ -1,0 +1,58 @@
+id	fonte	topico	modulos	regex	peso
+T01	AU01	estacionariedade fraca e estrita	01_processos_estacionariedade	estacionariedade (fraca|estrita)|fracamente estacion|estritamente estacion	2
+T02	AU01	ergodicidade	01_processos_estacionariedade	ergódic|ergodic	1
+T03	AU01	ruído branco: definição e momentos	01_processos_estacionariedade	ruído branco	1
+T04	AU01	momentos do passeio aleatório (com e sem drift)	01_processos_estacionariedade	passeio aleatório|random walk	2
+T05	AU01	FAC amostral e banda de significância	01_processos_estacionariedade;02_arma	banda|1\{,\}96/\\sqrt	1
+T06	AU01	testes portmanteau (Box-Pierce, Ljung-Box)	01_processos_estacionariedade;04_estimacao_selecao;trabalho_inpc	Ljung-Box|Box-Pierce	1
+T07	EQD	equação de diferenças de 1ª ordem (solução iterativa e estabilidade)	01_processos_estacionariedade;02_arma	equaç(ão|ões) (a|de) diferenças? de primeira ordem|diferenças de 1ª ordem|método iterativo	2
+T08	EQD	equação de diferenças de 2ª ordem (raízes características, caso complexo)	02_arma	diferenças de segunda ordem|diferenças de 2ª ordem|equação característica	2
+T09	AU02	operador de defasagem e polinômios	02_arma	operador de defasagem|operador, polinômios	1
+T10	AU02	processo linear geral e representação de Wold	01_processos_estacionariedade;02_arma	Wold|processo linear geral	2
+T11	AU02	MA(q): momentos e FAC que trunca	02_arma	MA\(\$?q\$?\)|MA\(1\)	2
+T12	AU02	invertibilidade	02_arma;03_arima_sarima	invertib	2
+T13	AU02	AR(1): momentos e estacionariedade	01_processos_estacionariedade;02_arma	AR\(1\)	2
+T14	AU02	AR(2): triângulo de estacionariedade e raízes complexas (ciclo)	02_arma	AR\(2\)	2
+T15	AU02	ARMA(1,1): FAC e pesos psi e pi	02_arma	ARMA\(1,1\)	2
+T16	AU02	fator comum (redundância de parâmetros)	02_arma	fator comum	1
+T17	AU02	Yule-Walker	02_arma	Yule-Walker	2
+T18	AU02	FACP	02_arma	FACP	1
+T19	AU02	MV condicional e exata; MQO do AR	04_estimacao_selecao	verossimilhança	2
+T20	AU02	AIC e BIC (consistência e eficiência)	04_estimacao_selecao	AIC|BIC	2
+T21	AU02	previsão de MA e AR (trunca, volta à média)	05_previsao	previs	2
+T22	AU02	variância do erro de previsão e intervalo	05_previsao	Var\(e_T|erro de previsão	2
+T23	AU03	ciclo de Box-Jenkins	04_estimacao_selecao;06_aplicacao_sarima;trabalho_inpc	Box-Jenkins	1
+T24	AU03	normalidade dos resíduos (Jarque-Bera)	04_estimacao_selecao;trabalho_inpc	Jarque-Bera	1
+T25	AU03	Breusch-Godfrey	04_estimacao_selecao;07_regressao_dinamica	Breusch-Godfrey	1
+T26	AU03	ARCH-LM (heterocedasticidade condicional)	04_estimacao_selecao;trabalho_inpc	ARCH	1
+T27	AU03	teste de Chow (quebra em data conhecida)	04_estimacao_selecao;trabalho_inpc	Chow	1
+T28	AU03	CUSUM e estimação recursiva	04_estimacao_selecao;trabalho_inpc	CUSUM|recursiv	1
+T29	AU03	esquemas de janela (fixa, recursiva, móvel)	05_previsao;trabalho_inpc	janela (fixa|recursiva|móvel|deslizante|expansiva)|rolling|origem (fixa|móvel)	2
+T30	AU03	previsão iterada × direta	05_previsao	iterada|direta	2
+T31	AU03	métricas de erro (RMSE, MAE, MAPE, MASE)	05_previsao;trabalho_inpc	RMSE|MASE|MAPE	2
+T32	AU03	Diebold-Mariano	05_previsao;trabalho_inpc	Diebold-Mariano	2
+T33	AU03	intervalos: Winkler e cobertura	05_previsao;trabalho_inpc	Winkler|cobertura	1
+T34	AU03	previsão de densidade: CRPS	05_previsao	CRPS	1
+T35	AU03	teste de cobertura condicional (Christoffersen)	05_previsao	Christoffersen|cobertura condicional	1
+T36	AU04	tendência determinística × estocástica (TS × DS)	03_arima_sarima	tendência determinística|tendência estocástica|diferença-estacionári|estacionári[oa] em tendência	2
+T37	AU04	remover tendência: diferenciar × regredir em t	03_arima_sarima	detrend|tirar a tendência|regredir.*em \$?t	1
+T38	AU04	sobrediferenciação (MA não invertível)	03_arima_sarima;trabalho_inpc	sobrediferenc	2
+T39	AU04	Dickey-Fuller: distribuição não padrão e as três especificações	03_arima_sarima	Dickey-Fuller|\\tau_\\tau|\\tau_\\mu	2
+T40	AU04	ADF: escolha das defasagens	03_arima_sarima;trabalho_inpc	ADF	2
+T41	AU04	procedimento sequencial dos termos determinísticos (phi1, phi2, phi3)	03_arima_sarima;trabalho_inpc	\\phi_[123]|sequencial|Dolado	2
+T42	AU04	Phillips-Perron	03_arima_sarima;trabalho_inpc	Phillips-Perron|\bPP\b	1
+T43	AU04	KPSS (nula invertida) e confirmação ADF+KPSS	03_arima_sarima;trabalho_inpc	KPSS	2
+T44	AU04	baixo poder dos testes de raiz unitária com séries persistentes	03_arima_sarima	poder	2
+T45	MAT	decomposição de Beveridge-Nelson	03_arima_sarima	Beveridge	2
+T46	MAT	quebra estrutural e raiz unitária (Perron)	03_arima_sarima	Perron \(19|quebra estrutural|Zivot	1
+T47	AU05	ARIMA(p,d,q) e ordem de integração	03_arima_sarima	ARIMA	2
+T48	AU05	SARIMA multiplicativo	03_arima_sarima;06_aplicacao_sarima	SARIMA	2
+T49	AU05	diferença sazonal e raiz unitária sazonal (OCSB, CH, HEGY)	03_arima_sarima;trabalho_inpc	raiz unitária sazonal|OCSB|HEGY|Canova	2
+T50	AU05	sazonalidade determinística (dummies) × estocástica	03_arima_sarima;trabalho_inpc	sazonalidade determinística|dummies (sazonais|mensais)	2
+T51	AU06	exogeneidade contemporânea, predeterminação e estrita	07_regressao_dinamica	predetermin	2
+T52	AU06	DL e multiplicadores	07_regressao_dinamica	DL\(	2
+T53	AU06	ARDL: estabilidade e MQO	07_regressao_dinamica	ARDL	2
+T54	AU06	multiplicador de longo prazo e método delta	07_regressao_dinamica	longo prazo	2
+T55	AU06	viés por omitir y defasado	07_regressao_dinamica	omitir	1
+T56	AU06	ECM e velocidade de ajuste	07_regressao_dinamica	ECM	2
+T57	AU06	causalidade de Granger e feedback	07_regressao_dinamica	Granger	2

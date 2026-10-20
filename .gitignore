@@ -21,3 +21,7 @@ desktop.ini
 
 # Caderno: arquivos intermediários do LaTeX
 caderno/_build/
+
+# Autoestudo: log dos experimentos e status por tópico (gerados)
+autoestudo/resultados.tsv
+autoestudo/cobertura.tsv
