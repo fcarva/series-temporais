@@ -54,3 +54,13 @@ m03_df_poder_t400_phi80,          100
 m03_df_poder_t400_phi90,          100
 m03_df_poder_t400_phi95,         86.1
 m03_df_poder_t400_phi99,        10.35
+m03_quebra_c5_du,-3.36218175425
+m03_quebra_d0_rej_df,          100
+m03_quebra_d0_rej_du,          100
+m03_quebra_d3_rej_df,        93.85
+m03_quebra_d3_rej_du,          100
+m03_quebra_d6_rej_df,          5.4
+m03_quebra_d6_rej_du,        99.95
+m03_quebra_d10_rej_df,            0
+m03_quebra_d10_rej_du,          100
+m03_quebra_dp_u,1.66666666667

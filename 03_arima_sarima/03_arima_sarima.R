@@ -128,4 +128,26 @@ for (n in c(100, 400)) for (ph in c(0.80, 0.90, 0.95, 0.99)) {
   registrar(sprintf("m03_df_poder_t%d_phi%d", n, round(100 * ph)), 100 * rej)
 }
 
+## ---- D03.4: quebra de nível e raiz unitária (Perron, 1989) ------------------------
+# y_t = delta 1{t > T/2} + u_t, u_t AR(1) com phi = 0,8: estacionário em torno de um nível que muda.
+# DF com constante ignora a quebra; DF com a dummy de nível DU_t na regressão a incorpora.
+tau_du <- function(y) {
+  n <- length(y); du <- as.numeric(seq_len(n) > n / 2)[-1]
+  X <- cbind(1, du, y[-n]); f <- stats::lm.fit(X, diff(y))
+  s2 <- sum(f$residuals^2) / (n - 1 - 3)
+  f$coefficients[3] / sqrt(s2 * solve(crossprod(X))[3, 3])
+}
+T_q <- 200; R_q <- 2000
+c5_du <- unname(stats::quantile(replicate(5000, tau_du(cumsum(stats::rnorm(T_q)))), 0.05))  # crítico sob H0
+registrar("m03_quebra_c5_du", c5_du)
+for (dl in c(0, 3, 6, 10)) {
+  sim <- replicate(R_q, {
+    y <- dl * (seq_len(T_q) > T_q / 2) + as.numeric(stats::arima.sim(list(ar = 0.8), T_q))
+    c(tau_df(y, "c") < c5, tau_du(y) < c5_du)
+  })
+  registrar(sprintf("m03_quebra_d%d_rej_df", dl), 100 * mean(sim[1, ]))
+  registrar(sprintf("m03_quebra_d%d_rej_du", dl), 100 * mean(sim[2, ]))
+}
+registrar("m03_quebra_dp_u", sqrt(1 / (1 - 0.8^2)))          # dp de u_t: o salto em unidades de dp
+
 gravar_resultados("m03")

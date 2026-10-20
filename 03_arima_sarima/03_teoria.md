@@ -135,6 +135,48 @@ $$\boxed{\tau\ \text{sob } H_0\ \text{segue Dickey-Fuller, não } N(0,1);\qquad 
 | m03_df_poder_t400_phi99 | 10,3 |
 -->
 
+### D03.4 · Uma quebra estrutural de nível imita uma raiz unitária (Perron, 1989)
+
+> [!NOTE]
+> **O que se quer provar**
+> Uma série estacionária em torno de um nível que **muda uma vez** pode fazer o ADF não rejeitar a raiz unitária. O teste confunde o salto permanente com acúmulo de choques. Incluir a quebra na regressão auxiliar devolve o poder (AU04; MAT, conclusão).
+
+**Passo a passo.**
+
+1. **O processo.** $y_t=\delta\,DU_t+u_t$, com $DU_t=\mathbf 1\{t\gt T/2\}$ e $u_t=0{,}8u_{t-1}+\varepsilon_t$. É I(0) em cada metade: os choques morrem. Só o nível médio muda, uma vez, de 0 para $\delta$. O desvio-padrão de $u_t$ é $1/\sqrt{1-0{,}64}=1{,}67$.
+2. **Por que o ADF erra.** A regressão de DF com constante supõe **uma** média. Diante do salto, o melhor ajuste é pôr $\widehat\gamma$ perto de zero: um processo que "não volta" explica a mudança de patamar melhor que um que volta a uma média única e errada. O teste fica viesado para a não rejeição.
+3. **A correção.** Pôr a dummy na regressão: $\Delta y_t=a+d\,DU_t+\gamma y_{t-1}+e_t$. Os críticos mudam. Eles dependem da posição da quebra; aqui foram simulados sob $H_0$, com o passeio aleatório, e o de 5% dá −3,36, mais negativo que o −2,88 do DF com constante.
+4. **A simulação**, com $T=200$, quebra na metade, 2000 réplicas, rejeições a 5%:
+
+   | Salto $\delta$ | 0 | 3 | 6 | 10 |
+   |---|---|---|---|---|
+   | DF com constante, ignorando a quebra | 100% | 93,8% | 5,4% | 0% |
+   | DF com a dummy de nível | 100% | 100% | 99,95% | 100% |
+
+   Com um salto de 6, cerca de 3,6 desvios-padrão de $u_t$, o ADF comum rejeita só 5,4% das vezes, o mesmo que faria se houvesse raiz unitária de verdade. Com a dummy, rejeita quase sempre.
+
+$$\boxed{\text{quebra de nível ignorada}\Rightarrow\text{ADF viesado para "raiz unitária"};\qquad\text{data conhecida: dummy na regressão e crítico próprio}}$$
+
+Quando a data da quebra não é conhecida e é escolhida pelos dados, os críticos mudam de novo. É o caso de Zivot e Andrews (1992), que procuram a quebra que mais favorece a alternativa.
+
+**A ligação com o INPC.** No [relatório](../trabalho_inpc/relatorio.md), o Chow indica quebra em mar/2020, e mesmo assim o ADF da variação mensal rejeita com folga a raiz unitária (Questão 2). Isso é coerente com esta seção: uma quebra **enfraquece** o teste, mas ali a evidência de estacionariedade é forte o bastante para sobreviver a ela. Se o ADF não tivesse rejeitado, a quebra seria o primeiro suspeito, antes de concluir por $d=1$.
+
+<!-- conferência numérica
+| chave_R | nota |
+|---|---|
+| m03_quebra_dp_u | 1,67 |
+| m03_quebra_c5_du | -3,36 |
+| m03_df_q05_c | -2,88 |
+| m03_quebra_d0_rej_df | 100 |
+| m03_quebra_d3_rej_df | 93,8 |
+| m03_quebra_d6_rej_df | 5,4 |
+| m03_quebra_d10_rej_df | 0 |
+| m03_quebra_d0_rej_du | 100 |
+| m03_quebra_d3_rej_du | 100 |
+| m03_quebra_d6_rej_du | 99,95 |
+| m03_quebra_d10_rej_du | 100 |
+-->
+
 **KPSS:** as hipóteses são invertidas, com $H_0$ = estacionária (em nível ou em tendência). A leitura padrão é cruzar os dois: ADF não rejeita e KPSS rejeita aponta I(1); ADF rejeita e KPSS não rejeita aponta I(0).
 
 ## 3. Sazonalidade
