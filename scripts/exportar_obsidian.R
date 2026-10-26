@@ -66,7 +66,7 @@ pdfs <- list.files(file.path(RAIZ, "caderno", "pdf"), pattern = "\\.pdf$")
 arquivos <- c(arquivos, if (length(pdfs)) file.path("caderno", "pdf", pdfs))
 # materiais/ fica fora do git (repo público), mas o cofre é local: vai se existir aqui.
 mats <- list.files(file.path(RAIZ, "materiais"), recursive = TRUE)
-arquivos <- c(arquivos, if (length(mats)) file.path("materiais", mats[!startsWith(mats, "_txt/")]))
+arquivos <- unique(c(arquivos, if (length(mats)) file.path("materiais", mats[!startsWith(mats, "_txt/")])))
 
 ## ---- 3. copiar (só o que mudou) --------------------------------------------------------
 copiados <- 0L
