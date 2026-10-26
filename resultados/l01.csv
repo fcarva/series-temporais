@@ -91,3 +91,22 @@ l01_longa_ar1_ep,0.0435627543644
 l01_c1_ar1_ep,0.0672113268755
 l01_longa_jb,384.690873581
 l01_longa_rmse_s1,110.898205747
+l01_dupla_dfgls12,-1.21309305058
+l01_dupla_dfgls1,-3.6496114581
+l01_dupla_tau3,-5.20196594863
+l01_dupla_aic1,128.654791464
+l01_dupla_ll1,-60.3273957322
+l01_dupla_k1,            4
+l01_dupla_ncoef1,            3
+l01_dupla_F,2.99804882906
+l01_dupla_pF,0.00121893062502
+l01_dupla_mu,0.461170966216
+l01_dupla_c,0.18661302776
+l01_dupla_t_sar3,0.737519425333
+l01_dupla_t_sma3,-0.409272572424
+l01_dupla_rmse_m1,0.387741669017
+l01_dupla_rmse_sn1,0.317037064079
+l01_dupla_rmse_m2,0.409515490588
+l01_dupla_rmse_sn2,0.366458274114
+l01_dupla_cob,95.8333333333
+l01_dupla_zeros,            1

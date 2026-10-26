@@ -26,6 +26,10 @@ A série é o **INPC em nível** (número-índice), de **jan/2013 a set/2026 (16
 > **Para estudar para a prova**
 > Comece pelo [guia de estudo](guia_estudo.md). Ele explica, questão por questão, o que cada passo está tentando descobrir, por que cada teste e não outro, como o teste funciona por dentro e o que o INPC respondeu. Explica também por que a janela é 2013–2026 e não 2000–2026. Termina com as armadilhas mais comuns e 20 perguntas de prova com resposta.
 
+## A versão da dupla em Quarto (variação mensal, $d=0$)
+
+A pasta [dupla/](dupla/revisao.md) tem a versão em Quarto feita pela dupla, que modela a variação mensal do INPC com $d=0$. Ela foi revisada e completada: [inpc_lista_1_revisado.qmd](dupla/inpc_lista_1_revisado.qmd), com a base `dupla/inpc_13_a_26.csv`. A [revisão](dupla/revisao.md) lista o que estava errado e por quê.
+
 ## O jeito mais simples: um script só, em qualquer lugar
 
 [lista01_inpc.R](lista01_inpc.R) é autossuficiente. Copie-o para qualquer pasta e rode no RStudio, bloco a bloco, ou com `Rscript lista01_inpc.R`; é preciso ter R e internet. O script:

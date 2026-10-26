@@ -150,4 +150,32 @@ registrar_varios(c(
   l01_longa_rmse_s1 = sl1[["RMSE"]]
 ))
 
+# Revisão do .qmd da dupla (lista01/dupla/): a variação mensal publicada pelo IBGE
+vd <- read.csv(caminho_repo("lista01", "dupla", "inpc_13_a_26.csv"))
+xv <- ts(vd$variacao, start = c(2013, 1), frequency = 12)
+mv1 <- arima(xv, order = c(1, 0, 0), seasonal = list(order = c(1, 0, 0), period = 12), method = "ML")
+mv3 <- arima(xv, order = c(1, 0, 0), seasonal = list(order = c(1, 0, 1), period = 12), method = "ML")
+av <- anova(lm(as.numeric(xv) ~ factor(cycle(xv))))
+T0v <- length(xv) - 24; trv <- window(xv, end = time(xv)[T0v]); tev <- window(xv, start = time(xv)[T0v + 1])
+fv <- Arima(trv, order = c(1, 0, 0), seasonal = c(1, 0, 0), method = "ML")
+pv1 <- forecast(fv, h = 24, level = 95); pv2 <- window(fitted(Arima(xv, model = fv)), start = time(xv)[T0v + 1])
+sv1 <- snaive(trv, h = 24)$mean; sv2 <- window(stats::lag(xv, -12), start = start(tev), end = end(tev))
+rmse <- function(p) sqrt(mean((as.numeric(tev) - as.numeric(p))^2))
+registrar_varios(c(
+  l01_dupla_dfgls12 = ur.ers(xv, type = "DF-GLS", model = "constant", lag.max = 12)@teststat,
+  l01_dupla_dfgls1 = ur.ers(xv, type = "DF-GLS", model = "constant", lag.max = 1)@teststat,
+  l01_dupla_tau3 = ur.df(xv, type = "trend", lags = 12, selectlags = "BIC")@teststat[1, "tau3"],
+  l01_dupla_aic1 = AIC(mv1), l01_dupla_ll1 = mv1$loglik, l01_dupla_k1 = (AIC(mv1) + 2 * mv1$loglik) / 2,
+  l01_dupla_ncoef1 = length(coef(mv1)),
+  l01_dupla_F = av[["F value"]][1], l01_dupla_pF = av[["Pr(>F)"]][1],
+  l01_dupla_mu = coef(mv1)[["intercept"]],
+  l01_dupla_c = coef(mv1)[["intercept"]] * (1 - coef(mv1)[["ar1"]]) * (1 - coef(mv1)[["sar1"]]),
+  l01_dupla_t_sar3 = coef(mv3)[["sar1"]] / sqrt(mv3$var.coef["sar1", "sar1"]),
+  l01_dupla_t_sma3 = coef(mv3)[["sma1"]] / sqrt(mv3$var.coef["sma1", "sma1"]),
+  l01_dupla_rmse_m1 = rmse(pv1$mean), l01_dupla_rmse_sn1 = rmse(sv1),
+  l01_dupla_rmse_m2 = rmse(pv2), l01_dupla_rmse_sn2 = rmse(sv2),
+  l01_dupla_cob = 100 * mean(tev >= pv1$lower & tev <= pv1$upper),
+  l01_dupla_zeros = sum(tev == 0)
+))
+
 gravar_resultados("l01")
