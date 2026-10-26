@@ -1,5 +1,6 @@
 # Transforma o laboratório (um script R com comentários #') num PDF e numa nota Markdown.
-#   PDF: lista01/laboratorio_lista01.pdf (fora do git, como todo PDF)
+#   PDF: lista01/laboratorio_lista01.pdf (versionado, a única exceção ao *.pdf do .gitignore,
+#        para ir ao cofre do Obsidian)
 #   Markdown: lista01/laboratorio_lista01.md + laboratorio_lista01_files/ (lidos no Obsidian e no GitHub)
 # Rodar: Rscript lista01/renderizar_laboratorio.R
 aqui <- local({ a <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE))

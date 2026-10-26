@@ -2,6 +2,8 @@
 materiais/
 *.pdf
 *.PDF
+# exceção: o laboratório da Lista 01 é material nosso e vai para o cofre do Obsidian
+!lista01/laboratorio_lista01.pdf
 *.jpg
 *.jpeg
 
