@@ -110,3 +110,6 @@ l01_dupla_rmse_m2,0.409515490588
 l01_dupla_rmse_sn2,0.366458274114
 l01_dupla_cob,95.8333333333
 l01_dupla_zeros,            1
+l01_adfsaz_y,-2.20725076383
+l01_adfsaz_dy,-6.74306726675
+l01_adfsaz_var,-4.86888270329

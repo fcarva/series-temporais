@@ -76,7 +76,7 @@ O passeio aleatório tem $\operatorname{Var}(y_t)=t\sigma^2$, que cresce com o t
 
 > [!IMPORTANT]
 > **A frase-resumo da Lista 01**
-> O INPC é $I(1)$ com drift: o log do índice tem raiz unitária, e a inflação mensal $\Delta y_t$ é estacionária em torno de uma média positiva. Por isso o modelo é um ARIMA com $d=1$ e constante para o log, o que é o mesmo que um ARMA com média para a inflação.
+> O log do INPC é um processo **diferença estacionária**: tem tendência determinística (o drift, a inflação média) e tendência estocástica (a soma dos choques). Na definição ampla, é $I(1)$. A inflação mensal $\Delta y_t$ é $I(0)$: estacionária em torno de uma média positiva, sem tendência nenhuma. Por isso o modelo é um ARIMA com $d=1$ e constante para o log, o que é o mesmo que um ARMA com média para a inflação.
 
 ## 1. Q1: olhar a série antes de testar qualquer coisa
 
@@ -140,13 +140,35 @@ Estou decidindo $d$ (o número de diferenças regulares) e $D$ (o número de dif
 
 Uma série que sobe ao longo do tempo pode ter dois tipos de tendência, e eles pedem tratamentos opostos:
 
-| | Tendência determinística (TS) | Tendência estocástica (DS) |
+| | Tendência estacionária (TS) | Diferença estacionária (DS) |
 |---|---|---|
 | Modelo | $y_t=\alpha+\beta t+u_t$, $u_t$ estacionário | $y_t=\beta+y_{t-1}+u_t$ (passeio com drift) |
+| Tendências que contém | só determinística | determinística ($\beta t$) **e** estocástica ($\sum u_j$) |
 | Um choque hoje | passa: a série volta para a reta | é permanente: muda o nível para sempre |
 | Variância de $y_t$ | constante | cresce com $t$ |
 | Como estacionarizar | tirar a tendência (regredir em $t$) | diferenciar |
 | Errar para o outro lado | diferenciar uma TS cria um MA não invertível | tirar a tendência de uma DS deixa uma raiz unitária no resíduo |
+
+### Os quatro processos (MATTOS, 2019, seção 1.11)
+
+A tabela acima é um resumo. O texto de Mattos (MAT), da bibliografia do curso, organiza tudo em quatro processos, que diferem em **quais tendências** contêm. Somando a equação de um passeio com drift desde o início:
+
+$$
+y_t=y_0+\beta t+\sum_{j=1}^{t}u_j,
+$$
+
+aparecem as duas tendências: $\beta t$ é a parte **determinística** (um acréscimo fixo e previsível a cada período), e $\sum u_j$ é a parte **estocástica** (a soma de todos os choques, que nunca se apaga).
+
+| Processo | Equação | Tendência determinística | Tendência estocástica | No INPC |
+|---|---|---|---|---|
+| Estacionário | $y_t=a+\rho y_{t-1}+u_t$, $\lvert\rho\rvert\lt 1$ | não | não | a inflação mensal |
+| Raiz unitária, I(1) | $y_t=y_{t-1}+u_t$ | não | sim | — |
+| Tendência estacionária (TS) | $y_t=a+bt+u_t$ | sim | não | rejeitado |
+| Diferença estacionária (DS) | $y_t=a+y_{t-1}+u_t$ | sim | sim | o log do índice |
+
+**Duas definições de I(1).** Na definição **ampla**, usada pela maioria dos livros, uma série é I(1) se precisa de uma diferença para ficar estacionária: o passeio com e sem drift são ambos I(1). Na definição **restrita** de Engle e Granger, adotada por Mattos, I(1) é só o processo sem termos determinísticos; o passeio com drift é "diferença estacionária", que **contém** um processo I(1) somado a uma reta. Na prova, diga qual definição está usando: "o log do INPC é DS (I(1) na definição ampla)".
+
+**Toda série é estocástica.** Não faz sentido perguntar se a *série* é determinística ou estocástica: todas têm choques aleatórios. O que é determinístico ou estocástico é a **tendência**.
 
 Os dois erros têm custo. A Q6 mostra o custo de diferenciar demais. O custo de não diferenciar uma série I(1) é pior: a inferência usual deixa de valer, e aparecem regressões espúrias. Os testes de raiz unitária servem para escolher entre as duas colunas da tabela.
 
@@ -171,6 +193,16 @@ $$
 
 O teste é **unilateral à esquerda**: rejeita-se $H_0$ quando $\tau=\widehat\gamma/\operatorname{ep}(\widehat\gamma)$ é muito negativo.
 
+**O que cada versão testa (MAT, seção 2.2).** As hipóteses mudam com os termos determinísticos:
+
+| Versão | $H_0$ (raiz unitária) | $H_1$ (sem raiz unitária) |
+|---|---|---|
+| sem constante | I(1) puro: só tendência estocástica | estacionário com média zero |
+| com constante | I(1) puro: só tendência estocástica | estacionário com média $\neq0$ |
+| com constante e tendência | DS: tendência determinística + estocástica | TS: tendência determinística + erro estacionário |
+
+Na versão com tendência, **as duas hipóteses são não estacionárias**. Ali o ADF não testa "estacionária ou não"; testa se há um processo I(1) embutido na série. É um erro comum, e Mattos chama a atenção para ele.
+
 **Por que a estatística não segue a $t$ de Student.** Sob $H_0$, o regressor $y_{t-1}$ é um passeio aleatório, não estacionário. A variância amostral de $y_{t-1}$ não converge para uma constante, e o teorema central do limite usual não se aplica. A distribuição limite de $\tau$ é um funcional do movimento browniano (a distribuição de Dickey-Fuller). Ela é assimétrica e deslocada para a esquerda, e os valores críticos são mais negativos do que $-1{,}645$.
 
 **Os três casos e seus valores críticos.** Os termos determinísticos mudam a distribuição, e por isso há três tabelas:
@@ -187,6 +219,8 @@ O teste é **unilateral à esquerda**: rejeita-se $H_0$ quando $\tau=\widehat\ga
 1. modelo com tendência: se $\tau_3$ não rejeita, olha-se o $\phi_3$; se ele também não rejeita, a tendência sai;
 2. modelo com constante: se $\tau_2$ não rejeita, olha-se o $\phi_1$; se ele rejeita, há raiz unitária **com drift**;
 3. modelo sem nada, só se a constante também sair.
+
+**Como escolher a versão na prática (MAT, seção 2.2.5).** Pelo gráfico. Se a série cresce, usa-se a versão com constante e tendência; na dúvida, também, porque ela engloba as outras. Se a série oscila em torno de uma média, usa-se a versão com constante. Para o INPC: o log do índice cresce (com tendência); a inflação oscila em torno de 0,45% (com constante).
 
 **Como escolher $k$.** Defasagens de menos deixam autocorrelação no erro, e o teste erra o tamanho. Defasagens demais custam poder. A prática é partir de um máximo, $k_{\max}=12\,(T/100)^{1/4}=13$ para $T=165$ (regra de Schwert), e escolher por AIC ou BIC.
 
@@ -240,6 +274,12 @@ Adota-se tendência estocástica, $d=1$, por cinco argumentos. Na prova, cite pe
 3. **O argumento econômico.** Sob metas de inflação, o Banco Central mira a inflação, não o nível de preços. Um choque que eleva o índice não é revertido: o nível nunca volta para uma trajetória fixa. Isso é a definição de tendência estocástica.
 4. **O teste na diferença.** Na inflação $\Delta y_t$, o ADF com constante dá $\tau_2=-5{,}16$, muito abaixo de $-2{,}88$, e o KPSS de nível dá $0{,}114$, abaixo do crítico de $0{,}463$. Os dois concordam: $\Delta y$ é estacionária, então $d=1$ basta. O `ndiffs` (KPSS em sequência) também devolve $d=1$.
 5. **O diagnóstico de sobrediferenciação.** Se $y$ fosse TS, diferenciar criaria um MA com raiz unitária em $\Delta y$. Na Q5, o MA(1) acrescentado ao modelo de $\Delta y$ sai $-0{,}17$, longe de $-1$.
+
+**Robustez à sazonalidade (MAT, seção 2.6).** Numa série mensal, a sazonalidade não modelada pode distorcer o ADF. A correção de Dickey e Miller é acrescentar 11 dummies sazonais centradas à regressão do teste; os valores críticos continuam os mesmos. No INPC, com dummies e defasagens pelo BIC:
+- log do índice, versão com tendência: $\tau=-2{,}21$, contra o crítico de $-3{,}43$. Não rejeita: continua DS;
+- inflação, versão com constante: $\tau=-6{,}74$, contra $-2{,}88$. Rejeita: continua estacionária.
+
+A conclusão $d=1$ (ou $d=0$ para a inflação) não depende de como se trata a sazonalidade.
 
 > [!NOTE]
 > **Por que o argumento 5 é forte**
@@ -643,7 +683,10 @@ Porque o log estabiliza a variância de uma série que cresce exponencialmente e
 Porque o outro estimador (MV) deu 0,30, e com o índice só dobrando em 13 anos há pouca informação para estimar $\lambda$. Quando a estatística é ambígua, decide a interpretação: com log, $\Delta y$ é a inflação.
 
 **3. Qual a diferença entre uma série TS e uma DS? Por que importa?**
-Na TS, choques são temporários, e a série volta para uma tendência determinística; estacionariza-se tirando a tendência. Na DS, choques são permanentes; estacionariza-se diferenciando. Tratar uma como a outra gera, respectivamente, um MA não invertível ou um resíduo com raiz unitária.
+Na TS, só há tendência determinística: choques são temporários, e a série volta para a reta; estacionariza-se tirando a tendência. Na DS, há tendência determinística **e** estocástica: choques são permanentes; estacionariza-se diferenciando. Tratar uma como a outra gera, respectivamente, um MA não invertível ou um resíduo com raiz unitária.
+
+**3b. A inflação mensal é I(0)? E o índice, é determinístico ou estocástico?**
+A inflação é I(0): estacionária em torno de uma média, sem tendência nenhuma. O log do índice é diferença estacionária: tem uma tendência determinística (o drift) e uma estocástica (a soma dos choques). "Determinística" e "estocástica" se aplicam à tendência, não à série: toda série econômica é estocástica.
 
 **4. Por que o teste ADF não usa os valores críticos da normal?**
 Porque, sob $H_0$, o regressor $y_{t-1}$ é não estacionário, e a estatística $\tau$ converge para um funcional do movimento browniano, não para uma normal. A distribuição é deslocada para a esquerda.
@@ -786,4 +829,6 @@ Porque a série longa mistura regimes: a crise de 2002–2003 e a queda de patam
 | l01_longa_kpss | 0,170 |
 | l01_longa_jb | 384,7 |
 | l01_longa_rmse_s1 | 110,9 |
+| l01_adfsaz_y | -2,21 |
+| l01_adfsaz_dy | -6,74 |
 -->

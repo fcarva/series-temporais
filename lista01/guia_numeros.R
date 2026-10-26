@@ -178,4 +178,22 @@ registrar_varios(c(
   l01_dupla_zeros = sum(tev == 0)
 ))
 
+# ADF com dummies sazonais centradas (Dickey e Miller; MAT, seção 2.6), defasagens por BIC
+adf_saz <- function(x, opcao, pmax = 13) {
+  dx <- diff(x); n <- length(dx); cyc <- cycle(dx)
+  DC <- sapply(1:11, function(s) ifelse(cyc == s, 1 - 1/12, -1/12))
+  idx <- (pmax + 1):n
+  ajuste <- function(p) {
+    X <- cbind(nivel = as.numeric(x)[idx], DC[idx, , drop = FALSE])
+    if (p > 0) X <- cbind(X, sapply(1:p, function(j) as.numeric(dx)[idx - j]))
+    if (opcao == 3) X <- cbind(X, tt = idx)
+    lm(as.numeric(dx)[idx] ~ X)
+  }
+  p <- which.min(sapply(0:pmax, function(k) BIC(ajuste(k)))) - 1
+  summary(ajuste(p))$coefficients["Xnivel", "t value"]
+}
+registrar_varios(c(l01_adfsaz_y = adf_saz(y, 3), l01_adfsaz_dy = adf_saz(dy, 2),
+                   l01_adfsaz_var = adf_saz(ts(read.csv(caminho_repo("lista01", "dupla", "inpc_13_a_26.csv"))$variacao,
+                                                start = c(2013, 1), frequency = 12), 2)))
+
 gravar_resultados("l01")
