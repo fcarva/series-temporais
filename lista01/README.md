@@ -24,12 +24,12 @@ A série é o **INPC em nível** (número-índice), modelado como $y_t=100\ln P_
 
 ## O jeito mais simples: um script só, em qualquer lugar
 
-[lista01_inpc.R](lista01_inpc.R) é autossuficiente e não depende do repositório. Basta copiá-lo para qualquer pasta e rodar `Rscript lista01_inpc.R`, numa máquina com R e internet. O script:
+[lista01_inpc.R](lista01_inpc.R) é autossuficiente. Copie-o para qualquer pasta e rode no RStudio, bloco a bloco, ou com `Rscript lista01_inpc.R`; é preciso ter R e internet. O script:
 1. instala os pacotes que faltarem (`forecast`, `tseries`, `urca`, `lmtest`, `FinTS`, `jsonlite`);
 2. baixa o INPC da API do IBGE (SIDRA, tabela 1736), com o período fixo jan/2000–set/2026;
-3. roda os testes das Questões 1 a 7, com a resposta de cada item em comentário.
+3. roda os testes das Questões 1 a 7 na ordem da lista.
 
-Ele deixa na pasta a base usada (`inpc_lista01.csv`), os gráficos (`graficos_lista01.pdf`) e as versões dos pacotes (`sessionInfo_lista01.txt`). Esses são os três itens de reprodutibilidade que as normas de entrega pedem.
+Cada passo é comentado como num roteiro de investigação: a pergunta, a fórmula por extenso, as hipóteses, o que esperar sob $H_0$ e como ler o resultado. Os testes imprimem a decisão em português, e os gráficos aparecem na janela de plots, já anotados (no gráfico da previsão, por exemplo, a cobertura do intervalo aparece no título). O script grava na pasta a base usada (`inpc_lista01.csv`) e as versões dos pacotes (`sessionInfo_lista01.txt`).
 
 ## Como rodar a versão completa
 
