@@ -1,0 +1,430 @@
+---
+title: "Lista 01 — Modelagem Box-Jenkins do INPC"
+subtitle: "Econometria II · PPGEco/UFES · Avaliação parcial, parte empírica (Questões 1 a 7)"
+author: "[nomes da dupla]"
+date: "`r format(Sys.Date(), '%d/%m/%Y')`"
+lang: pt-BR
+output:
+  pdf_document:
+    latex_engine: lualatex
+    number_sections: false
+    toc: true
+    toc_depth: 2
+    fig_caption: true
+    extra_dependencies: ["booktabs", "float"]
+geometry: margin=2.3cm
+fontsize: 11pt
+mainfont: Libertinus Serif
+sansfont: Libertinus Sans
+mathfont: Libertinus Math
+linkcolor: blue
+header-includes:
+  - \usepackage{unicode-math}
+  - \AtBeginDocument{\mathchardef\mathcomma=\mathcode`\,\relax\mathcode`\,="8000}
+  - \begingroup\lccode`\~=`\,\lowercase{\endgroup\def~}{\futurelet\next\smartcomma}
+  - \def\smartcomma{\ifcat\noexpand\next 0\mathord{\mathcomma}\else\mathpunct{\mathcomma}\fi}
+  - \usepackage{caption}
+  - \captionsetup{font=small,labelfont=bf}
+  - \providecommand{\lt}{<}
+  - \providecommand{\gt}{>}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.pos = "H", out.width = "100%")
+source("00_configuracao.R")
+library(knitr); library(kableExtra)
+q1 <- ler("q1"); q2 <- ler("q2"); q3 <- ler("q3"); q4 <- ler("q4")
+q5 <- ler("q5"); q6 <- ler("q6"); q7 <- ler("q7")
+fig <- function(nome) file.path(DIR_FIG, paste0(nome, ".png"))
+mes <- c("jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez")
+dt <- function(t) sprintf("%s/%d", mes[round((t %% 1) * 12) + 1], floor(t + 1e-9))
+dts <- function(s) { a <- as.integer(substr(s, 1, 4)); m <- as.integer(substr(s, 6, 7)); sprintf("%s/%d", mes[m], a) }
+.ntab <- 0
+tab <- function(df, cap, digits = 3, ...) {
+  # escape=FALSE (para aceitar $...$): o "%" e o "_" precisam ser escapados à mão
+  esc <- function(v) gsub("(?<!\\\\)%", "\\\\%", gsub("(?<![\\\\$])_(?![^$]*\\$)", "\\\\_", v, perl = TRUE), perl = TRUE)
+  df <- as.data.frame(df); rownames(df) <- NULL
+  names(df) <- esc(names(df))
+  for (j in seq_along(df)) if (is.character(df[[j]])) df[[j]] <- esc(df[[j]])
+  cap <- esc(cap)
+  .ntab <<- .ntab + 1
+  kbl(df, row.names = FALSE, label = paste0("tab", .ntab), booktabs = TRUE, caption = cap, digits = digits, format.args = list(decimal.mark = ","),
+      linesep = "", escape = FALSE, ...) |>
+    kable_styling(latex_options = c("HOLD_position", "scale_down"), font_size = 9)
+}
+sel <- q4$SELECIONADO
+fsel <- q4$fits[[sel]]
+cf <- coef(fsel)
+```
+
+# Série, dados e reprodutibilidade
+
+**Série.** INPC/IBGE, número-índice (dez/1993 = 100), mensal, de `r dts("2000-01")` a `r dt(tail(time(q1$P), 1))`, com $T = `r q1$T`$ observações (o mínimo exigido é 120). Fonte: SIDRA, tabela 1736. A série não está em nenhum pacote do R.
+
+**Reprodutibilidade.** A pasta entregue contém:
+
+- os scripts `00_configuracao.R` a `07_previsao.R`, na ordem das questões;
+- `rodar_tudo.R`, que executa tudo e gera este PDF;
+- o banco `dados/inpc_lista01.csv`, que é exatamente o usado;
+- `saidas/sessionInfo.txt`, com as versões do R e dos pacotes.
+
+Nenhum número deste texto foi digitado à mão: todos vêm de `saidas/`, gerado pelos scripts. A estimação usa máxima verossimilhança exata (`forecast::Arima`, `method = "ML"`). Os testes de raiz unitária vêm do `urca`, com p-valores de MacKinnon (1996), e os sazonais do `uroot` e do `forecast`.
+
+**Variável modelada.** $y_t = 100\ln P_t$. Assim, $\Delta y_t$ é a inflação mensal em pontos percentuais de log. A correlação entre $\Delta y_t$ e a variação mensal publicada pelo IBGE é `r f(q1$cor_var, 5)`.
+
+# Questão 1. Inspeção gráfica e transformação
+
+```{r, fig.cap = "INPC em nível (a) e 100 × log do INPC (b). A linha tracejada em (b) marca a quebra na média de $\\Delta y$ (Bai-Perron)."}
+include_graphics(fig("q1_serie_nivel"))
+```
+
+**(a) O que o gráfico mostra.**
+
+- **Tendência.** O índice sobe de `r f(q1$resumo[["min"]], 0)` para `r f(q1$resumo[["max"]], 0)` (`r f(q1$resumo[["max"]] / q1$resumo[["min"]], 2)` vezes), sem nunca voltar. É uma tendência forte e de crescimento aproximadamente exponencial: em log, vira quase uma reta.
+- **Mudança de inclinação.** A inclinação do log do índice é a inflação. Ela é visivelmente maior em 2000–2003 (crise cambial e eleição de 2002) do que depois. O teste de Bai e Perron para quebras na média de $\Delta y_t$ (trecho mínimo de 15% da amostra) encontra `r q1$n_quebras` quebra, em `r dt(q1$datas_quebra[1])`. A inflação média cai de `r f(q1$medias_seg[1], 2)` para `r f(q1$medias_seg[2], 2)` % a.m. Não há mudança de *nível* no índice: choques de preço não "voltam".
+- **Sazonalidade.** Ela é invisível no índice, mas clara em $\Delta y$ (figura seguinte). A inflação é maior em janeiro (`r f(q1$media_mes[1], 2)`) e dezembro (`r f(q1$media_mes[12], 2)`) e menor em agosto (`r f(q1$media_mes[8], 2)`). O teste $F$ de igualdade das médias mensais dá $F = `r f(q1$F_mes, 2)`$, com $p = `r fp(q1$p_mes)`$.
+- **Outliers.** O procedimento de Chen e Liu (1993), via `tsoutliers::tso` com valor crítico 3,5, detecta `r nrow(q1$outliers)` outliers em $\Delta y$, listados na Tabela 1.
+- **Dispersão.** No nível, a amplitude dentro de cada ano cresce com a média do ano (painel (a) da figura seguinte), o que indica variância dependente do nível.
+
+```{r}
+o <- q1$outliers; o$data <- dts(gsub(":", "-", o$data))
+names(o) <- c("Tipo", "Data", "Efeito em $\\Delta y$ (p.p.)", "Estatística $t$")
+tab(o, "Outliers em $\\Delta y$ (AO = aditivo; TC = mudança transitória, decai com $\\delta = 0{,}7$).", digits = 2)
+```
+
+```{r, fig.cap = "Amplitude anual contra a média anual do índice, em escala log-log (a), e subséries sazonais de $\\Delta y$ com a média de cada mês (b).", out.width = "95%"}
+include_graphics(fig("q1_amplitude_media"))
+```
+
+**Transformação: logaritmo.** Três evidências sustentam a escolha.
+
+1. **Regressão amplitude-média.** A regressão de $\ln(\text{amplitude})$ em $\ln(\text{média})$ tem inclinação $b = `r f(q1$incl_am, 2)`$ (ep `r f(q1$incl_am_ep, 2)`). A inclinação estima $1-\lambda$ de Box-Cox.
+   - $b = 0$, que corresponderia a não transformar ($\lambda = 1$), é rejeitado: $t = `r f(q1$incl_am / q1$incl_am_ep, 2)`$.
+   - $b = 1$, que corresponde ao log ($\lambda = 0$), não é rejeitado: $t = `r f((q1$incl_am - 1) / q1$incl_am_ep, 2)`$.
+2. **$\lambda$ de Box-Cox estimado.** O método de Guerrero dá $\hat\lambda = `r f(q1$lambda_guerrero, 2)`$, e o de máxima verossimilhança dá `r f(q1$lambda_loglik, 2)`. Os dois estão bem mais perto de 0 do que de 1.
+3. **Interpretação.** Com o log, $\Delta y$ é a inflação, a variável que a política monetária mira. Um $\lambda = 0{,}3$ não tem interpretação econômica, e a perda de ajuste é pequena.
+
+Por isso modela-se $y_t = 100 \ln P_t$.
+
+```{r, fig.cap = "Inflação mensal ($\\Delta y$), média por regime de Bai-Perron (laranja) e outliers de Chen-Liu (pontos vermelhos).", out.width = "90%"}
+include_graphics(fig("q1_variacao"))
+```
+
+# Questão 2. Ordem de integração
+
+## (a) ADF, PP e KPSS na série em nível
+
+A defasagem máxima do ADF segue a regra de Schwert: $p_{\max} = \lfloor 12 (T/100)^{1/4} \rfloor = `r q2$PMAX`$. Dentro dela, as defasagens são escolhidas por AIC (e por BIC, como checagem). PP e KPSS usam janela de Newey-West longa. Para o ADF e o PP, $H_0$ é raiz unitária; para o KPSS, $H_0$ é estacionariedade em torno da tendência.
+
+```{r}
+t2 <- q2$tab_a
+names(t2) <- c("Série", "Teste", "Determinísticos", "Estatística", "Crítico 5%", "p-valor", "Defas.", "Critério", "Decisão")
+tab(t2, "Testes na série em nível $y_t$ (100 × log do INPC).")
+```
+
+## (b) Constante e tendência na regressão auxiliar
+
+A regressão do ADF é $\Delta y_t = \alpha + \beta t + \gamma y_{t-1} + \sum_i \delta_i \Delta y_{t-i} + e_t$. Os determinísticos importam porque a distribuição de $\tau$ muda com eles. Omitir um termo que existe tira poder do teste; incluir um que não existe também tira poder. Segue-se o procedimento sequencial de Dolado, Jenkinson e Sosvilla-Rivero (1990), com as estatísticas $\phi$ de Dickey e Fuller (1981).
+
+```{r}
+t2b <- q2$tab_b
+t2b$rejeita <- ifelse(t2b$rejeita, "rejeita", "não rejeita")
+names(t2b) <- c("Especificação", "Estatística", "$H_0$", "Valor", "Crítico 5%", "Defas.", "Decisão a 5%", "p (MacKinnon)")
+tab(t2b, "Procedimento sequencial: tendência $\\rightarrow$ constante $\\rightarrow$ nenhum termo.")
+```
+
+**Justificativa e leitura.**
+
+- **A tendência entra.** Sob a alternativa estacionária, uma série que sobe por 26 anos só pode ser estacionária *em torno de uma tendência*. O $\phi_3$ (que testa $\beta = \gamma = 0$) rejeita: `r f(q2$a_ct$phi[["phi3"]], 2)` contra o crítico de 6,30. A tendência é relevante, e o modelo completo é o apropriado. Na regressão com tendência, o $t$ da tendência vale `r f(q2$t_tendencia, 2)`, mas esse $t$ não segue a distribuição usual sob $H_0$; por isso a decisão vem do $\phi_3$, e não dele.
+- **A conclusão muda com a especificação.**
+  - Com constante e tendência, $\tau_3 = `r f(q2$a_ct$tau, 3)`$ rejeita a raiz unitária ($p = `r fp(q2$a_ct$p)`$, com `r q2$a_ct$k` defasagens).
+  - Só com constante, $\tau_2 = `r f(q2$a_c$tau, 3)`$ não rejeita ($p = `r fp(q2$a_c$p)`$).
+  - Sem termos determinísticos, $\tau_1 = `r f(q2$a_n$tau, 3)`$, que é positivo e está longe de rejeitar.
+
+  As especificações sem tendência estão erradas para esta série. O $\tau_1$ positivo é o sintoma clássico: o teste "vê" a tendência como explosividade.
+- **A rejeição no modelo completo é frágil.** Ela depende de quantas defasagens o critério escolhe. Com AIC são `r q2$a_ct$k` defasagens, e o $p$ fica em torno de 1%. Com BIC é 1 defasagem, e o teste rejeita apenas a 5% (ver a tabela do item a). O PP, que não depende dessa escolha, não rejeita ($p = `r fp(q2$p_ct$p)`$). O KPSS rejeita a estacionariedade em torno da tendência: `r f(q2$k_ct$stat, 3)` contra o crítico de 0,146. Os testes não concordam, e isso é tratado no item (d).
+
+## (c) Série diferenciada: $d$ e $D$
+
+```{r}
+t2c <- q2$tab_c
+names(t2c) <- c("Série", "Teste", "Determinísticos", "Estatística", "Crítico 5%", "p-valor", "Defas.", "Critério", "Decisão")
+tab(t2c, "Testes em $\\Delta y_t$.")
+```
+
+Em $\Delta y$, ADF e PP com constante rejeitam a raiz unitária com folga, e o KPSS não rejeita a estacionariedade. Logo **$d = 1$**. A função `ndiffs` concorda pelos três critérios (KPSS, ADF e PP): `r paste(q2$ndiffs, collapse = ", ")`. A especificação certa para $\Delta y$ é **com constante**, porque a inflação média é `r f(q1$resumo[["dy_media"]], 2)` % a.m. Sem constante, o ADF nem rejeita, o que repete a lição do item (b).
+
+**Diferença sazonal ($D$).**
+
+```{r}
+h <- q2$hegy
+names(h) <- c("Estatística HEGY", "Valor", "p-valor")
+tab(h, "HEGY em $\\Delta y$, com constante e dummies sazonais (defasagens por BIC). $t_1$: frequência zero; $t_2$: frequência $\\pi$; $F_{j:k}$: pares de frequências $\\pi/6, \\dots, 5\\pi/6$.", digits = 3)
+```
+
+- **OCSB** ($H_0$: precisa de $1 - B^{12}$): a estatística vale `r f(q2$ocsb$stat, 2)`, contra o crítico de `r f(q2$ocsb$cv, 2)`. Rejeita-se $H_0$.
+- **HEGY:** rejeita a raiz unitária em **todas** as frequências sazonais (tabela acima).
+- **Canova-Hansen** ($H_0$: sazonalidade determinística estável): estatística conjunta `r f(q2$ch$valor[1], 3)`, $p = `r f(q2$ch$p[1], 3)`$. Não se rejeita $H_0$.
+- **`nsdiffs`:** os três critérios (OCSB, CH, seas) dão `r paste(q2$nsdiffs, collapse = ", ")`.
+
+Logo **$D = 0$**. A sazonalidade é determinística, e não um passeio aleatório sazonal.
+
+## (d) Tendência estocástica ou determinística?
+
+```{r}
+t2d <- q2$tab_d; names(t2d) <- c("Teste", "Estatística", "Crítico 5%", "Defas.", "Decisão")
+tab(t2d, "Robustez: DF-GLS (mais poder) e Zivot-Andrews (uma quebra endógena).")
+t2s <- q2$tab_sub; names(t2s) <- c("Série", "Teste", "Determinísticos", "Estatística", "Crítico 5%", "p-valor", "Defas.", "Critério", "Decisão")
+tab(t2s, "Subamostra posterior à quebra da Q1 (jan/2004 em diante).")
+```
+
+**Os testes não permitem decidir com segurança.** A favor de cada hipótese:
+
+- **TS (estacionária em torno de tendência):** o ADF com AIC rejeita, na amostra completa e na subamostra. O Zivot-Andrews rejeita ao admitir uma quebra em `r dt(q2$za_data)`.
+- **DS (diferença-estacionária):** o DF-GLS, que tem mais poder, não rejeita. O PP não rejeita. O ADF com BIC não rejeita na subamostra. O KPSS rejeita a estacionariedade em tendência na amostra completa.
+
+**Escolha adotada: tendência estocástica, $d = 1$.** Há três justificativas:
+
+1. **Os testes mais confiáveis apontam DS.** A rejeição do ADF só aparece quando o AIC escolhe de 12 a 13 defasagens: o termo de ordem 12 está capturando a sazonalidade, e não dinâmica da raiz. Com 1 defasagem, a rejeição some na subamostra.
+2. **A economia aponta DS.** Sob metas de inflação, o Banco Central mira a *inflação*, não um *nível* de preços. Choques no nível de preços nunca são revertidos (*base drift*). Uma trajetória determinística para $\ln P_t$ seria uma meta de nível de preços, que o Brasil não tem.
+3. **O custo de errar é assimétrico e verificável.** Se a série fosse TS e diferenciássemos, $\Delta y$ teria uma raiz unitária no MA. A Questão 5(e) testa isso: o MA(1) acrescentado ao modelo de $\Delta y$ sai com coeficiente pequeno e não significativo, longe de $-1$. A Questão 6 mostra o que acontece quando a diferenciação está de fato em excesso.
+
+O Zivot-Andrews sugere um modelo alternativo, TS com uma quebra em 2003. Ele é registrado como a ambiguidade que de fato existe na série.
+
+# Questão 3. Identificação
+
+```{r, fig.cap = "FAC e FACP com 48 defasagens (quatro ciclos sazonais) de $y$ em nível (a, b) e de $\\Delta y$ (c, d). Azul: $\\pm 1{,}96/\\sqrt{T}$; vermelho pontilhado: banda de Bartlett. Barras laranja: $s, 2s, 3s, 4s$; amarelas: $s \\pm 1$."}
+include_graphics(fig("q3_fac_facp"))
+```
+
+**(a)** A FAC de $y$ em nível decai devagar e quase linearmente (painel a), e a FACP tem um único pico perto de 1 (painel b): é a assinatura de raiz unitária. A identificação, portanto, é feita em $\Delta y$ ($d = 1$, $D = 0$, Q2). A Tabela a seguir traz os valores nas defasagens-chave; a coluna "sig." usa a banda de Bartlett para a FAC e a banda $\pm 1{,}96/\sqrt{T} = \pm `r f(q3$banda, 3)`$ para a FACP.
+
+```{r}
+tc3 <- q3$tab_corr
+tc3$FAC_signif <- ifelse(tc3$FAC_signif, "sim", ""); tc3$FACP_signif <- ifelse(tc3$FACP_signif, "sim", "")
+names(tc3) <- c("Defasagem", "FAC", "FACP", "FAC sig.", "FACP sig.")
+tab(tc3, "FAC e FACP de $\\Delta y$ nas defasagens regulares e sazonais.")
+```
+
+**(b) Leitura.**
+
+- **Parte regular.** A FACP **trunca** após a defasagem 1: $\hat\phi_{11} = `r f(q3$facp[1], 3)`$, e depois $\hat\phi_{22} = `r f(q3$facp[2], 3)`$, dentro da banda. A FAC **decai exponencialmente**: $\hat\rho_2/\hat\rho_1 = `r f(q3$razao_fac, 2)` \approx \hat\rho_1$, como num AR(1). Leitura: AR(1) regular.
+- **Parte sazonal.** Há pico em $s = 12$ na FAC ($`r f(q3$fac[12], 3)`$) e na FACP ($`r f(q3$facp[12], 3)`$). Em $2s$ e $3s$ os valores já estão dentro das bandas: `r f(q3$fac[24], 3)` e `r f(q3$fac[36], 3)` na FAC.
+  - Lido como um **decaimento rápido** nas defasagens sazonais, isso é um SAR(1).
+  - Lido como um **truncamento** em $s$, é um SMA(1).
+  - A amostra não separa as duas leituras.
+- **Vizinhanças.** Na FACP, há um valor significativo e negativo em $s + 1 = 13$ ($`r f(q3$facp[13], 3)`$). É o termo cruzado típico de um modelo **multiplicativo**: o produto $(1 - \phi B)(1 - \Phi B^{12})$ gera um coeficiente em $B^{13}$. Na FAC, $s - 1 = 11$ e $s + 1 = 13$ estão positivos e ficam dentro da banda de Bartlett.
+- **Ljung-Box.** $\Delta y$ está longe de ser ruído branco: $Q(24) = `r f(q3$lb_dy[["stat"]], 1)`$, $p `r if (q3$lb_dy[["p"]] < 0.001) "< 0{,}001" else paste("=", f(q3$lb_dy[["p"]], 3))`$.
+
+**(c) Três candidatos** para $y$, todos com $d = 1$, $D = 0$ e *drift*. O drift é a constante de $\Delta y$; a inflação média não é zero.
+
+| | Especificação | Justificativa pelo correlograma |
+|---|---|---|
+| C1 | SARIMA(1,1,0)(1,0,0)$_{12}$ | FACP trunca em 1; sazonal lida como decaimento em $s, 2s$ (SAR) |
+| C2 | SARIMA(1,1,0)(0,0,1)$_{12}$ | FACP trunca em 1; sazonal lida como truncamento em $s$ (SMA) |
+| C3 | SARIMA(1,1,0)(1,0,1)$_{12}$ | nem a FAC nem a FACP sazonais truncam com clareza: SARMA(1,1) sazonal |
+
+# Questão 4. Estimação e seleção
+
+```{r}
+cc <- q4$coefs[q4$coefs$modelo %in% c("C1", "C2", "C3", "C4"), c("modelo", "termo", "coef", "ep", "t")]
+cc <- cc[!(cc$modelo == "C4" & !cc$termo %in% c("ar1", "drift")), ]
+names(cc) <- c("Modelo", "Termo", "Coeficiente", "Erro-padrão", "$t$")
+g <- q4$gerais
+gg <- data.frame(Modelo = g$modelo, Especificação = g$especificacao, `$n$ efetivo` = g$n_efetivo, `$k$` = g$k,
+                 `$\\hat\\sigma^2_a$` = g$sigma2, `log-ver.` = g$loglik, AIC = g$AIC, BIC = g$BIC, check.names = FALSE)
+tab(cc, "Coeficientes (MV exata). Convenção do R: $\\phi(B) = 1 - \\phi_1 B$, $\\Theta(B^{12}) = 1 + \\Theta_1 B^{12}$. C4 é extra (sazonalidade determinística, 11 dummies; só AR e drift mostrados).", digits = 4)
+tab(gg, "Ajuste, critérios de informação e amostra efetiva ($n = T - d - sD$).", digits = 3)
+```
+
+**(a) e (b).** Em C1, C2 e C3, todos os coeficientes são significativos a 1%. A amostra efetiva é $n = T - d - sD = `r q1$T` - 1 - 0 = `r g$n_efetivo[1]`$ nos quatro modelos. O drift estimado, cerca de `r f(cf[["drift"]], 2)` % a.m., é a inflação média. No C3, $\hat\Phi_1 = `r f(cf[["sar1"]], 3)`$ e $\hat\Theta_1 = `r f(cf[["sma1"]], 3)`$ quase se cancelam. Esse sinal volta na Q4(f) e na Q5(d).
+
+**(c) A comparação é válida.** Os quatro modelos têm a mesma variável dependente ($y$), o mesmo $d = 1$ e o mesmo $D = 0$. A verossimilhança, portanto, é a de $\Delta y$ nas mesmas `r g$n_efetivo[1]` observações. Se um candidato tivesse $d = 2$, a verossimilhança passaria a ser a de $\Delta^2 y$, outra variável, e com $n = `r q4$n_d2`$: o AIC deixaria de ser comparável. Nesse caso há três alternativas: decidir $d$ antes, por teste (Q2); comparar fora da amostra, com a mesma variável-alvo (Q7); ou comparar verossimilhanças na mesma escala de $y$. Pela mesma razão, um modelo em $P_t$ e outro em $\ln P_t$ só seriam comparáveis com o jacobiano da transformação.
+
+**(d) Convenção de contagem.** O `forecast::Arima`, assim como o `stats::arima`, inclui $\hat\sigma^2_a$ em $k$:
+
+$$
+k = \#\{\text{coeficientes livres}\} + 1, \qquad AIC = -2\ln L + 2k, \qquad BIC = -2\ln L + k\ln n .
+$$
+
+No código do `forecast` isso aparece como `npar <- length(coef[mask]) + 1`; a documentação de `?arima` acrescenta que o AIC só é válido com `method = "ML"`. A conferência numérica bate: recalculando com o "+1", o AIC reproduz o do software em todos os modelos (`r ifelse(q4$convencao_inclui_sigma, "confere", "NÃO confere")`; tabela `q4_convencao.csv`). Ainda há duas diferenças de convenção que importam ao comparar com outros textos:
+
+- a aula (AU02) divide os critérios por $T$, e o R não divide; com $T$ comum, a ordenação é a mesma;
+- o BIC usa o $n$ efetivo, e não $T$.
+
+**(e) AIC e BIC divergem.**
+
+```{r}
+cd <- q4$cand[, c("modelo", "AIC", "dAIC", "peso_akaike", "BIC", "dBIC")]
+names(cd) <- c("Modelo", "AIC", "$\\Delta$AIC", "Peso de Akaike", "BIC", "$\\Delta$BIC")
+tab(cd, "Seleção entre os três candidatos.")
+```
+
+O AIC escolhe **`r q4$sel_aic`**, e o BIC escolhe **`r q4$sel_bic`**. O C1 é o C3 com $\Theta_1 = 0$. O teste LR dessa restrição dá $LR = `r f(q4$lr_c1_c3, 2)`$, com $p = `r fp(q4$p_lr_c1_c3)`$: `r if (q4$p_lr_c1_c3 < 0.05) 'rejeita-se $\\Theta_1 = 0$ a 5%' else if (q4$p_lr_c1_c3 < 0.10) 'não se rejeita $\\Theta_1 = 0$ a 5%, só a 10%' else 'não se rejeita $\\Theta_1 = 0$'`. A evidência a favor do SMA é, portanto, fraca. O AIC a aceita porque cobra 2 por parâmetro, e o BIC a recusa porque cobra $\ln `r g$n_efetivo[1]` = `r f(log(g$n_efetivo[1]), 2)`$. É o dilema clássico:
+
+- O **BIC é consistente**: se o modelo verdadeiro está entre os candidatos, ele é escolhido com probabilidade que tende a 1.
+- O **AIC é eficiente**: minimiza assintoticamente o EQM de previsão de um passo quando o processo verdadeiro não está entre os candidatos (Shibata, 1980).
+
+O objetivo deste trabalho é prever (Questão 7), e um índice de preços dificilmente é um SARIMA exato. Por isso adota-se o critério eficiente: **o modelo selecionado é o `r sel` = `r nome_modelo(fsel)`**. Os pesos de Akaike mostram que C1 e C3 são próximos, então a escolha é revisitada fora da amostra.
+
+**(f) Raízes.**
+
+```{r, fig.cap = "Raízes inversas dos polinômios AR (pontos) e MA (×) completos, regular × sazonal, no círculo unitário."}
+include_graphics(fig("q4_raizes"))
+r4 <- q4$raizes; names(r4) <- c("Modelo", "nº raízes AR", "máx. |inv. AR|", "nº raízes MA", "máx. |inv. MA|")
+tab(r4, "Módulo máximo das raízes inversas (precisa ser menor que 1).")
+```
+
+Todas as raízes inversas estão **dentro** do círculo unitário; equivalentemente, as raízes estão fora. Os modelos são estacionários (em $\Delta y$) e invertíveis. No C3, porém, as 12 raízes inversas sazonais do AR (módulo $\hat\Phi_1^{1/12} = `r f(cf[["sar1"]]^(1/12), 3)`$) e as do MA (módulo $|\hat\Theta_1|^{1/12} = `r f(abs(cf[["sma1"]])^(1/12), 3)`$) estão **quase sobrepostas** e coladas ao círculo. Isso é quase-cancelamento: o par SAR-SMA aproxima um padrão sazonal fixo, coerente com o HEGY e o Canova-Hansen da Q2.
+
+# Questão 5. Diagnóstico
+
+**(a)** O painel de resíduos do modelo selecionado (`r q5$modelo`):
+
+```{r, fig.cap = "Resíduos do modelo selecionado: no tempo (a), histograma com a densidade normal (b), FAC (c), FACP (d), QQ-plot (e) e FAC dos resíduos ao quadrado (f).", out.height = "85%", out.width = "90%"}
+include_graphics(fig("q5_residuos"))
+```
+
+**(b) e (c) Testes.** No Ljung-Box, os graus de liberdade são $\nu = K - (p + q + P + Q) = K - `r q5$n_arma`$. O drift não entra na correção: ela vem dos parâmetros ARMA estimados.
+
+```{r}
+t5 <- q5$testes; t5$K[is.na(t5$K)] <- "—"
+names(t5) <- c("Teste", "$K$", "gl", "Estatística", "Crítico 5%", "p-valor", "Decisão")
+tab(t5, "Diagnóstico dos resíduos.")
+```
+
+- **Autocorrelação.** O Ljung-Box não rejeita em $K = 12, 24, 36$. Com $K = 24$, $Q = `r f(q5$testes$estatistica[2], 2)`$ com $\nu = `r q5$testes$gl[2]`$ e $p = `r f(q5$testes$p[2], 3)`$. Os resíduos são compatíveis com ruído branco: o modelo capturou a dependência linear.
+- **Normalidade.** O Jarque-Bera rejeita com força: $JB = `r f(q5$testes$estatistica[4], 1)`$. A assimetria é `r f(q5$assim, 2)` e a curtose `r f(q5$curt, 2)`, e a causa são as caudas: os resíduos padronizados acima de 3 em módulo estão em `r paste(dts(q5$grandes$data), collapse = ", ")`.
+- **Heterocedasticidade condicional.** O ARCH-LM com 12 defasagens não rejeita ($p = `r f(q5$testes$p[5], 3)`$), e o McLeod-Li também não. A variância condicional é constante: não há motivo para um GARCH.
+
+**(d) O caminho percorrido.** A Q4 estimou uma grade completa, SARIMA$(p,1,q)(P,0,Q)_{12}$ com $p, q \le 3$, $P, Q \le 1$ e drift, e cada modelo foi classificado como na tabela abaixo.
+
+```{r}
+rc <- q5$resumo_caminho; names(rc) <- c("Destino", "nº de modelos")
+tab(rc, "Grade de 64 modelos e o motivo de cada descarte (lista completa em saidas/tabelas/q5_caminho.csv).")
+dl <- q5$desc_lb; names(dl) <- c("Modelo descartado", "AIC", "BIC", "p Ljung-Box(24)")
+tab(dl, "Exemplos de descarte por autocorrelação residual: todos sem o AR(1), que a FACP exige.", digits = 4)
+```
+
+Duas decisões merecem registro.
+
+- **Descartes.** São descartados os modelos com autocorrelação residual (todos sem o AR regular) e o que tem raiz MA na fronteira. Também saem os modelos adequados, mas dominados em AIC e BIC, como os sobreajustes do item (e).
+- **Normalidade.** A falha no JB não é corrigida mudando a estrutura ARMA. Ela é tratada como robustez, com **intervenções** nos `r nrow(q1$outliers)` outliers da Q1.
+
+Com as intervenções, o JB cai de `r f(q5$testes$estatistica[4], 1)` para `r f(q5$jb_int[["stat"]], 1)` ($p = `r f(q5$jb_int[["p"]], 3)`$), e o Ljung-Box(24) continua sem rejeitar ($p = `r f(q5$lb_int[["p"]], 3)`$). O ponto mais importante é a estrutura sazonal, que muda. Sem os outliers, $\hat\Phi_1 = `r f(q5$coef_int$coef[q5$coef_int$termo == "sar1"], 3)`$ e $\hat\Theta_1 = `r f(q5$coef_int$coef[q5$coef_int$termo == "sma1"], 3)`$, este último não significativo. O quase-cancelamento SAR-SMA de C3 era parcialmente produzido pelos choques. O modelo para previsão continua sendo o C3 sem intervenções, conforme escolhido antes de olhar a amostra de validação. A versão com intervenções fica como evidência de que os intervalos gaussianos subestimam o risco nos meses de choque.
+
+**(e) Sobreajuste deliberado.**
+
+```{r}
+so <- q5$tab_sobre[, c("modelo", "termo_extra", "coef", "ep", "t", "p", "LR", "p_LR", "dAIC")]
+names(so) <- c("Modelo", "Termo extra", "Coef.", "Erro-padrão", "$t$", "p", "LR", "p (LR)", "$\\Delta$AIC")
+tab(so, "Sobreajuste: um AR e um MA a mais no modelo selecionado.")
+```
+
+Nenhum dos dois coeficientes extras é significativo ($p$ de `r f(q5$tab_sobre$p[1], 2)` e `r f(q5$tab_sobre$p[2], 2)`). O LR não rejeita as restrições, e o AIC piora nos dois casos. Os demais coeficientes mudam pouco: menos de `r f(max(q5$tab_sobre$outros_mudam), 1)` erro-padrão. A especificação selecionada é **adequada**: não falta dinâmica regular.
+
+O MA acrescentado vale `r f(q5$tab_sobre$coef[2], 3)`, longe de $-1$. Isso confirma que $\Delta y$ não foi sobrediferenciada, o argumento 3 da Q2(d).
+
+# Questão 6. Sobrediferenciação
+
+Reestima-se o modelo com $d^* + 1 = 2$ de duas formas:
+
+- **(A)** com as mesmas ordens: `r q6$nomeA`;
+- **(B)** com o MA(1) regular que a teoria prevê para $\Delta^2 y$: `r q6$nomeB`.
+
+Se $y \sim$ ARIMA$(p,1,q)$, então $\Delta^2 y$ tem o fator $(1 - B)$ no polinômio MA. O R não estima drift com $d = 2$.
+
+```{r}
+t6 <- q6$tab6; names(t6) <- c("Modelo", "$d$", "$\\hat\\sigma^2_a$", "log-ver.", "$n$", "$\\hat\\rho_1$ dos resíduos")
+tab(t6, "Mesmo modelo com $d = 1$ e $d = 2$.", digits = 4)
+tb <- q6$tcB; names(tb) <- c("Termo", "Coeficiente", "Erro-padrão", "$t$", "p")
+tab(tb, paste0("Coeficientes de ", q6$nomeB, " (convenção do R: $1 + \\theta B$)."), digits = 4)
+```
+
+**(a) Coeficiente MA.** $\hat\theta = `r f(q6$thetaB, 4)`$, com erro-padrão `r f(q6$epB, 4)`. Na convenção do R ($1 + \theta B$), isso é $\theta = -1$; na de Box-Jenkins ($1 - \theta B$), é $\theta = 1$. A soma dos coeficientes MA regulares vale `r f(q6$soma_ma, 4)`. A raiz de $1 + \hat\theta z = 0$ é $z = `r f(q6$raiz_ma_regular, 4)`$: **exatamente sobre o círculo unitário**. O estimador "encosta" na fronteira, o fenômeno de acúmulo em $|\theta| = 1$ (*pile-up*). O erro-padrão pequeno não é confiável, porque a distribuição assintótica usual não vale nessa fronteira.
+
+**(b) Variância residual.** Com $d = 1$, $\hat\sigma^2_a = `r f(q6$tab6$sigma2[1], 4)`$. Com $d = 2$:
+
+- **(A)**, mesmas ordens: `r f(q6$tab6$sigma2[2], 4)`, um aumento de **`r f(q6$aum_A, 1)`%**;
+- **(B)**, com o MA extra: `r f(q6$tab6$sigma2[3], 4)`, um aumento de `r f(q6$aum_B, 1)`%.
+
+Mesmo deixando o MA absorver a diferença extra, o ajuste piora: a log-verossimilhança cai de `r f(q6$tab6$loglik[1], 1)` para `r f(q6$tab6$loglik[3], 1)`. As log-verossimilhanças são de variáveis diferentes e por isso não são diretamente comparáveis; a perda aparece de forma comparável em $\hat\sigma^2_a$.
+
+```{r, fig.cap = "FAC dos resíduos com $d = 1$ (a), da série $\\Delta^2 y$ (b), dos resíduos com $d = 2$ e mesmas ordens (c) e com $d = 2$ mais um MA(1) (d)."}
+include_graphics(fig("q6_sobrediferenciacao"))
+```
+
+**(c) FAC dos resíduos.**
+
+- **A série $\Delta^2 y$** tem $\hat\rho_1 = `r f(q6$rho1_d2y, 3)`$, perto do valor teórico $-(1 - \hat\phi_1)/2 = `r f(q6$rho1_teorico, 3)`$ de um AR(1) diferenciado uma vez a mais (lista teórica, Q9).
+- **Nos resíduos de (A)**, o $\hat\rho_1$ é pequeno (`r f(q6$rA[1], 3)`): o AR(1) muda de sinal, para $\hat\phi_1 = `r f(q6$tcA$coef[1], 3)`$, e absorve a defasagem 1. A estrutura reaparece nas defasagens 2 e 3 (`r f(q6$rA[2], 3)` e `r f(q6$rA[3], 3)`), e o Ljung-Box(24) fica em $p = `r f(q6$lbA[["p"]], 3)`$, contra `r f(q5$testes$p[2], 3)` com $d = 1$.
+- **Em (B)**, o MA unitário "desfaz" a diferença extra, e os resíduos voltam a ser os de $d = 1$.
+
+A autocorrelação negativa pronunciada em $\Delta^2 y$ existe. Num modelo estimado, ela aparece deslocada para os coeficientes, e não necessariamente no $\hat\rho_1$ dos resíduos.
+
+**(d) Sinais práticos de sobrediferenciação** numa saída típica, sem conhecer a ordem verdadeira:
+
+1. um coeficiente MA estimado perto de $-1$ (ou a soma dos MA perto de $-1$), com raiz MA no círculo unitário e erro-padrão "pequeno demais" ou não convergência;
+2. um AR(1) estimado **negativo** onde a série original tinha persistência positiva;
+3. $\hat\rho_1$ da série diferenciada perto de $-0{,}5$ e FAC negativa nas primeiras defasagens;
+4. $\hat\sigma^2_a$ (ou a variância da própria série) que **aumenta** com a diferença extra, em vez de cair — o princípio da diferença de variáveis de Tintner;
+5. intervalos de previsão do nível muito largos e previsões que ignoram a reversão à média.
+
+# Questão 7. Previsão fora da amostra
+
+**(a)** A amostra de validação são as últimas $H = `r H`$ observações (`r dts(q7$data_val_ini)` a `r dts(q7$data_fim)`). O treino vai até $T_0 = T - H = `r q7$T0`$ (`r dts(q7$data_T0)`). O modelo `r q7$modelo` é reestimado no treino:
+
+```{r}
+ct <- q7$coef_tr[, 1:4]; names(ct) <- c("Termo", "Coeficiente", "Erro-padrão", "$t$")
+tab(ct, "Coeficientes estimados só com o treino (fixos nos dois esquemas).", digits = 4)
+```
+
+O modelo prevê $y = 100\ln P$, e as previsões são levadas ao índice por $\exp(\hat y/100)$. Isso dá a mediana de $P$; a correção para a média, $\exp(\sigma_h^2/2 \cdot 10^{-4})$, é desprezível. As métricas são calculadas no **índice em nível**.
+
+**(b) Esquema 1: origem fixa, múltiplos passos.**
+
+```{r, fig.cap = "Esquema 1: previsões de $h = 1, \\dots, 24$ a partir de $T_0$ com IC de 95%, e os dois benchmarks."}
+include_graphics(fig("q7_esquema1"))
+```
+
+**(c) Esquema 2: origem móvel, um passo, sem reestimar.** Os coeficientes da tabela acima ficam fixos (`Arima(y, model = ajuste_treino)`). Em cada $t = T_0, \dots, T - 1$, o filtro de Kalman atualiza o estado com o dado observado em $t$ e gera $\hat y_{t+1\mid t}$.
+
+```{r, fig.cap = "Esquema 2: previsões de um passo com coeficientes fixos, no índice (a) e em inflação mensal implícita (b)."}
+include_graphics(fig("q7_esquema2"))
+```
+
+**(d) e (e) Métricas.** Os dois benchmarks pedidos são o passeio aleatório, $\hat y_{t+h} = y_t$, e o sazonal ingênuo, $\hat y_{t+h} = y_{t+h-s}$; no Esquema 1, este último é $y_{T_0+h-s\lceil h/s\rceil}$. A última linha é um extra, fora do pedido: o passeio com drift, o benchmark "justo" de uma série com tendência.
+
+```{r}
+t7 <- q7$tab7
+names(t7) <- c("Modelo", "RMSE", "MAE", "MAPE (%)", "RMSE", "MAE", "MAPE (%)")
+tab(t7, "Métricas no INPC em nível (pontos de índice; MAPE em %). Esquema 1: origem fixa, $h = 1, \\dots, 24$. Esquema 2: um passo, coeficientes fixos.", digits = 2) |>
+  add_header_above(c(" " = 1, "Esquema 1" = 3, "Esquema 2" = 3))
+```
+
+**(f) O modelo superou os benchmarks?** Sim, contra os dois pedidos, nos dois esquemas e nas três métricas.
+
+- **Esquema 1.** A razão de RMSE (U de Theil) do modelo é `r f(q7$razoes$U_E1[1], 2)` contra o passeio aleatório e `r f(q7$razoes$U_E1[2], 2)` contra o sazonal ingênuo.
+- **Esquema 2.** As razões são `r f(q7$razoes$U_E2[1], 2)` e `r f(q7$razoes$U_E2[2], 2)`.
+- **Diebold-Mariano** (Esquema 2, perda quadrática, correção de Harvey, Leybourne e Newbold):
+
+```{r}
+dmt <- data.frame(Comparação = c("modelo vs passeio aleatório", "modelo vs sazonal ingênuo", "modelo vs passeio com drift (extra)"),
+                  DM = q7$tab_dm[, 1], p = q7$tab_dm[, 2])
+tab(dmt, "Diebold-Mariano, Esquema 2. DM negativo favorece o modelo.", digits = 3)
+```
+
+O ganho sobre os benchmarks pedidos é **significativo**. A ressalva honesta é o **passeio com drift**: contra ele, o modelo empata, com DM = `r f(q7$tab_dm[3, 1], 3)` e $p = `r f(q7$tab_dm[3, 2], 2)`$. Quase toda a vantagem vem de prever a *tendência* (a inflação média), e muito pouco da dinâmica AR e sazonal. A regressão de Mincer-Zarnowitz da inflação observada sobre a prevista (Esquema 2, erros-padrão HAC de Newey-West) rejeita a eficiência ($a = 0$, $b = 1$): $b = `r f(q7$mz[["b"]], 2)`$, $W = `r f(q7$mz[["W"]], 2)`$, $p = `r f(q7$mz[["p"]], 3)`$. Na validação, as previsões de um passo da inflação variaram mais do que a inflação realizada. Conforme o enunciado, o modelo **não** foi alterado para melhorar o resultado.
+
+**(g) Cobertura.** No Esquema 1, `r sum(q7$dentro1)` das `r H` observações (`r f(q7$cob[1, "cobertura"], 1)`%) caíram dentro do intervalo de 95%. O teste de Kupiec não rejeita a cobertura nominal ($p = `r f(q7$cob[1, "p"], 2)`$; binomial exato, $p = `r f(q7$cob[1, "p_binomial"], 2)`$). A cobertura empírica é **maior** que a nominal, e há dois motivos para isso:
+
+- os intervalos de $h$ passos se abrem com $\sum_{j < h}\psi_j^2$, e num modelo integrado essa soma cresce sem limite: em $h = 24$ o intervalo é largo;
+- com uma única origem, as 24 "tentativas" são fortemente correlacionadas, de modo que 24 acertos valem bem menos que 24 testes independentes.
+
+No Esquema 2, de um passo, a cobertura é `r f(q7$cob[2, "cobertura"], 1)`%, com `r q7$cob[2, "violacoes"]` violações, compatível com 95% ($p = `r f(q7$cob[2, "p"], 2)`$).
+
+# Síntese
+
+O log do INPC foi tratado como I(1), com $D = 0$, uma escolha defendida diante da ambiguidade real dos testes. A inflação mensal segue um AR(1) com componente sazonal; o selecionado foi o SARIMA(1,1,0)(1,0,1)$_{12}$ com drift. Os resíduos são ruído branco sem ARCH, mas têm caudas pesadas por choques identificáveis. A sobrediferenciação produz a raiz MA unitária que a teoria prevê. Fora da amostra, o modelo bate com folga o passeio aleatório e o sazonal ingênuo, mas não o passeio com drift.
+
+**Referências.** Bai e Perron (1998); Box, Jenkins, Reinsel e Ljung (2016); Chen e Liu (1993); Diebold e Mariano (1995); Dickey e Fuller (1981); Dolado, Jenkinson e Sosvilla-Rivero (1990); Elliott, Rothenberg e Stock (1996); Enders (2014); Hylleberg, Engle, Granger e Yoo (1990); Kupiec (1995); Kwiatkowski, Phillips, Schmidt e Shin (1992); MacKinnon (1996); Shibata (1980); Zivot e Andrews (1992).

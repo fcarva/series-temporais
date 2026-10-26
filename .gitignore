@@ -25,3 +25,9 @@ caderno/_build/
 # Autoestudo: log dos experimentos e status por tópico (gerados)
 autoestudo/resultados.tsv
 autoestudo/cobertura.tsv
+
+# Lista 01: objetos intermediários e arquivos do knitr (o PDF já é ignorado por *.pdf)
+lista01/saidas/*.rds
+lista01/*.tex
+lista01/*.log
+lista01/relatorio_lista01_files/

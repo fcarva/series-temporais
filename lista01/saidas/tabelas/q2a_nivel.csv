@@ -1,0 +1,5 @@
+"serie","teste","determ","estatistica","critico_5","p","defasagens","criterio","decisao"
+"y (nível)","ADF","constante + tendência",-3.98459344540342,-3.42,"0,010",13,"AIC, pmax = 16 (Schwert)","rejeita H0"
+"y (nível)","ADF","constante + tendência",-3.60713775187823,-3.42,"0,031",1,"BIC, pmax = 16 (Schwert)","rejeita H0"
+"y (nível)","PP (Z-tau)","constante + tendência",-2.38368337134844,-3.42539599609375,"0,387",16,"janela de Newey-West (long)","não rejeita H0"
+"y (nível)","KPSS","constante + tendência",0.169552941527923,0.146,"0,030",16,"janela de Newey-West (long)","rejeita H0"
