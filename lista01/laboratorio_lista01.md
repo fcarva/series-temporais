@@ -25,9 +25,9 @@ Script único e linear: lê a base, roda a bateria de testes e responde a
 lista, questão por questão. Rode bloco a bloco no RStudio. Para virar
 PDF e nota do Obsidian, use `Rscript lista01/renderizar_laboratorio.R`.
 
-**Série.** INPC/IBGE (SIDRA, tabela 1736), índice mensal de jan/2000 a
-set/2026. Modela-se $y_t = 100\ln P_t$, de modo que $\Delta y_t$ é a
-inflação mensal em %.
+**Série.** INPC/IBGE (SIDRA, tabela 1736), índice mensal de jan/2013 a
+set/2026 (165 meses). Modela-se $y_t = 100\ln P_t$, de modo que
+$\Delta y_t$ é a inflação mensal em %.
 
 **Sinal do MA.** O R escreve o MA como $1 + \theta B$; a lista escreve
 $1 - \theta B$.
@@ -43,20 +43,20 @@ library(FinTS)      # ArchTest (ARCH-LM)
 
 arq <- if (file.exists("dados/inpc_lista01.csv")) "dados/inpc_lista01.csv" else "lista01/dados/inpc_lista01.csv"
 dados <- read.csv(arq)
-P  <- ts(dados$indice, start = c(2000, 1), frequency = 12)   # índice em nível
+P  <- ts(dados$indice, start = c(2013, 1), frequency = 12)   # índice em nível
 y  <- 100 * log(P)                                            # série modelada
 dy <- diff(y)                                                 # inflação mensal (%)
 length(y)                                                     # T >= 120
 ```
 
-    #> [1] 321
+    #> [1] 165
 
 ``` r
 summary(as.numeric(dy))
 ```
 
     #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-    #> -0.6019  0.2097  0.4491  0.4983  0.6999  3.3336
+    #> -0.6019  0.1774  0.4240  0.4525  0.6727  1.6956
 
 # Questão 1 — Inspeção gráfica e transformação
 
@@ -80,28 +80,34 @@ monthplot(dy, main = "Δy por mês do ano", ylab = "% a.m.")
 ![](laboratorio_lista01_files/figure-markdown_strict/q1b-1.png)
 
 ``` r
-BoxCox.lambda(P)                  # lambda de Box-Cox (Guerrero): perto de 0 => log
+c(guerrero = BoxCox.lambda(P, method = "guerrero"),   # lambda de Box-Cox: 0 = log, 1 = nada
+  mv = BoxCox.lambda(P, method = "loglik"))
 ```
 
-    #> [1] 0.30218
+    #> guerrero       mv 
+    #> 0.740765 0.300000
 
 **Resposta (a).**
 
--   **Tendência:** forte e exponencial no nível. Em log, vira quase uma
-    reta.
--   **Inclinação:** a inclinação do log (a inflação) é maior em
-    2000–2003 do que depois.
+-   **Tendência:** forte no nível (o índice dobra em 13 anos). Em log,
+    vira quase uma reta.
+-   **Inclinação:** a inclinação do log (a inflação) muda: mais alta até
+    2016, baixa em 2017–2020, alta no pós-pandemia (2020–2022) e menor
+    depois.
 -   **Nível:** não há mudança de nível; choques no índice não são
     revertidos.
--   **Sazonalidade:** aparece só em $\Delta y$. Janeiro e dezembro são
-    altos, agosto é baixo.
--   **Outliers:** são os picos de $\Delta y$ (nov/2002, jun/2018,
-    jul/2022, fev/2025).
--   **Dispersão:** cresce com o nível, e o $\lambda$ de Box-Cox perto de
-    0 indica o log.
+-   **Sazonalidade:** aparece só em $\Delta y$. Fevereiro, março e
+    dezembro são altos, agosto é baixo.
+-   **Outliers:** são os picos de $\Delta y$ (jun/2018, jul/2022,
+    fev/2025).
+-   **Dispersão:** muda pouco com o nível nesta janela. Os dois
+    $\lambda$ de Box-Cox discordam: o de máxima verossimilhança (0,3)
+    aponta o log, o de Guerrero (0,7) aponta não transformar.
 
-**Transformação:** log, que também faz de $\Delta y$ a taxa de inflação.
-\# Questão 2 — Ordem de integração
+**Transformação:** log. Quem decide é a interpretação: com log,
+$\Delta y$ é a taxa de inflação e o drift é uma taxa média, que pode ser
+constante. Sem log, o drift seria um aumento em pontos de índice, que
+cresce com o nível. \# Questão 2 — Ordem de integração
 
 ## (a) ADF, PP e KPSS no nível
 
@@ -111,11 +117,11 @@ $\Delta y_t = \alpha + \beta t + \gamma y_{t-1} + \sum_i \delta_i\Delta y_{t-i} 
 -   **ADF e PP:** $H_0$ é raiz unitária ($\gamma = 0$).
 -   **KPSS:** $H_0$ é estacionariedade.
 
-As defasagens do ADF são escolhidas por AIC, até 16 (regra de Schwert,
+As defasagens do ADF são escolhidas por AIC, até 13 (regra de Schwert,
 $12(T/100)^{1/4}$).
 
 ``` r
-adf_ct <- ur.df(y, type = "trend", lags = 16, selectlags = "AIC")
+adf_ct <- ur.df(y, type = "trend", lags = 13, selectlags = "AIC")
 summary(adf_ct)
 ```
 
@@ -132,41 +138,30 @@ summary(adf_ct)
     #> 
     #> Residuals:
     #>      Min       1Q   Median       3Q      Max 
-    #> -1.24711 -0.18159 -0.01683  0.18339  1.88355 
+    #> -0.98423 -0.20477 -0.00534  0.16454  1.21624 
     #> 
     #> Coefficients:
-    #>               Estimate Std. Error t value Pr(>|t|)    
-    #> (Intercept)  18.561272   4.604915   4.031 7.12e-05 ***
-    #> z.lag.1      -0.024595   0.006173  -3.985 8.57e-05 ***
-    #> tt            0.011485   0.002968   3.870 0.000135 ***
-    #> z.diff.lag1   0.556982   0.057836   9.630  < 2e-16 ***
-    #> z.diff.lag2   0.083394   0.066203   1.260 0.208811    
-    #> z.diff.lag3  -0.027160   0.066298  -0.410 0.682356    
-    #> z.diff.lag4   0.056359   0.066266   0.850 0.395759    
-    #> z.diff.lag5  -0.006893   0.066145  -0.104 0.917076    
-    #> z.diff.lag6  -0.068187   0.066137  -1.031 0.303406    
-    #> z.diff.lag7  -0.053780   0.066241  -0.812 0.417526    
-    #> z.diff.lag8   0.055240   0.066038   0.836 0.403573    
-    #> z.diff.lag9   0.065900   0.066062   0.998 0.319342    
-    #> z.diff.lag10  0.078738   0.065873   1.195 0.232954    
-    #> z.diff.lag11 -0.066462   0.065367  -1.017 0.310124    
-    #> z.diff.lag12  0.191503   0.065292   2.933 0.003627 ** 
-    #> z.diff.lag13 -0.107687   0.057354  -1.878 0.061450 .  
+    #>              Estimate Std. Error t value Pr(>|t|)    
+    #> (Intercept) 23.733501   9.971220   2.380   0.0186 *  
+    #> z.lag.1     -0.028469   0.012080  -2.357   0.0198 *  
+    #> tt           0.012115   0.005394   2.246   0.0262 *  
+    #> z.diff.lag1  0.429117   0.081802   5.246 5.37e-07 ***
+    #> z.diff.lag2  0.171394   0.083175   2.061   0.0411 *  
     #> ---
     #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     #> 
-    #> Residual standard error: 0.3289 on 288 degrees of freedom
-    #> Multiple R-squared:  0.4769, Adjusted R-squared:  0.4497 
-    #> F-statistic: 17.51 on 15 and 288 DF,  p-value: < 2.2e-16
+    #> Residual standard error: 0.3572 on 146 degrees of freedom
+    #> Multiple R-squared:  0.3111, Adjusted R-squared:  0.2923 
+    #> F-statistic: 16.49 on 4 and 146 DF,  p-value: 3.618e-11
     #> 
     #> 
-    #> Value of test-statistic is: -3.9846 9.5682 8.8206 
+    #> Value of test-statistic is: -2.3567 7.4491 3.0468 
     #> 
     #> Critical values for test statistics: 
     #>       1pct  5pct 10pct
-    #> tau3 -3.98 -3.42 -3.13
-    #> phi2  6.15  4.71  4.05
-    #> phi3  8.34  6.30  5.36
+    #> tau3 -3.99 -3.43 -3.13
+    #> phi2  6.22  4.75  4.07
+    #> phi3  8.43  6.49  5.47
 
 ``` r
 summary(ur.pp(y, type = "Z-tau", model = "trend", lags = "long"))
@@ -185,30 +180,30 @@ summary(ur.pp(y, type = "Z-tau", model = "trend", lags = "long"))
     #> 
     #> Residuals:
     #>      Min       1Q   Median       3Q      Max 
-    #> -0.97252 -0.28336 -0.04849  0.19416  2.69218 
+    #> -0.95987 -0.28227 -0.02666  0.25634  1.30575 
     #> 
     #> Coefficients:
-    #>             Estimate Std. Error t value Pr(>|t|)    
-    #> (Intercept) 9.874502   5.049341   1.956   0.0514 .  
-    #> y.l1        0.988619   0.006129 161.302   <2e-16 ***
-    #> trend       0.004727   0.002994   1.579   0.1154    
+    #>              Estimate Std. Error t value Pr(>|t|)    
+    #> (Intercept) 12.503940  11.114130   1.125    0.262    
+    #> y.l1         0.986017   0.012896  76.458   <2e-16 ***
+    #> trend        0.005318   0.005863   0.907    0.366    
     #> ---
     #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     #> 
-    #> Residual standard error: 0.4336 on 317 degrees of freedom
-    #> Multiple R-squared:  0.9999, Adjusted R-squared:  0.9999 
-    #> F-statistic: 1.727e+06 on 2 and 317 DF,  p-value: < 2.2e-16
+    #> Residual standard error: 0.4109 on 161 degrees of freedom
+    #> Multiple R-squared:  0.9996, Adjusted R-squared:  0.9996 
+    #> F-statistic: 2.239e+05 on 2 and 161 DF,  p-value: < 2.2e-16
     #> 
     #> 
-    #> Value of test-statistic, type: Z-tau  is: -2.3837 
+    #> Value of test-statistic, type: Z-tau  is: -1.963 
     #> 
     #>            aux. Z statistics
-    #> Z-tau-mu             -0.4562
-    #> Z-tau-beta            2.3806
+    #> Z-tau-mu             -0.7713
+    #> Z-tau-beta            2.4426
     #> 
     #> Critical values for Z statistics: 
-    #>                      1pct      5pct    10pct
-    #> critical values -3.990366 -3.425396 -3.13553
+    #>                      1pct      5pct     10pct
+    #> critical values -4.016497 -3.437891 -3.142926
 
 ``` r
 summary(ur.kpss(y, type = "tau", lags = "long"))
@@ -219,9 +214,9 @@ summary(ur.kpss(y, type = "tau", lags = "long"))
     #> # KPSS Unit Root Test # 
     #> ####################### 
     #> 
-    #> Test is of type: tau with 16 lags. 
+    #> Test is of type: tau with 13 lags. 
     #> 
-    #> Value of test-statistic is: 0.1696 
+    #> Value of test-statistic is: 0.0822 
     #> 
     #> Critical value for a significance level of: 
     #>                 10pct  5pct 2.5pct  1pct
@@ -229,43 +224,45 @@ summary(ur.kpss(y, type = "tau", lags = "long"))
 
 ## (b) Constante e tendência
 
-A série sobe por 26 anos. Sob a alternativa ela só pode ser estacionária
-**em torno de uma tendência**, então o caso certo inclui constante e
-tendência. O $\phi_3$ (que testa $\beta = \gamma = 0$) confirma que a
-tendência importa. Nos outros casos a conclusão muda:
+A série sobe por 13 anos. Sob a alternativa ela só pode ser estacionária
+**em torno de uma tendência**, então o teste começa com constante e
+tendência. Depois segue o procedimento sequencial: se o $\phi_3$ (que
+testa $\beta = \gamma = 0$) não rejeita, a tendência sai, e passa-se ao
+modelo só com constante:
 
 ``` r
-summary(ur.df(y, type = "drift", lags = 16, selectlags = "AIC"))@teststat   # tau2, phi1
+summary(ur.df(y, type = "drift", lags = 13, selectlags = "AIC"))@teststat   # tau2, phi1
 ```
 
     #>                tau2     phi1
-    #> statistic -1.820608 20.74708
+    #> statistic -1.010274 8.419613
 
 ``` r
-summary(ur.df(y, type = "none",  lags = 16, selectlags = "AIC"))@teststat   # tau1
+summary(ur.df(y, type = "none",  lags = 13, selectlags = "AIC"))@teststat   # tau1
 ```
 
     #>               tau1
-    #> statistic 5.987088
+    #> statistic 3.935044
 
-**Resposta.** Comparando as três especificações:
+**Resposta.** O caminho do procedimento sequencial:
 
--   **Com tendência:** $\tau_3$ rejeita a 5%, mas usando 13 defasagens.
--   **Só com constante:** $\tau_2$ não rejeita.
+-   **Com tendência:** $\tau_3$ não rejeita a raiz unitária, e o
+    $\phi_3$ não rejeita $\beta = \gamma = 0$: a tendência é
+    dispensável.
+-   **Só com constante:** $\tau_2$ não rejeita, mas o $\phi_1$ rejeita
+    $\alpha = \gamma = 0$. Como $\gamma = 0$ ficou, quem é diferente de
+    zero é a constante: passeio com **drift**.
 -   **Sem determinísticos:** $\tau_1$ é positivo, o sintoma de ter
-    omitido a tendência.
-
-Ou seja, a especificação muda a conclusão, e as versões sem tendência
-estão erradas para esta série.
+    omitido o drift.
 
 ## (c) Série diferenciada e diferença sazonal
 
 ``` r
-summary(ur.df(dy, type = "drift", lags = 16, selectlags = "AIC"))@teststat
+summary(ur.df(dy, type = "drift", lags = 13, selectlags = "AIC"))@teststat
 ```
 
-    #>                tau2    phi1
-    #> statistic -6.933138 24.0342
+    #>                tau2     phi1
+    #> statistic -5.159213 13.31178
 
 ``` r
 kpss.test(dy)                          # H0: estacionária
@@ -275,7 +272,7 @@ kpss.test(dy)                          # H0: estacionária
     #>  KPSS Test for Level Stationarity
     #> 
     #> data:  dy
-    #> KPSS Level = 0.34882, Truncation lag parameter = 5, p-value = 0.09922
+    #> KPSS Level = 0.16442, Truncation lag parameter = 4, p-value = 0.1
 
 ``` r
 ndiffs(y)                              # d sugerido (KPSS sequencial)
@@ -295,12 +292,13 @@ rejeita: **$d = 1$**. O teste OCSB não pede diferença sazonal:
 
 ## (d) DS ou TS?
 
-No nível, os testes discordam: o ADF com AIC rejeita, mas o PP não
-rejeita e o KPSS rejeita a estacionariedade em tendência. **Adota-se DS
-($d = 1$).** As razões:
+No nível, ADF e PP não rejeitam a raiz unitária, e o KPSS também não
+rejeita a estacionariedade: os dados são pouco informativos. **Adota-se
+DS ($d = 1$).** As razões:
 
-1.  A rejeição do ADF depende de 13 defasagens.
-2.  O PP e o KPSS apontam raiz unitária.
+1.  Todos os testes de raiz unitária apontam DS, e o procedimento
+    sequencial termina em passeio com drift.
+2.  O KPSS tem pouco poder em amostra curta.
 3.  Sob metas de inflação, o nível de preços não volta a uma trajetória
     fixa.
 4.  A Q5 mostra que $\Delta y$ não tem MA unitário, que seria o sinal de
@@ -316,43 +314,42 @@ tsdisplay(dy, lag.max = 48, main = "Δy: FAC e FACP com 48 defasagens (4 ciclos 
 round(cbind(FAC = acf(dy, 13, plot = FALSE)$acf[-1], FACP = pacf(dy, 13, plot = FALSE)$acf), 3)
 ```
 
-    #>         FAC   FACP
-    #>  [1,] 0.628  0.628
-    #>  [2,] 0.417  0.038
-    #>  [3,] 0.252 -0.039
-    #>  [4,] 0.168  0.022
-    #>  [5,] 0.081 -0.046
-    #>  [6,] 0.015 -0.039
-    #>  [7,] 0.000  0.026
-    #>  [8,] 0.061  0.113
-    #>  [9,] 0.123  0.082
-    #> [10,] 0.169  0.063
-    #> [11,] 0.162 -0.006
-    #> [12,] 0.212  0.114
-    #> [13,] 0.123 -0.131
+    #>          FAC   FACP
+    #>  [1,]  0.518  0.518
+    #>  [2,]  0.376  0.147
+    #>  [3,]  0.180 -0.087
+    #>  [4,]  0.067 -0.056
+    #>  [5,] -0.006 -0.027
+    #>  [6,] -0.019  0.015
+    #>  [7,]  0.053  0.113
+    #>  [8,]  0.122  0.099
+    #>  [9,]  0.193  0.093
+    #> [10,]  0.227  0.067
+    #> [11,]  0.187 -0.015
+    #> [12,]  0.216  0.105
+    #> [13,]  0.092 -0.078
 
 **Resposta (b).**
 
--   **Parte regular:** a FACP **trunca** em 1, e a FAC decai
-    exponencialmente: é um AR(1).
--   **Defasagem sazonal:** há um pico em 12 na FAC e na FACP. Ele cabe
-    tanto num SAR(1) (decaimento em 12, 24, …) quanto num SMA(1) (corte
-    em 12).
--   **Vizinhança:** a FACP negativa em 13 sugere estrutura
-    multiplicativa.
+-   **Parte regular:** a FACP tem um pico claro em 1, e o valor em 2
+    fica no limite da banda ($\pm 0{,}15$). A FAC decai: AR(1), com o
+    AR(2) como alternativa.
+-   **Defasagem sazonal:** há um pico em 12 na FAC (dentro da banda na
+    FACP). Ele cabe tanto num SAR(1) (decaimento em 12, 24, …) quanto
+    num SMA(1) (corte em 12).
 
 **(c) Candidatos**, todos com $d = 1$, $D = 0$ e drift (a inflação
 média):
 
 -   **C1:** SARIMA(1,1,0)(1,0,0)$_{12}$;
 -   **C2:** SARIMA(1,1,0)(0,0,1)$_{12}$;
--   **C3:** SARIMA(1,1,0)(1,0,1)$_{12}$. \# Questão 4 — Estimação e
+-   **C3:** SARIMA(2,1,0)(1,0,0)$_{12}$. \# Questão 4 — Estimação e
     seleção
 
 ``` r
 C1 <- Arima(y, order = c(1, 1, 0), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML")
 C2 <- Arima(y, order = c(1, 1, 0), seasonal = c(0, 0, 1), include.drift = TRUE, method = "ML")
-C3 <- Arima(y, order = c(1, 1, 0), seasonal = c(1, 0, 1), include.drift = TRUE, method = "ML")
+C3 <- Arima(y, order = c(2, 1, 0), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML")
 coeftest(C1); coeftest(C2); coeftest(C3)
 ```
 
@@ -360,9 +357,9 @@ coeftest(C1); coeftest(C2); coeftest(C3)
     #> z test of coefficients:
     #> 
     #>       Estimate Std. Error z value  Pr(>|z|)    
-    #> ar1   0.624731   0.043563 14.3409 < 2.2e-16 ***
-    #> sar1  0.199712   0.056251  3.5504 0.0003847 ***
-    #> drift 0.495851   0.061540  8.0574 7.795e-16 ***
+    #> ar1   0.506437   0.067211  7.5350 4.883e-14 ***
+    #> sar1  0.178301   0.077769  2.2927   0.02186 *  
+    #> drift 0.453309   0.065131  6.9600 3.403e-12 ***
     #> ---
     #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -370,20 +367,20 @@ coeftest(C1); coeftest(C2); coeftest(C3)
     #> z test of coefficients:
     #> 
     #>       Estimate Std. Error z value  Pr(>|z|)    
-    #> ar1   0.623567   0.043667 14.2801 < 2.2e-16 ***
-    #> sma1  0.165036   0.050379  3.2759  0.001053 ** 
-    #> drift 0.496429   0.057633  8.6137 < 2.2e-16 ***
+    #> ar1   0.503540   0.067696  7.4383 1.020e-13 ***
+    #> sma1  0.166043   0.074046  2.2424   0.02493 *  
+    #> drift 0.453728   0.062445  7.2661 3.701e-13 ***
     #> ---
     #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
     #> 
     #> z test of coefficients:
     #> 
-    #>        Estimate Std. Error z value  Pr(>|z|)    
-    #> ar1    0.633479   0.043219 14.6573 < 2.2e-16 ***
-    #> sar1   0.821720   0.154129  5.3314 9.748e-08 ***
-    #> sma1  -0.677042   0.195067 -3.4708 0.0005189 ***
-    #> drift  0.502491   0.084240  5.9650 2.446e-09 ***
+    #>       Estimate Std. Error z value  Pr(>|z|)    
+    #> ar1   0.441476   0.078072  5.6547 1.561e-08 ***
+    #> ar2   0.125824   0.079049  1.5917   0.11145    
+    #> sar1  0.165444   0.078553  2.1061   0.03519 *  
+    #> drift 0.452989   0.072444  6.2530 4.027e-10 ***
     #> ---
     #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -395,12 +392,12 @@ colnames(tab) <- c("n efetivo", "sigma2", "logLik", "AIC", "BIC")
 round(tab, 3)
 ```
 
-    #>    n efetivo sigma2   logLik     AIC     BIC
-    #> C1       320  0.115 -104.949 217.899 232.972
-    #> C2       320  0.116 -106.017 220.034 235.107
-    #> C3       320  0.114 -103.268 216.537 235.378
+    #>    n efetivo sigma2  logLik     AIC     BIC
+    #> C1       164  0.126 -58.809 125.618 138.017
+    #> C2       164  0.126 -58.983 125.966 138.366
+    #> C3       164  0.125 -57.552 125.104 140.603
 
-**(b)** $n = T - d - sD = 321 - 1 = 320$ nos três modelos.
+**(b)** $n = T - d - sD = 165 - 1 = 164$ nos três modelos.
 
 **(c)** A comparação é **válida**: os três modelos têm a mesma variável,
 o mesmo $d$ e o mesmo $D$, logo a mesma amostra efetiva. Com $d$
@@ -410,41 +407,55 @@ ser comparável.
 **(d)** O R conta $\widehat\sigma^2$ em $k$, como mostra a conta à mão:
 
 ``` r
-k <- length(coef(C3)) + 1                    # coeficientes + sigma2
-c(AIC_manual = -2 * C3$loglik + 2 * k, AIC_R = C3$aic)
+k <- length(coef(C1)) + 1                    # coeficientes + sigma2
+c(AIC_manual = -2 * C1$loglik + 2 * k, AIC_R = C1$aic)
 ```
 
     #> AIC_manual      AIC_R 
-    #>   216.5367   216.5367
+    #>   125.6178   125.6178
 
 **(e)** O AIC escolhe **C3** e o BIC escolhe **C1**: o BIC pune mais
-cada parâmetro ($\ln n \approx 5{,}8$ contra 2).
+cada parâmetro ($\ln n \approx 5{,}1$ contra 2).
 
 -   O BIC é **consistente**: escolhe o modelo verdadeiro, se ele estiver
     entre os candidatos, com probabilidade que tende a 1.
 -   O AIC é **eficiente** para prever.
 
-Como o objetivo aqui é prever (Q7), fica o **C3**.
-
-**(f)** Raízes inversas dentro do círculo unitário: o modelo é
-estacionário e invertível.
+O objetivo aqui é prever (Q7), o que favorece o AIC. Mas a vantagem do
+C3 é de só 0,5 ponto de AIC, menos que 2, e o $\phi_2$ não é
+significativo. O teste LR confirma:
 
 ``` r
-plot(C3)
+LR <- 2 * (C3$loglik - C1$loglik)
+c(LR = LR, p = pchisq(LR, 1, lower.tail = FALSE))
+```
+
+    #>        LR         p 
+    #> 2.5138971 0.1128466
+
+Fica o **C1**, o mais parcimonioso. A regra (AIC, salvo diferença menor
+que 2) foi fixada antes de olhar a validação.
+
+**(f)** Raízes inversas dentro do círculo unitário: o modelo é
+estacionário.
+
+``` r
+plot(C1)
 ```
 
 ![](laboratorio_lista01_files/figure-markdown_strict/q4f-1.png)
 
-No C3, as raízes sazonais do AR e do MA ficam quase sobrepostas e perto
-do círculo (quase-cancelamento). O par SAR-SMA aproxima uma sazonalidade
-fixa. \# Questão 5 — Diagnóstico
+A raiz inversa regular é $\widehat\phi \approx 0{,}51$. As 12 sazonais
+têm módulo $\widehat\Phi^{1/12} \approx 0{,}87$: um $\widehat\Phi$
+pequeno vira raízes inversas de módulo alto, mas ainda dentro do
+círculo. \# Questão 5 — Diagnóstico
 
 **(a)** O painel abaixo mostra os resíduos no tempo, a FAC e o
 histograma. O `checkresiduals` já roda o Ljung-Box com os graus de
 liberdade corrigidos. O QQ-plot vem em seguida.
 
 ``` r
-checkresiduals(C3, lag = 24)
+checkresiduals(C1, lag = 24)
 ```
 
 ![](laboratorio_lista01_files/figure-markdown_strict/q5a-1.png)
@@ -452,49 +463,49 @@ checkresiduals(C3, lag = 24)
     #> 
     #>  Ljung-Box test
     #> 
-    #> data:  Residuals from ARIMA(1,1,0)(1,0,1)[12] with drift
-    #> Q* = 14.046, df = 21, p-value = 0.8676
+    #> data:  Residuals from ARIMA(1,1,0)(1,0,0)[12] with drift
+    #> Q* = 20.318, df = 22, p-value = 0.5632
     #> 
-    #> Model df: 3.   Total lags used: 24
+    #> Model df: 2.   Total lags used: 24
 
 ``` r
-qqnorm(residuals(C3)); qqline(residuals(C3))
+qqnorm(residuals(C1)); qqline(residuals(C1))
 ```
 
 ![](laboratorio_lista01_files/figure-markdown_strict/q5a-2.png)
 
 **(b) e (c)** Os testes. No Ljung-Box,
-$\nu = K - (p + q + P + Q) = 24 - 3 = 21$.
+$\nu = K - (p + q + P + Q) = 24 - 2 = 22$.
 
 ``` r
-Box.test(residuals(C3), lag = 24, type = "Ljung-Box", fitdf = 3)
+Box.test(residuals(C1), lag = 24, type = "Ljung-Box", fitdf = 2)
 ```
 
     #> 
     #>  Box-Ljung test
     #> 
-    #> data:  residuals(C3)
-    #> X-squared = 14.046, df = 21, p-value = 0.8676
+    #> data:  residuals(C1)
+    #> X-squared = 20.318, df = 22, p-value = 0.5632
 
 ``` r
-jarque.bera.test(residuals(C3))
+jarque.bera.test(residuals(C1))
 ```
 
     #> 
     #>  Jarque Bera Test
     #> 
-    #> data:  residuals(C3)
-    #> X-squared = 402.51, df = 2, p-value < 2.2e-16
+    #> data:  residuals(C1)
+    #> X-squared = 18.121, df = 2, p-value = 0.0001162
 
 ``` r
-ArchTest(residuals(C3), lags = 12)
+ArchTest(residuals(C1), lags = 12)
 ```
 
     #> 
     #>  ARCH LM-test; Null hypothesis: no ARCH effects
     #> 
-    #> data:  residuals(C3)
-    #> Chi-squared = 11.005, df = 12, p-value = 0.5285
+    #> data:  residuals(C1)
+    #> Chi-squared = 5.9531, df = 12, p-value = 0.9184
 
 **Resposta.**
 
@@ -503,27 +514,27 @@ ArchTest(residuals(C3), lags = 12)
 -   **Jarque-Bera:** **rejeita** a normalidade, por caudas pesadas.
 
 **(d)** O diagnóstico de autocorrelação não falhou. A não normalidade
-vem de choques pontuais (crise de 2002, greve de 2018, corte de tributos
-de 2022, bônus de Itaipu em 2025). Ela afeta os intervalos de previsão,
-mas não a consistência do estimador. Modelos sem o AR(1) foram
+vem de choques pontuais (greve dos caminhoneiros em 2018, corte de
+tributos em 2022, bônus de Itaipu em 2025). Ela afeta os intervalos de
+previsão, mas não a consistência do estimador. Modelos sem o AR(1) foram
 descartados, porque deixam autocorrelação nos resíduos (Ljung-Box
 rejeita).
 
 **(e) Sobreajuste:** um AR e um MA a mais.
 
 ``` r
-coeftest(Arima(y, order = c(2, 1, 0), seasonal = c(1, 0, 1), include.drift = TRUE, method = "ML"))["ar2", ]
+coeftest(Arima(y, order = c(2, 1, 0), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML"))["ar2", ]
 ```
 
     #>   Estimate Std. Error    z value   Pr(>|z|) 
-    #> 0.03946019 0.05717955 0.69011008 0.49012496
+    #> 0.12582411 0.07904902 1.59172253 0.11144706
 
 ``` r
-coeftest(Arima(y, order = c(1, 1, 1), seasonal = c(1, 0, 1), include.drift = TRUE, method = "ML"))["ma1", ]
+coeftest(Arima(y, order = c(1, 1, 1), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML"))["ma1", ]
 ```
 
-    #>    Estimate  Std. Error     z value    Pr(>|z|) 
-    #> -0.05792055  0.08740719 -0.66265194  0.50755350
+    #>   Estimate Std. Error    z value   Pr(>|z|) 
+    #> -0.1732418  0.1258123 -1.3769865  0.1685164
 
 **Resposta.** Nenhum dos coeficientes extras é significativo, então a
 especificação está adequada. O MA extra fica longe de $-1$, o que
@@ -531,8 +542,8 @@ confirma que $\Delta y$ não foi sobrediferenciada. \# Questão 6 —
 Sobrediferenciação ($d^* + 1 = 2$)
 
 ``` r
-D2  <- Arima(y, order = c(1, 2, 0), seasonal = c(1, 0, 1), method = "ML")   # mesmas ordens
-D2m <- Arima(y, order = c(1, 2, 1), seasonal = c(1, 0, 1), method = "ML")   # com um MA a mais
+D2  <- Arima(y, order = c(1, 2, 0), seasonal = c(1, 0, 0), method = "ML")   # mesmas ordens
+D2m <- Arima(y, order = c(1, 2, 1), seasonal = c(1, 0, 0), method = "ML")   # com um MA a mais
 coeftest(D2m)
 ```
 
@@ -540,10 +551,9 @@ coeftest(D2m)
     #> z test of coefficients:
     #> 
     #>       Estimate Std. Error  z value  Pr(>|z|)    
-    #> ar1   0.638615   0.043613  14.6428 < 2.2e-16 ***
-    #> ma1  -0.999998   0.012991 -76.9775 < 2.2e-16 ***
-    #> sar1  0.846426   0.124644   6.7908 1.115e-11 ***
-    #> sma1 -0.702038   0.161296  -4.3525 1.346e-05 ***
+    #> ar1   0.515253   0.068065   7.5700 3.733e-14 ***
+    #> ma1  -1.000000   0.022023 -45.4079 < 2.2e-16 ***
+    #> sar1  0.184267   0.078266   2.3544   0.01855 *  
     #> ---
     #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -551,22 +561,22 @@ coeftest(D2m)
 abs(polyroot(c(1, coef(D2m)["ma1"])))                  # raiz do MA
 ```
 
-    #> [1] 1.000002
+    #> [1] 1
 
 ``` r
-c(sigma2_d1 = C3$sigma2, sigma2_d2 = D2$sigma2, sigma2_d2_MA = D2m$sigma2)
+c(sigma2_d1 = C1$sigma2, sigma2_d2 = D2$sigma2, sigma2_d2_MA = D2m$sigma2)
 ```
 
     #>    sigma2_d1    sigma2_d2 sigma2_d2_MA 
-    #>    0.1141193    0.1341048    0.1161261
+    #>    0.1258763    0.1508776    0.1308745
 
 ``` r
-c(rho1_d1 = acf(residuals(C3), plot = FALSE)$acf[2], rho1_d2 = acf(residuals(D2), plot = FALSE)$acf[2],
+c(rho1_d1 = acf(residuals(C1), plot = FALSE)$acf[2], rho1_d2 = acf(residuals(D2), plot = FALSE)$acf[2],
   rho1_serie_d2 = acf(diff(dy), plot = FALSE)$acf[2])
 ```
 
     #>       rho1_d1       rho1_d2 rho1_serie_d2 
-    #>   -0.02886445   -0.03568588   -0.20952800
+    #>   -0.05386913   -0.04942052   -0.33881841
 
 **Resposta.**
 
@@ -574,7 +584,7 @@ c(rho1_d1 = acf(residuals(C3), plot = FALSE)$acf[2], rho1_d2 = acf(residuals(D2)
     $\theta = 1$). A raiz do MA é 1, **sobre o círculo unitário**: o
     modelo fica não invertível.
 -   **(b)** $\widehat\sigma^2$ aumenta com a diferença extra, cerca de
-    17% sem o MA.
+    20% sem o MA.
 -   **(c)** A série $\Delta^2 y$ tem $\rho_1$ negativo, perto de
     $-(1-\phi)/2$. No modelo, o AR troca de sinal para absorver esse
     $\rho_1$.
@@ -590,7 +600,7 @@ T0 <- length(y) - 24
 y_treino <- window(y, end = time(y)[T0])
 P_treino <- window(P, end = time(P)[T0])
 P_teste  <- window(P, start = time(P)[T0 + 1])
-fit <- Arima(y_treino, order = c(1, 1, 0), seasonal = c(1, 0, 1), include.drift = TRUE, method = "ML")
+fit <- Arima(y_treino, order = c(1, 1, 0), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML")   # C1
 
 # Esquema 1: origem fixa, h = 1..24, com IC de 95%
 prev1 <- forecast(fit, h = 24, level = 95)
@@ -620,8 +630,8 @@ rbind("SARIMA, esquema 1"            = accuracy(exp(prev1$mean / 100), P_teste)[
 ```
 
     #>                                   RMSE       MAE      MAPE
-    #> SARIMA, esquema 1            120.09897  94.02267 1.2237213
-    #> SARIMA, esquema 2             30.75668  22.08010 0.2917285
+    #> SARIMA, esquema 1             81.54227  65.94999 0.8611550
+    #> SARIMA, esquema 2             30.69034  22.38202 0.2957467
     #> Passeio aleatório, esquema 1 425.13541 379.63083 4.9583361
     #> Passeio aleatório, esquema 2  40.88458  32.23250 0.4259191
     #> Sazonal ingênuo, esquema 1   525.33598 501.93250 6.5949984

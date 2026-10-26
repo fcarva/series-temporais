@@ -25,7 +25,7 @@
 #' por questão. Rode bloco a bloco no RStudio. Para virar PDF e nota do Obsidian, use
 #' `Rscript lista01/renderizar_laboratorio.R`.
 #'
-#' **Série.** INPC/IBGE (SIDRA, tabela 1736), índice mensal de jan/2000 a set/2026.
+#' **Série.** INPC/IBGE (SIDRA, tabela 1736), índice mensal de jan/2013 a set/2026 (165 meses).
 #' Modela-se $y_t = 100\ln P_t$, de modo que $\Delta y_t$ é a inflação mensal em %.
 #'
 #' **Sinal do MA.** O R escreve o MA como $1 + \theta B$; a lista escreve $1 - \theta B$.
@@ -45,7 +45,7 @@ library(FinTS)      # ArchTest (ARCH-LM)
 
 arq <- if (file.exists("dados/inpc_lista01.csv")) "dados/inpc_lista01.csv" else "lista01/dados/inpc_lista01.csv"
 dados <- read.csv(arq)
-P  <- ts(dados$indice, start = c(2000, 1), frequency = 12)   # índice em nível
+P  <- ts(dados$indice, start = c(2013, 1), frequency = 12)   # índice em nível
 y  <- 100 * log(P)                                            # série modelada
 dy <- diff(y)                                                 # inflação mensal (%)
 length(y)                                                     # T >= 120
@@ -62,18 +62,25 @@ par(mfrow = c(1, 1))
 
 #+ q1b
 monthplot(dy, main = "Δy por mês do ano", ylab = "% a.m.")
-BoxCox.lambda(P)                  # lambda de Box-Cox (Guerrero): perto de 0 => log
+c(guerrero = BoxCox.lambda(P, method = "guerrero"),   # lambda de Box-Cox: 0 = log, 1 = nada
+  mv = BoxCox.lambda(P, method = "loglik"))
 
 #' **Resposta (a).**
 #'
-#' - **Tendência:** forte e exponencial no nível. Em log, vira quase uma reta.
-#' - **Inclinação:** a inclinação do log (a inflação) é maior em 2000–2003 do que depois.
+#' - **Tendência:** forte no nível (o índice dobra em 13 anos). Em log, vira quase uma reta.
+#' - **Inclinação:** a inclinação do log (a inflação) muda: mais alta até 2016, baixa em
+#'   2017–2020, alta no pós-pandemia (2020–2022) e menor depois.
 #' - **Nível:** não há mudança de nível; choques no índice não são revertidos.
-#' - **Sazonalidade:** aparece só em $\Delta y$. Janeiro e dezembro são altos, agosto é baixo.
-#' - **Outliers:** são os picos de $\Delta y$ (nov/2002, jun/2018, jul/2022, fev/2025).
-#' - **Dispersão:** cresce com o nível, e o $\lambda$ de Box-Cox perto de 0 indica o log.
+#' - **Sazonalidade:** aparece só em $\Delta y$. Fevereiro, março e dezembro são altos,
+#'   agosto é baixo.
+#' - **Outliers:** são os picos de $\Delta y$ (jun/2018, jul/2022, fev/2025).
+#' - **Dispersão:** muda pouco com o nível nesta janela. Os dois $\lambda$ de Box-Cox
+#'   discordam: o de máxima verossimilhança (0,3) aponta o log, o de Guerrero (0,7) aponta
+#'   não transformar.
 #'
-#' **Transformação:** log, que também faz de $\Delta y$ a taxa de inflação.
+#' **Transformação:** log. Quem decide é a interpretação: com log, $\Delta y$ é a taxa de
+#' inflação e o drift é uma taxa média, que pode ser constante. Sem log, o drift seria um
+#' aumento em pontos de índice, que cresce com o nível.
 
 #' # Questão 2 — Ordem de integração
 #'
@@ -84,37 +91,37 @@ BoxCox.lambda(P)                  # lambda de Box-Cox (Guerrero): perto de 0 => 
 #' - **ADF e PP:** $H_0$ é raiz unitária ($\gamma = 0$).
 #' - **KPSS:** $H_0$ é estacionariedade.
 #'
-#' As defasagens do ADF são escolhidas por AIC, até 16 (regra de Schwert, $12(T/100)^{1/4}$).
+#' As defasagens do ADF são escolhidas por AIC, até 13 (regra de Schwert, $12(T/100)^{1/4}$).
 
 #+ q2a
-adf_ct <- ur.df(y, type = "trend", lags = 16, selectlags = "AIC")
+adf_ct <- ur.df(y, type = "trend", lags = 13, selectlags = "AIC")
 summary(adf_ct)
 summary(ur.pp(y, type = "Z-tau", model = "trend", lags = "long"))
 summary(ur.kpss(y, type = "tau", lags = "long"))
 
 #' ## (b) Constante e tendência
 #'
-#' A série sobe por 26 anos. Sob a alternativa ela só pode ser estacionária **em torno de
-#' uma tendência**, então o caso certo inclui constante e tendência. O $\phi_3$ (que testa
-#' $\beta = \gamma = 0$) confirma que a tendência importa. Nos outros casos a conclusão muda:
+#' A série sobe por 13 anos. Sob a alternativa ela só pode ser estacionária **em torno de
+#' uma tendência**, então o teste começa com constante e tendência. Depois segue o
+#' procedimento sequencial: se o $\phi_3$ (que testa $\beta = \gamma = 0$) não rejeita, a
+#' tendência sai, e passa-se ao modelo só com constante:
 
 #+ q2b
-summary(ur.df(y, type = "drift", lags = 16, selectlags = "AIC"))@teststat   # tau2, phi1
-summary(ur.df(y, type = "none",  lags = 16, selectlags = "AIC"))@teststat   # tau1
+summary(ur.df(y, type = "drift", lags = 13, selectlags = "AIC"))@teststat   # tau2, phi1
+summary(ur.df(y, type = "none",  lags = 13, selectlags = "AIC"))@teststat   # tau1
 
-#' **Resposta.** Comparando as três especificações:
+#' **Resposta.** O caminho do procedimento sequencial:
 #'
-#' - **Com tendência:** $\tau_3$ rejeita a 5%, mas usando 13 defasagens.
-#' - **Só com constante:** $\tau_2$ não rejeita.
-#' - **Sem determinísticos:** $\tau_1$ é positivo, o sintoma de ter omitido a tendência.
-#'
-#' Ou seja, a especificação muda a conclusão, e as versões sem tendência estão erradas para
-#' esta série.
+#' - **Com tendência:** $\tau_3$ não rejeita a raiz unitária, e o $\phi_3$ não rejeita
+#'   $\beta = \gamma = 0$: a tendência é dispensável.
+#' - **Só com constante:** $\tau_2$ não rejeita, mas o $\phi_1$ rejeita $\alpha = \gamma = 0$.
+#'   Como $\gamma = 0$ ficou, quem é diferente de zero é a constante: passeio com **drift**.
+#' - **Sem determinísticos:** $\tau_1$ é positivo, o sintoma de ter omitido o drift.
 #'
 #' ## (c) Série diferenciada e diferença sazonal
 
 #+ q2c
-summary(ur.df(dy, type = "drift", lags = 16, selectlags = "AIC"))@teststat
+summary(ur.df(dy, type = "drift", lags = 13, selectlags = "AIC"))@teststat
 kpss.test(dy)                          # H0: estacionária
 ndiffs(y)                              # d sugerido (KPSS sequencial)
 nsdiffs(y, test = "ocsb")              # D sugerido pelo OCSB (H0: precisa de 1 - B^12)
@@ -124,11 +131,12 @@ nsdiffs(y, test = "ocsb")              # D sugerido pelo OCSB (H0: precisa de 1 
 #'
 #' ## (d) DS ou TS?
 #'
-#' No nível, os testes discordam: o ADF com AIC rejeita, mas o PP não rejeita e o KPSS
-#' rejeita a estacionariedade em tendência. **Adota-se DS ($d = 1$).** As razões:
+#' No nível, ADF e PP não rejeitam a raiz unitária, e o KPSS também não rejeita a
+#' estacionariedade: os dados são pouco informativos. **Adota-se DS ($d = 1$).** As razões:
 #'
-#' 1. A rejeição do ADF depende de 13 defasagens.
-#' 2. O PP e o KPSS apontam raiz unitária.
+#' 1. Todos os testes de raiz unitária apontam DS, e o procedimento sequencial termina em
+#'    passeio com drift.
+#' 2. O KPSS tem pouco poder em amostra curta.
 #' 3. Sob metas de inflação, o nível de preços não volta a uma trajetória fixa.
 #' 4. A Q5 mostra que $\Delta y$ não tem MA unitário, que seria o sinal de diferenciação em
 #'    excesso.
@@ -141,23 +149,23 @@ round(cbind(FAC = acf(dy, 13, plot = FALSE)$acf[-1], FACP = pacf(dy, 13, plot = 
 
 #' **Resposta (b).**
 #'
-#' - **Parte regular:** a FACP **trunca** em 1, e a FAC decai exponencialmente: é um AR(1).
-#' - **Defasagem sazonal:** há um pico em 12 na FAC e na FACP. Ele cabe tanto num SAR(1)
-#'   (decaimento em 12, 24, …) quanto num SMA(1) (corte em 12).
-#' - **Vizinhança:** a FACP negativa em 13 sugere estrutura multiplicativa.
+#' - **Parte regular:** a FACP tem um pico claro em 1, e o valor em 2 fica no limite da
+#'   banda ($\pm 0{,}15$). A FAC decai: AR(1), com o AR(2) como alternativa.
+#' - **Defasagem sazonal:** há um pico em 12 na FAC (dentro da banda na FACP). Ele cabe
+#'   tanto num SAR(1) (decaimento em 12, 24, …) quanto num SMA(1) (corte em 12).
 #'
 #' **(c) Candidatos**, todos com $d = 1$, $D = 0$ e drift (a inflação média):
 #'
 #' - **C1:** SARIMA(1,1,0)(1,0,0)$_{12}$;
 #' - **C2:** SARIMA(1,1,0)(0,0,1)$_{12}$;
-#' - **C3:** SARIMA(1,1,0)(1,0,1)$_{12}$.
+#' - **C3:** SARIMA(2,1,0)(1,0,0)$_{12}$.
 
 #' # Questão 4 — Estimação e seleção
 
 #+ q4
 C1 <- Arima(y, order = c(1, 1, 0), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML")
 C2 <- Arima(y, order = c(1, 1, 0), seasonal = c(0, 0, 1), include.drift = TRUE, method = "ML")
-C3 <- Arima(y, order = c(1, 1, 0), seasonal = c(1, 0, 1), include.drift = TRUE, method = "ML")
+C3 <- Arima(y, order = c(2, 1, 0), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML")
 coeftest(C1); coeftest(C2); coeftest(C3)
 tab <- rbind(C1 = c(C1$nobs, C1$sigma2, C1$loglik, C1$aic, C1$bic),
              C2 = c(C2$nobs, C2$sigma2, C2$loglik, C2$aic, C2$bic),
@@ -165,7 +173,7 @@ tab <- rbind(C1 = c(C1$nobs, C1$sigma2, C1$loglik, C1$aic, C1$bic),
 colnames(tab) <- c("n efetivo", "sigma2", "logLik", "AIC", "BIC")
 round(tab, 3)
 
-#' **(b)** $n = T - d - sD = 321 - 1 = 320$ nos três modelos.
+#' **(b)** $n = T - d - sD = 165 - 1 = 164$ nos três modelos.
 #'
 #' **(c)** A comparação é **válida**: os três modelos têm a mesma variável, o mesmo $d$ e o
 #' mesmo $D$, logo a mesma amostra efetiva. Com $d$ diferente, a verossimilhança seria de
@@ -174,25 +182,34 @@ round(tab, 3)
 #' **(d)** O R conta $\widehat\sigma^2$ em $k$, como mostra a conta à mão:
 
 #+ q4d
-k <- length(coef(C3)) + 1                    # coeficientes + sigma2
-c(AIC_manual = -2 * C3$loglik + 2 * k, AIC_R = C3$aic)
+k <- length(coef(C1)) + 1                    # coeficientes + sigma2
+c(AIC_manual = -2 * C1$loglik + 2 * k, AIC_R = C1$aic)
 
 #' **(e)** O AIC escolhe **C3** e o BIC escolhe **C1**: o BIC pune mais cada parâmetro
-#' ($\ln n \approx 5{,}8$ contra 2).
+#' ($\ln n \approx 5{,}1$ contra 2).
 #'
 #' - O BIC é **consistente**: escolhe o modelo verdadeiro, se ele estiver entre os
 #'   candidatos, com probabilidade que tende a 1.
 #' - O AIC é **eficiente** para prever.
 #'
-#' Como o objetivo aqui é prever (Q7), fica o **C3**.
+#' O objetivo aqui é prever (Q7), o que favorece o AIC. Mas a vantagem do C3 é de só 0,5
+#' ponto de AIC, menos que 2, e o $\phi_2$ não é significativo. O teste LR confirma:
+
+#+ q4e
+LR <- 2 * (C3$loglik - C1$loglik)
+c(LR = LR, p = pchisq(LR, 1, lower.tail = FALSE))
+
+#' Fica o **C1**, o mais parcimonioso. A regra (AIC, salvo diferença menor que 2) foi fixada
+#' antes de olhar a validação.
 #'
-#' **(f)** Raízes inversas dentro do círculo unitário: o modelo é estacionário e invertível.
+#' **(f)** Raízes inversas dentro do círculo unitário: o modelo é estacionário.
 
 #+ q4f, fig.height = 4
-plot(C3)
+plot(C1)
 
-#' No C3, as raízes sazonais do AR e do MA ficam quase sobrepostas e perto do círculo
-#' (quase-cancelamento). O par SAR-SMA aproxima uma sazonalidade fixa.
+#' A raiz inversa regular é $\widehat\phi \approx 0{,}51$. As 12 sazonais têm módulo
+#' $\widehat\Phi^{1/12} \approx 0{,}87$: um $\widehat\Phi$ pequeno vira raízes inversas de
+#' módulo alto, mas ainda dentro do círculo.
 
 #' # Questão 5 — Diagnóstico
 #'
@@ -201,15 +218,15 @@ plot(C3)
 #' em seguida.
 
 #+ q5a, fig.height = 5
-checkresiduals(C3, lag = 24)
-qqnorm(residuals(C3)); qqline(residuals(C3))
+checkresiduals(C1, lag = 24)
+qqnorm(residuals(C1)); qqline(residuals(C1))
 
-#' **(b) e (c)** Os testes. No Ljung-Box, $\nu = K - (p + q + P + Q) = 24 - 3 = 21$.
+#' **(b) e (c)** Os testes. No Ljung-Box, $\nu = K - (p + q + P + Q) = 24 - 2 = 22$.
 
 #+ q5bc
-Box.test(residuals(C3), lag = 24, type = "Ljung-Box", fitdf = 3)
-jarque.bera.test(residuals(C3))
-ArchTest(residuals(C3), lags = 12)
+Box.test(residuals(C1), lag = 24, type = "Ljung-Box", fitdf = 2)
+jarque.bera.test(residuals(C1))
+ArchTest(residuals(C1), lags = 12)
 
 #' **Resposta.**
 #'
@@ -218,7 +235,7 @@ ArchTest(residuals(C3), lags = 12)
 #' - **Jarque-Bera:** **rejeita** a normalidade, por caudas pesadas.
 #'
 #' **(d)** O diagnóstico de autocorrelação não falhou. A não normalidade vem de choques
-#' pontuais (crise de 2002, greve de 2018, corte de tributos de 2022, bônus de Itaipu
+#' pontuais (greve dos caminhoneiros em 2018, corte de tributos em 2022, bônus de Itaipu
 #' em 2025). Ela afeta os intervalos de previsão, mas não a consistência do estimador.
 #' Modelos sem o AR(1) foram descartados, porque deixam autocorrelação nos resíduos
 #' (Ljung-Box rejeita).
@@ -226,8 +243,8 @@ ArchTest(residuals(C3), lags = 12)
 #' **(e) Sobreajuste:** um AR e um MA a mais.
 
 #+ q5e
-coeftest(Arima(y, order = c(2, 1, 0), seasonal = c(1, 0, 1), include.drift = TRUE, method = "ML"))["ar2", ]
-coeftest(Arima(y, order = c(1, 1, 1), seasonal = c(1, 0, 1), include.drift = TRUE, method = "ML"))["ma1", ]
+coeftest(Arima(y, order = c(2, 1, 0), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML"))["ar2", ]
+coeftest(Arima(y, order = c(1, 1, 1), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML"))["ma1", ]
 
 #' **Resposta.** Nenhum dos coeficientes extras é significativo, então a especificação está
 #' adequada. O MA extra fica longe de $-1$, o que confirma que $\Delta y$ não foi
@@ -236,19 +253,19 @@ coeftest(Arima(y, order = c(1, 1, 1), seasonal = c(1, 0, 1), include.drift = TRU
 #' # Questão 6 — Sobrediferenciação ($d^* + 1 = 2$)
 
 #+ q6
-D2  <- Arima(y, order = c(1, 2, 0), seasonal = c(1, 0, 1), method = "ML")   # mesmas ordens
-D2m <- Arima(y, order = c(1, 2, 1), seasonal = c(1, 0, 1), method = "ML")   # com um MA a mais
+D2  <- Arima(y, order = c(1, 2, 0), seasonal = c(1, 0, 0), method = "ML")   # mesmas ordens
+D2m <- Arima(y, order = c(1, 2, 1), seasonal = c(1, 0, 0), method = "ML")   # com um MA a mais
 coeftest(D2m)
 abs(polyroot(c(1, coef(D2m)["ma1"])))                  # raiz do MA
-c(sigma2_d1 = C3$sigma2, sigma2_d2 = D2$sigma2, sigma2_d2_MA = D2m$sigma2)
-c(rho1_d1 = acf(residuals(C3), plot = FALSE)$acf[2], rho1_d2 = acf(residuals(D2), plot = FALSE)$acf[2],
+c(sigma2_d1 = C1$sigma2, sigma2_d2 = D2$sigma2, sigma2_d2_MA = D2m$sigma2)
+c(rho1_d1 = acf(residuals(C1), plot = FALSE)$acf[2], rho1_d2 = acf(residuals(D2), plot = FALSE)$acf[2],
   rho1_serie_d2 = acf(diff(dy), plot = FALSE)$acf[2])
 
 #' **Resposta.**
 #'
 #' - **(a)** $\widehat\theta \approx -1$ (na convenção da lista, $\theta = 1$). A raiz do MA é 1,
 #'   **sobre o círculo unitário**: o modelo fica não invertível.
-#' - **(b)** $\widehat\sigma^2$ aumenta com a diferença extra, cerca de 17% sem o MA.
+#' - **(b)** $\widehat\sigma^2$ aumenta com a diferença extra, cerca de 20% sem o MA.
 #' - **(c)** A série $\Delta^2 y$ tem $\rho_1$ negativo, perto de $-(1-\phi)/2$. No modelo,
 #'   o AR troca de sinal para absorver esse $\rho_1$.
 #' - **(d)** Os sinais práticos de sobrediferenciação: MA perto de $-1$, AR que troca de
@@ -264,7 +281,7 @@ T0 <- length(y) - 24
 y_treino <- window(y, end = time(y)[T0])
 P_treino <- window(P, end = time(P)[T0])
 P_teste  <- window(P, start = time(P)[T0 + 1])
-fit <- Arima(y_treino, order = c(1, 1, 0), seasonal = c(1, 0, 1), include.drift = TRUE, method = "ML")
+fit <- Arima(y_treino, order = c(1, 1, 0), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML")   # C1
 
 # Esquema 1: origem fixa, h = 1..24, com IC de 95%
 prev1 <- forecast(fit, h = 24, level = 95)

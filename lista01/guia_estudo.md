@@ -15,7 +15,7 @@ aliases:
 
 # Guia de estudo da Lista 01: o que estou fazendo e por quê
 
-Este guia acompanha o script [lista01_inpc.R](lista01_inpc.R) passo a passo. Para cada etapa da Lista 01, ele diz:
+Este guia acompanha o script [lista01_inpc.R](lista01_inpc.R) passo a passo. A série é o **INPC mensal de jan/2013 a set/2026, 165 observações**. Para cada etapa da Lista 01, o guia diz:
 - **o que** estou tentando descobrir;
 - **por que** este teste, e não outro;
 - **como** o teste funciona por dentro;
@@ -28,7 +28,7 @@ O guia foi feito para ler antes de rodar o código e para revisar antes da prova
 > **Como usar**
 > 1. Leia a seção 0 inteira: ela dá o mapa.
 > 2. Para cada questão, leia a seção aqui, rode o bloco correspondente no RStudio e confira se o número na tela bate com o do texto.
-> 3. Termine com as [perguntas de prova](#11-perguntas-de-prova-com-resposta) e tente responder sem olhar.
+> 3. Termine com as [perguntas de prova](#12-perguntas-de-prova-com-resposta) e tente responder sem olhar.
 
 ## 0. O mapa: o que a Lista 01 inteira está fazendo
 
@@ -43,10 +43,10 @@ Depois do ciclo vem a **prova final** (Q7): o modelo prevê melhor, fora da amos
 
 | Questão | Pergunta que estou respondendo | Ferramenta | O INPC respondeu |
 |---|---|---|---|
-| Q1 | Como é a série? Preciso transformá-la? | gráficos, Box-Cox | tendência exponencial, sazonalidade, outliers; usar log |
-| Q2 | Quantas diferenças ($d$) e diferenças sazonais ($D$)? | ADF, PP, KPSS, OCSB | $d=1$, $D=0$ (com uma discordância entre testes que precisa ser defendida) |
-| Q3 | Que estrutura ARMA tem a série diferenciada? | FAC e FACP | AR(1) regular e algo sazonal em 12; três candidatos |
-| Q4 | Qual candidato é o melhor? | MV exata, AIC, BIC, raízes | AIC escolhe C3, BIC escolhe C1; fica C3 |
+| Q1 | Como é a série? Preciso transformá-la? | gráficos, Box-Cox | tendência, sazonalidade, outliers; usar log |
+| Q2 | Quantas diferenças ($d$) e diferenças sazonais ($D$)? | ADF, PP, KPSS, OCSB | $d=1$, $D=0$: passeio aleatório com drift |
+| Q3 | Que estrutura ARMA tem a série diferenciada? | FAC e FACP | AR(1), talvez AR(2), e algo sazonal em 12; três candidatos |
+| Q4 | Qual candidato é o melhor? | MV exata, AIC, BIC, raízes | AIC e BIC discordam por pouco; fica C1, o mais simples |
 | Q5 | O que sobrou é ruído branco? | Ljung-Box, Jarque-Bera, ARCH-LM, sobreajuste | sim, exceto a normalidade |
 | Q6 | O que acontece se eu diferenciar demais? | o modelo com $d=2$ | o MA vai para a raiz unitária |
 | Q7 | O modelo prevê bem? | 24 meses fora da amostra, RMSE/MAE/MAPE | bate o passeio aleatório e o sazonal ingênuo |
@@ -76,7 +76,7 @@ O passeio aleatório tem $\operatorname{Var}(y_t)=t\sigma^2$, que cresce com o t
 
 > [!IMPORTANT]
 > **A frase-resumo da Lista 01**
-> O INPC é $I(1)$: o log do índice tem raiz unitária, e a inflação mensal $\Delta y_t$ é estacionária. Por isso o modelo é um ARIMA com $d=1$ para o log, o que é o mesmo que um ARMA para a inflação.
+> O INPC é $I(1)$ com drift: o log do índice tem raiz unitária, e a inflação mensal $\Delta y_t$ é estacionária em torno de uma média positiva. Por isso o modelo é um ARIMA com $d=1$ e constante para o log, o que é o mesmo que um ARMA com média para a inflação.
 
 ## 1. Q1: olhar a série antes de testar qualquer coisa
 
@@ -96,7 +96,7 @@ Os testes respondem perguntas estreitas ("há raiz unitária?"), mas é o gráfi
 
 São três motivos, e vale saber os três.
 
-1. **O log estabiliza a variância.** Um índice de preços cresce de forma exponencial: um choque de 1% move o índice em 16 pontos quando ele vale 1.600 e em 70 pontos quando vale 7.000. Em log, os dois choques têm o mesmo tamanho.
+1. **O log estabiliza a variância.** Um índice de preços cresce de forma exponencial: um choque de 1% move o índice em 37 pontos quando ele vale 3.700 e em 79 pontos quando vale 7.900. Em log, os dois choques têm o mesmo tamanho.
 2. **O log lineariza a tendência.** Se $P_t=P_0(1+\pi)^t$, então $\ln P_t=\ln P_0+t\ln(1+\pi)$, que é uma reta.
 3. **A diferença do log é a taxa de inflação.** Como $\ln(1+x)\approx x$ para $x$ pequeno:
 
@@ -106,25 +106,29 @@ $$
 
 Logo $\Delta y_t$ é a inflação mensal em pontos percentuais. O fator 100 só muda a escala, para os números ficarem legíveis.
 
-### Box-Cox: a justificativa formal do log
+### Box-Cox: a justificativa formal, e por que aqui ela não decide
 
-A família de Box-Cox é $y(\lambda)=(P^\lambda-1)/\lambda$ para $\lambda\neq0$, com $y(0)=\ln P$. Assim, $\lambda=1$ é "não transformar" e $\lambda=0$ é o log. O método de Guerrero escolhe o $\lambda$ que deixa constante o coeficiente de variação entre subperíodos. Para o INPC, $\widehat\lambda=0{,}30$, mais perto de 0 do que de 1. Isso, junto com o sentido econômico da diferença do log, justifica o log.
+A família de Box-Cox é $y(\lambda)=(P^\lambda-1)/\lambda$ para $\lambda\neq0$, com $y(0)=\ln P$. Assim, $\lambda=1$ é "não transformar" e $\lambda=0$ é o log. Há dois estimadores comuns:
+- o de **máxima verossimilhança** dá $\widehat\lambda=0{,}30$, mais perto do log;
+- o de **Guerrero**, que escolhe o $\lambda$ que deixa constante o coeficiente de variação entre subperíodos, dá $0{,}74$, mais perto de não transformar.
+
+Eles discordam porque, em 13 anos, o índice só dobra (de 3.749 para 7.874), e a variância quase não muda com o nível: há pouca informação para estimar $\lambda$. Quem decide é o **motivo 3**. Com o log, o drift do modelo é a inflação média, uma *taxa* que pode ser constante. Sem o log, o drift seria um aumento médio em pontos de índice, que não pode ser constante: o mesmo 0,5% ao mês vale 19 pontos em 2013 e 39 pontos em 2026.
 
 ![Série em nível e em log](saidas/figuras/q1_serie_nivel.png)
 
 ### O que o INPC mostrou
 
-- **Tendência** forte e exponencial no índice; em log, quase uma reta. A inclinação do log é a inflação: maior em 2000–2003 (crise cambial) do que depois.
-- **Sazonalidade** invisível no índice, mas clara na inflação mensal: janeiro e dezembro altos, agosto baixo.
-- **Outliers** na inflação: nov/2002 (crise), jun/2018 (greve dos caminhoneiros), jul/2022 (corte de impostos sobre combustíveis), fev/2025 (fim do bônus de Itaipu na conta de luz).
+- **Tendência** forte no índice; em log, quase uma reta. A inclinação do log é a inflação, e ela muda de patamar: mais alta até meados de 2016 (com o pico de 2015), baixa em 2016–2020, alta no pós-pandemia (2020–2022) e menor depois. O teste de Bai-Perron, na versão completa do código, acha essas três quebras na média da inflação.
+- **Sazonalidade** invisível no índice, mas presente na inflação mensal: fevereiro, março e dezembro altos, agosto baixo.
+- **Outliers** na inflação: jun/2018 (greve dos caminhoneiros), jul/2022 (corte de impostos sobre combustíveis), fev/2025 (fim do bônus de Itaipu na conta de luz).
 
 ![Inflação mensal e sazonalidade](saidas/figuras/q1_variacao.png)
 
-A figura, da versão completa do código, marca também os outliers detectados automaticamente e a média da inflação por regime: ela cai de patamar no início de 2004, depois da crise de 2002–2003.
+A figura, da versão completa do código, marca os outliers detectados automaticamente e a média da inflação em cada regime.
 
 > [!TIP]
 > **Na prova**
-> Se perguntarem "por que usar log", não basta "para estabilizar a variância". Diga também que a diferença do log é a taxa de crescimento, o que dá ao modelo uma interpretação econômica direta.
+> Se perguntarem "por que usar log", não basta "para estabilizar a variância". Diga também que a diferença do log é a taxa de crescimento, o que dá ao modelo uma interpretação econômica direta. Quando o Box-Cox é ambíguo, como aqui, é esse argumento que decide.
 
 ## 2. Q2: quantas diferenças? (raiz unitária)
 
@@ -177,11 +181,14 @@ O teste é **unilateral à esquerda**: rejeita-se $H_0$ quando $\tau=\widehat\ga
 | com constante | $\tau_2$ | $-2{,}86$ | $\phi_1$: $\alpha=\gamma=0$ |
 | com constante e tendência | $\tau_3$ | $-3{,}41$ | $\phi_2$: $\alpha=\beta=\gamma=0$; $\phi_3$: $\beta=\gamma=0$ |
 
-(O `urca` imprime $-3{,}42$ e $-2{,}87$, os valores ajustados ao tamanho da amostra.)
+(Com $T=165$, o `urca` imprime $-3{,}43$ e $-2{,}88$, os valores ajustados ao tamanho da amostra.)
 
-**Qual caso usar.** A regra é: a hipótese alternativa precisa descrever a série de forma plausível. O log do INPC sobe por 26 anos. Se ele for estacionário, só pode ser estacionário **em torno de uma tendência**. Um teste sem $\beta t$ compararia "passeio aleatório" com "série estacionária em torno de uma média fixa", e essa alternativa é absurda para um índice de preços. Então o caso correto é o com constante e tendência, e o $\phi_3$ confirma que a tendência importa.
+**Por onde começar.** A hipótese alternativa precisa descrever a série de forma plausível. O log do INPC sobe por 13 anos. Se ele for estacionário, só pode ser estacionário **em torno de uma tendência**. Por isso o teste começa com constante e tendência. Depois, o **procedimento sequencial** (Dolado, Jenkinson e Sosvilla-Rivero) vai tirando os termos que não são necessários:
+1. modelo com tendência: se $\tau_3$ não rejeita, olha-se o $\phi_3$; se ele também não rejeita, a tendência sai;
+2. modelo com constante: se $\tau_2$ não rejeita, olha-se o $\phi_1$; se ele rejeita, há raiz unitária **com drift**;
+3. modelo sem nada, só se a constante também sair.
 
-**Como escolher $k$.** Defasagens de menos deixam autocorrelação no erro, e o teste erra o tamanho. Defasagens demais custam poder. A prática é partir de um máximo, $k_{\max}=12\,(T/100)^{1/4}=16$ para $T=321$ (regra de Schwert), e escolher por AIC ou BIC.
+**Como escolher $k$.** Defasagens de menos deixam autocorrelação no erro, e o teste erra o tamanho. Defasagens demais custam poder. A prática é partir de um máximo, $k_{\max}=12\,(T/100)^{1/4}=13$ para $T=165$ (regra de Schwert), e escolher por AIC ou BIC.
 
 ### Phillips-Perron: a mesma pergunta, outra correção
 
@@ -210,30 +217,29 @@ A estatística é $\mathrm{KPSS}=\sum_t S_t^2/(T^2\widehat\sigma^2_{LP})$, em qu
 
 | Teste | Estatística | Crítico de 5% | Decisão |
 |---|---|---|---|
-| ADF, tendência, $k=13$ (AIC) | $\tau_3=-3{,}985$ | $-3{,}42$ | rejeita a raiz unitária |
-| ADF, tendência, $k=1$ (BIC) | $\tau_3=-3{,}61$ | $-3{,}42$ | rejeita a 5%; não a 1% ($-3{,}98$) |
-| PP, tendência | $Z_\tau=-2{,}38$ | $-3{,}43$ | não rejeita |
-| KPSS, tendência | $0{,}170$ | $0{,}146$ | rejeita a estacionariedade |
+| ADF, tendência, $k=2$ (AIC) | $\tau_3=-2{,}36$ | $-3{,}43$ | não rejeita a raiz unitária |
+| ADF, tendência, $k=1$ (BIC) | $\tau_3=-2{,}09$ | $-3{,}43$ | não rejeita |
+| PP, tendência | $Z_\tau=-1{,}96$ | $-3{,}44$ | não rejeita |
+| KPSS, tendência | $0{,}082$ | $0{,}146$ | não rejeita a estacionariedade |
 
-Estamos na última linha da tabela confirmatória: **conflito**. É o caso mais interessante para a prova, porque não há resposta mecânica.
+O ADF e o PP apontam raiz unitária, e o KPSS não confirma: estamos na terceira linha da tabela confirmatória, **dados pouco informativos**. O $\widehat\rho$ da regressão ADF é $1+\widehat\gamma=0{,}972$, exatamente a zona em que é difícil distinguir uma série muito persistente de uma raiz unitária, sobretudo com só 165 meses.
 
-O $\widehat\rho$ da regressão ADF é $1+\widehat\gamma=0{,}975$. É exatamente a zona em que é difícil distinguir uma série muito persistente de uma raiz unitária.
+**O procedimento sequencial, passo a passo (Q2b):**
+1. **Com tendência:** $\tau_3=-2{,}36$ não rejeita, e $\phi_3=3{,}05$ fica abaixo do crítico de $6{,}49$. Dada a raiz unitária, a tendência é dispensável: ela sai.
+2. **Só com constante:** $\tau_2=-1{,}01$ continua sem rejeitar. Mas $\phi_1=8{,}42$ passa do crítico de $4{,}63$: rejeita $\alpha=\gamma=0$. Como $\gamma=0$ não foi rejeitado, quem é diferente de zero é a constante.
+3. **Conclusão:** **passeio aleatório com drift**, $\Delta y_t=\alpha+u_t$, com $\alpha$ igual à inflação média.
 
-**Como a especificação muda a conclusão (Q2b).** Com o mesmo ADF:
-- só com constante: $\tau_2=-1{,}82$, que não rejeita;
-- sem nada: $\tau_1=+5{,}99$, **positivo**. O teste interpreta a tendência omitida como explosividade.
-
-Os testes conjuntos dizem quais termos importam: $\phi_3=8{,}82>6{,}30$ (a tendência importa) e $\phi_1=20{,}7>4{,}61$ (a constante importa). A lição: um teste de raiz unitária com termos determinísticos errados dá a resposta errada.
+Repare no que acontece sem termo nenhum: $\tau_1=+3{,}94$, **positivo**. O teste interpreta o drift omitido como explosividade. A lição: um teste de raiz unitária com termos determinísticos errados dá a resposta errada.
 
 ### A decisão: $d=1$, e como defendê-la
 
 Adota-se tendência estocástica, $d=1$, por cinco argumentos. Na prova, cite pelo menos três.
 
-1. **A rejeição do ADF é frágil.** Ela vale a 5%, mas a 1% depende do número de defasagens.
-2. **O PP não rejeita, e o KPSS rejeita a estacionariedade.** Dois de três testes apontam raiz unitária.
+1. **Os testes de raiz unitária concordam.** ADF com AIC e com BIC, PP e, na versão completa, DF-GLS e Zivot-Andrews: nenhum rejeita. O procedimento sequencial termina num passeio com drift.
+2. **O KPSS tem pouco poder aqui.** Com 165 observações e 13 defasagens na variância de longo prazo, a estatística tende a ficar pequena mesmo sob raiz unitária. Não rejeitar a estacionariedade não é evidência forte a favor dela.
 3. **O argumento econômico.** Sob metas de inflação, o Banco Central mira a inflação, não o nível de preços. Um choque que eleva o índice não é revertido: o nível nunca volta para uma trajetória fixa. Isso é a definição de tendência estocástica.
-4. **O teste na diferença.** Na inflação $\Delta y_t$, o ADF com constante dá $\tau_2=-6{,}93$, muito abaixo de $-2{,}87$, e o KPSS de nível dá $0{,}238$, abaixo do crítico de $0{,}463$. Os dois concordam: $\Delta y$ é estacionária, então $d=1$ basta. O `ndiffs` (KPSS em sequência) também devolve $d=1$.
-5. **O diagnóstico de sobrediferenciação.** Se $y$ fosse TS, diferenciar criaria um MA com raiz unitária em $\Delta y$. Na Q5, o MA(1) acrescentado ao modelo de $\Delta y$ sai $-0{,}058$, longe de $-1$.
+4. **O teste na diferença.** Na inflação $\Delta y_t$, o ADF com constante dá $\tau_2=-5{,}16$, muito abaixo de $-2{,}88$, e o KPSS de nível dá $0{,}114$, abaixo do crítico de $0{,}463$. Os dois concordam: $\Delta y$ é estacionária, então $d=1$ basta. O `ndiffs` (KPSS em sequência) também devolve $d=1$.
+5. **O diagnóstico de sobrediferenciação.** Se $y$ fosse TS, diferenciar criaria um MA com raiz unitária em $\Delta y$. Na Q5, o MA(1) acrescentado ao modelo de $\Delta y$ sai $-0{,}17$, longe de $-1$.
 
 > [!NOTE]
 > **Por que o argumento 5 é forte**
@@ -243,7 +249,7 @@ Adota-se tendência estocástica, $d=1$, por cinco argumentos. Na prova, cite pe
 
 **A pergunta.** A sazonalidade é **determinística** (cada mês tem uma média própria e fixa) ou **estocástica** (o padrão sazonal vagueia como um passeio aleatório, $y_t=y_{t-12}+a_t$)? Só a segunda pede a diferença sazonal $1-B^{12}$.
 
-**O teste.** O OCSB (Osborn, Chui, Smith e Birchenhall) testa a raiz unitária sazonal. O `nsdiffs(y, test = "ocsb")` devolve $D=0$. A sazonalidade do INPC é estável: janeiro é alto todo ano por razões fixas (reajustes de início de ano, material escolar).
+**O teste.** O OCSB (Osborn, Chui, Smith e Birchenhall) testa a raiz unitária sazonal. O `nsdiffs(y, test = "ocsb")` devolve $D=0$, e o HEGY e o Canova-Hansen da versão completa concordam.
 
 > [!CAUTION]
 > **Armadilha**
@@ -265,7 +271,7 @@ $$
 
 **A FACP** mede a correlação **líquida** em $k$: a que sobra depois de descontar o efeito das defasagens $1,\dots,k-1$. Na prática, $\phi_{kk}$ é o último coeficiente de um AR($k$) ajustado à série.
 
-**A banda.** Se a série fosse ruído branco, $\widehat\rho_k$ teria desvio-padrão aproximado de $1/\sqrt T$. A banda de 95% é $\pm1{,}96/\sqrt T=\pm0{,}110$ para o INPC. Uma barra fora da banda é uma autocorrelação estatisticamente diferente de zero.
+**A banda.** Se a série fosse ruído branco, $\widehat\rho_k$ teria desvio-padrão aproximado de $1/\sqrt T$. A banda de 95% é $\pm1{,}96/\sqrt T=\pm0{,}153$ para o INPC. Uma barra fora da banda é uma autocorrelação estatisticamente diferente de zero. Com 165 observações a banda é larga, e efeitos moderados ficam no limite.
 
 ### Por que FAC e FACP juntas identificam o modelo
 
@@ -277,7 +283,7 @@ $$
 | SAR(1)$_{12}$ | picos em 12, 24, 36 decaindo | pico só em 12 | o mesmo, em múltiplos de 12 |
 | SMA(1)$_{12}$ | pico só em 12 | picos em 12, 24, 36 decaindo | o mesmo, em múltiplos de 12 |
 
-**Os picos vizinhos de 12.** Num modelo multiplicativo como $(1-\phi B)(1-\Phi B^{12})$, o produto gera um termo em $B^{13}$ com coeficiente $\phi\Phi$. Isso cria correlação nas defasagens 11 e 13, ao lado do pico em 12. Ver esses picos vizinhos é um sinal de estrutura multiplicativa (Q11 e Q16 da lista teórica).
+**Os picos vizinhos de 12.** Num modelo multiplicativo como $(1-\phi B)(1-\Phi B^{12})$, o produto gera um termo em $B^{13}$ com coeficiente $\phi\Phi$. Isso cria correlação nas defasagens 11 e 13, ao lado do pico em 12 (Q11 e Q16 da lista teórica). Quando $\Phi$ é pequeno, esse termo cruzado também é, e não aparece no correlograma.
 
 ![FAC e FACP da inflação](saidas/figuras/q3_fac_facp.png)
 
@@ -285,19 +291,20 @@ Os dois painéis de cima são a FAC e a FACP do **nível** $y_t$, e valem como r
 
 ### O que o INPC mostrou
 
-- **FACP**: $\phi_{11}=0{,}628$, e logo depois $\phi_{22}=0{,}038$, dentro da banda. **Corta em 1**: AR(1) na parte regular.
-- **FAC**: $0{,}628$, $0{,}417$, $0{,}252$... Decai mais ou menos como $0{,}63^k$, que é a FAC de um AR(1).
-- **Defasagem 12**: a FAC vale $0{,}212$ e a FACP vale $0{,}114$. Em 24 a FAC já caiu para $0{,}049$. Há algo sazonal, mas não fica claro se é SAR (decaimento) ou SMA (corte). A FACP em 13 é $-0{,}131$, negativa: o sinal de estrutura multiplicativa.
+- **FACP**: $\phi_{11}=0{,}518$, claramente fora da banda. $\phi_{22}=0{,}147$ fica **no limite** da banda ($0{,}153$); depois tudo cai dentro. A leitura principal é AR(1); o AR(2) é uma alternativa.
+- **FAC**: $0{,}518$, $0{,}376$, $0{,}180$... Decai, mas o segundo valor é maior que $0{,}518^2\approx0{,}27$: mais devagar que um AR(1) puro, o que reforça o AR(2) como alternativa.
+- **Defasagem 12**: a FAC vale $0{,}216$, acima da banda, e a FACP vale $0{,}105$, dentro. Em 24 a FAC já é $-0{,}031$. Há algo sazonal, fraco, e não fica claro se é SAR (decaimento) ou SMA (corte). Com só 13 repetições de cada mês, é o esperado.
+- **Defasagem 13**: a FACP vale $-0{,}078$, dentro da banda: não há sinal claro de termo cruzado multiplicativo.
 
-Como a parte sazonal é ambígua, entram três candidatos, todos com AR(1) regular, $d=1$, $D=0$ e drift:
+Como há duas ambiguidades (a parte sazonal e o AR(2)), entram três candidatos, todos com $d=1$, $D=0$ e drift:
 
-| Candidato | Modelo para $y_t$ | Parte sazonal |
+| Candidato | Modelo para $y_t$ | O que testa |
 |---|---|---|
-| C1 | SARIMA(1,1,0)(1,0,0)$_{12}$ | SAR(1) |
-| C2 | SARIMA(1,1,0)(0,0,1)$_{12}$ | SMA(1) |
-| C3 | SARIMA(1,1,0)(1,0,1)$_{12}$ | os dois |
+| C1 | SARIMA(1,1,0)(1,0,0)$_{12}$ | AR(1) com SAR(1): a leitura principal |
+| C2 | SARIMA(1,1,0)(0,0,1)$_{12}$ | troca o SAR por um SMA |
+| C3 | SARIMA(2,1,0)(1,0,0)$_{12}$ | acrescenta o AR(2) |
 
-**Por que o drift.** Num modelo com $d=1$, a constante do modelo de $\Delta y$ vira uma tendência linear em $y$. Aqui, ela é a inflação média mensal. Sem drift, o modelo diria que a inflação média é zero.
+**Por que o drift.** Num modelo com $d=1$, a constante do modelo de $\Delta y$ vira uma tendência linear em $y$. Aqui, ela é a inflação média mensal. Sem drift, o modelo diria que a inflação média é zero. O procedimento sequencial da Q2 já tinha dito que ela é necessária.
 
 > [!TIP]
 > **Na prova**
@@ -309,30 +316,29 @@ Como a parte sazonal é ambígua, entram três candidatos, todos com AR(1) regul
 
 Estou estimando os três candidatos por máxima verossimilhança e escolhendo um.
 
-### O modelo, escrito por extenso
+### O modelo escolhido, escrito por extenso
 
-O C3 é:
+O C1 é:
 
 $$
-(1-\phi B)(1-\Phi B^{12})(\Delta y_t-\mu)=(1+\Theta B^{12})a_t,\qquad a_t\sim RB(0,\sigma^2).
+(1-\phi B)(1-\Phi B^{12})(\Delta y_t-\mu)=a_t,\qquad a_t\sim RB(0,\sigma^2).
 $$
 
 | Parâmetro | Significado | Estimativa |
 |---|---|---|
-| $\phi$ | persistência da inflação de um mês para o outro | $0{,}633$ |
-| $\Phi$ | persistência do padrão sazonal de um ano para o outro | $0{,}822$ |
-| $\Theta$ | correção sazonal pelo choque de 12 meses antes | $-0{,}677$ |
-| $\mu$ | inflação média mensal (o drift), em % | $0{,}502$ |
-| $\sigma^2$ | variância do choque | $0{,}1141$ |
+| $\phi$ | persistência da inflação de um mês para o outro | $0{,}506$ |
+| $\Phi$ | persistência do padrão sazonal de um ano para o outro | $0{,}178$ (p-valor $0{,}022$) |
+| $\mu$ | inflação média mensal (o drift), em % | $0{,}453$ |
+| $\sigma^2$ | variância do choque | $0{,}1259$ |
 
 > [!CAUTION]
 > **O sinal do MA**
-> O R escreve o MA com sinal **positivo**, $1+\Theta B^{12}$. A lista (convenção de Box-Jenkins) escreve $1-\Theta B^{12}$. O $\Theta=-0{,}677$ do R é $\Theta=+0{,}677$ na notação da lista. Diga sempre qual convenção está usando. Ver [CONVENCOES.md](../CONVENCOES.md) §2.
+> O C2 tem um MA sazonal. O R escreve o MA com sinal **positivo**, $1+\Theta B^{12}$; a lista (convenção de Box-Jenkins) escreve $1-\Theta B^{12}$. Um $\Theta$ positivo no R é negativo na notação da lista. Diga sempre qual convenção está usando. Ver [CONVENCOES.md](../CONVENCOES.md) §2.
 
 ### Por que máxima verossimilhança exata
 
 Há dois jeitos de estimar um ARMA:
-- **Mínimos quadrados condicionais (CSS):** fixam-se os valores iniciais, por exemplo os choques anteriores à amostra iguais a zero, e minimiza-se a soma dos quadrados dos erros. É rápido, mas descarta informação das primeiras observações. Com um termo sazonal, isso significa perder ao menos 12 meses.
+- **Mínimos quadrados condicionais (CSS):** fixam-se os valores iniciais, por exemplo os choques anteriores à amostra iguais a zero, e minimiza-se a soma dos quadrados dos erros. É rápido, mas descarta informação das primeiras observações. Com um termo sazonal, isso significa perder ao menos 12 meses, o que pesa numa amostra de 165.
 - **MV exata:** escreve-se a verossimilhança de toda a amostra, incluindo as primeiras observações. O filtro de Kalman decompõe a verossimilhança nos erros de previsão um passo à frente $v_t$ e nas suas variâncias $F_t$:
 
 $$
@@ -349,46 +355,47 @@ $$
 AIC=-2\ln L+2k,\qquad BIC=-2\ln L+k\ln n.
 $$
 
-Menor é melhor. $k$ conta **todos** os parâmetros estimados, **incluindo $\sigma^2$** (o script confere à mão que o R faz isso). Com $n=320$, $\ln n\approx5{,}8$: o BIC cobra quase três vezes mais por parâmetro do que o AIC.
+Menor é melhor. $k$ conta **todos** os parâmetros estimados, **incluindo $\sigma^2$** (o script confere à mão que o R faz isso). Com $n=164$, $\ln n\approx5{,}1$: o BIC cobra mais que o dobro do AIC por parâmetro.
 
 > [!NOTE]
 > **A versão das aulas**
 > A AU02 divide os critérios por $T$: $AIC=(-2\ln L+2k)/T$. Com o mesmo $T$ para todos os modelos, a ordenação é idêntica.
 
-**Quando a comparação é válida.** Só se compara AIC entre modelos com a **mesma variável dependente** e a **mesma amostra efetiva**. Um modelo com $d=1$ e outro com $d=2$ têm verossimilhanças de séries diferentes ($\Delta y$ e $\Delta^2y$), e seus AIC não se comparam. Aqui os três têm $d=1$, $D=0$ e $n=T-d-sD=321-1-0=320$. A comparação vale.
+**Quando a comparação é válida.** Só se compara AIC entre modelos com a **mesma variável dependente** e a **mesma amostra efetiva**. Um modelo com $d=1$ e outro com $d=2$ têm verossimilhanças de séries diferentes ($\Delta y$ e $\Delta^2y$), e seus AIC não se comparam. Aqui os três têm $d=1$, $D=0$ e $n=T-d-sD=165-1-0=164$. A comparação vale.
 
 ### O que o INPC respondeu
 
 | Modelo | AIC | BIC |
 |---|---|---|
-| C1: SAR | $217{,}899$ | $\mathbf{232{,}972}$ |
-| C2: SMA | $220{,}034$ | $235{,}107$ |
-| C3: SAR + SMA | $\mathbf{216{,}537}$ | $235{,}378$ |
+| C1: AR(1) + SAR | $125{,}618$ | $\mathbf{138{,}017}$ |
+| C2: AR(1) + SMA | $125{,}966$ | $138{,}366$ |
+| C3: AR(2) + SAR | $\mathbf{125{,}104}$ | $140{,}603$ |
 
 **O AIC escolhe C3, e o BIC escolhe C1.** Os dois critérios discordam, e isso tem explicação teórica:
 - o **BIC é consistente**: se o modelo verdadeiro está entre os candidatos, o BIC o escolhe com probabilidade que tende a 1;
 - o **AIC é eficiente**: ele minimiza o erro de previsão esperado, mesmo que nenhum candidato seja o modelo verdadeiro.
 
-Como o objetivo da Lista é **prever** (Q7), fica o C3.
+**A escolha: C1.** O objetivo da Lista é prever, o que favorece o AIC. Mas a vantagem do C3 no AIC é de só $0{,}51$ ponto. Uma diferença de AIC menor que 2 não discrimina modelos (Burnham e Anderson): os pesos de Akaike são $0{,}41$ para o C3 e $0{,}32$ para o C1, quase um empate. Três evidências apontam para o mais simples:
+- o $\widehat\phi_2=0{,}126$ do C3 não é significativo (p-valor $0{,}111$);
+- o teste LR de C1 contra C3 ($\phi_2=0$) dá $LR=2(\ln L_{C3}-\ln L_{C1})=2{,}51$, com p-valor $0{,}113$: não rejeita;
+- o BIC, que pune mais o excesso de parâmetros, prefere o C1.
 
-**O teste LR confirma a ambiguidade.** O C1 é o C3 com $\Theta=0$. A estatística é $LR=2(\ln L_{C3}-\ln L_{C1})=3{,}36$, com p-valor $0{,}067$ numa $\chi^2(1)$. Não rejeita $\Theta=0$ a 5%, mas rejeitaria a 10%. Já o teste $z$ individual de $\Theta$ dá p-valor $0{,}0005$. Wald e LR discordam porque $\Phi$ e $\Theta$ estão correlacionados (a seção seguinte explica por quê). Quando isso acontece, o LR é o mais confiável.
+A regra foi fixada **antes** de olhar a validação da Q7: usar o AIC, salvo quando a diferença for menor que 2, caso em que fica o mais parcimonioso.
 
-### As raízes: o modelo é estacionário e invertível?
+### As raízes: o modelo é estacionário?
 
 - **Estacionariedade:** as raízes de $(1-\phi z)(1-\Phi z^{12})=0$ precisam estar fora do círculo unitário, $\lvert z\rvert>1$.
-- **Invertibilidade:** as raízes de $1+\Theta z^{12}=0$ também precisam estar fora.
+- **Invertibilidade:** o C1 não tem MA, então é invertível por construção.
 
-O gráfico do R mostra as **raízes inversas** $1/z$, que precisam ficar **dentro** do círculo. No C3, todas estão dentro.
+O gráfico do R mostra as **raízes inversas** $1/z$, que precisam ficar **dentro** do círculo. No C1, a raiz inversa regular é $\widehat\phi=0{,}506$, e as 12 sazonais têm módulo $\widehat\Phi^{1/12}=0{,}866$. Repare: um $\widehat\Phi$ pequeno, de $0{,}18$, vira 12 raízes inversas de módulo alto, porque $\Phi^{1/12}$ fica perto de 1 mesmo para $\Phi$ pequeno. Isso não é problema: elas continuam dentro do círculo.
 
-![Raízes inversas do modelo](saidas/figuras/q4_raizes.png)
-
-**O quase cancelamento.** O fator AR sazonal $(1-0{,}82B^{12})$ e o fator MA sazonal $(1-0{,}68B^{12})$ (na convenção do R, $1+\Theta B^{12}$ com $\Theta=-0{,}68$) são parecidos. Se fossem iguais, se cancelariam, e o modelo seria o mesmo sem os dois termos (como o terceiro modelo da Q5 da lista teórica). Quando $\Phi$ e $\Theta$ vão juntos para 1, o par imita uma sazonalidade determinística, com médias mensais fixas. Isso é coerente com o $D=0$ da Q2. É também o que explica a correlação entre $\widehat\Phi$ e $\widehat\Theta$, e a discordância entre o teste $z$ e o LR.
+![Raízes inversas dos candidatos](saidas/figuras/q4_raizes.png)
 
 ## 5. Q5: diagnosticar os resíduos
 
 ### O que estou fazendo
 
-Estou verificando se os resíduos $\widehat a_t$ do C3 se comportam como o modelo supõe: ruído branco, com variância constante e, de preferência, normal.
+Estou verificando se os resíduos $\widehat a_t$ do C1 se comportam como o modelo supõe: ruído branco, com variância constante e, de preferência, normal.
 
 ### Por quê
 
@@ -411,11 +418,11 @@ $$
 - $H_0$: $\rho_1=\dots=\rho_K=0$ nos resíduos.
 - Sob $H_0$, $Q\sim\chi^2(K-p-q-P-Q)$.
 
-**Por que descontar os graus de liberdade.** Os parâmetros ARMA foram escolhidos justamente para zerar as primeiras autocorrelações dos resíduos. Cada parâmetro estimado "gasta" um grau de liberdade. No C3, $p+q+P+Q=1+0+1+1=3$; o drift não conta, porque não mexe na autocorrelação. Com $K=24$, são $24-3=21$ graus.
+**Por que descontar os graus de liberdade.** Os parâmetros ARMA foram escolhidos justamente para zerar as primeiras autocorrelações dos resíduos. Cada parâmetro estimado "gasta" um grau de liberdade. No C1, $p+q+P+Q=1+0+1+0=2$; o drift não conta, porque não mexe na autocorrelação. Com $K=24$, são $24-2=22$ graus.
 
-**Resultado:** $Q=14{,}05$, p-valor $0{,}868$. Não rejeita: os resíduos não têm autocorrelação.
+**Resultado:** $Q=20{,}32$, p-valor $0{,}563$. Não rejeita: os resíduos não têm autocorrelação.
 
-**O contraste com um modelo ruim (Q5d).** O modelo sem o AR(1), SARIMA(0,1,0)(1,0,1)$_{12}$, tem p-valor de Ljung-Box $0{,}000$: os resíduos herdam a autocorrelação de 0,63 da inflação. É por isso que todos os candidatos têm o AR(1).
+**O contraste com um modelo ruim (Q5d).** O modelo sem o AR(1), SARIMA(0,1,0)(1,0,0)$_{12}$, tem p-valor de Ljung-Box $0{,}000$: os resíduos herdam a autocorrelação de 0,52 da inflação. É por isso que todos os candidatos têm o AR(1).
 
 ### Jarque-Bera
 
@@ -425,9 +432,9 @@ $$
 JB=\frac{T}{6}\left[S^2+\frac{(K-3)^2}{4}\right]\sim\chi^2(2)\ \text{sob } H_0.
 $$
 
-**Resultado:** $JB=402{,}5$, e a normalidade é rejeitada. A curtose dos resíduos é $8{,}2$, bem acima de 3: as caudas são pesadas. A causa são os quatro choques identificados na Q1.
+**Resultado:** $JB=18{,}1$, e a normalidade é rejeitada. A curtose dos resíduos é $4{,}4$, acima de 3: as caudas são mais pesadas que as da normal. A causa são os três choques identificados na Q1. Na versão completa do código, com uma dummy de intervenção para cada um, o JB cai para cerca de 4 e a normalidade deixa de ser rejeitada.
 
-**Isso invalida o modelo?** Não. A MV gaussiana continua consistente sem normalidade (é quase-MV), e as previsões pontuais continuam válidas. O que fica comprometido são os intervalos de previsão, que supõem caudas normais. A solução, se fosse necessária, seria modelar os outliers com dummies de intervenção.
+**Isso invalida o modelo?** Não. A MV gaussiana continua consistente sem normalidade (é quase-MV), e as previsões pontuais continuam válidas. O que fica comprometido são os intervalos de previsão, que supõem caudas normais.
 
 ### ARCH-LM
 
@@ -439,17 +446,17 @@ $$
 
 $H_0$: $\alpha_1=\dots=\alpha_{12}=0$. A estatística é $T R^2\sim\chi^2(12)$.
 
-**Resultado:** $LM=11{,}00$, p-valor $0{,}529$. Não há efeito ARCH.
+**Resultado:** $LM=5{,}95$, p-valor $0{,}918$. Não há efeito ARCH.
 
 ![Painel de resíduos](saidas/figuras/q5_residuos.png)
 
 ### Sobreajuste
 
-**A lógica.** Se o C3 está correto, acrescentar um parâmetro não deve ajudar: ele deve sair não significativo. Acrescenta-se um termo em cada direção:
-- um AR(2) a mais: p-valor $0{,}490$;
-- um MA(1) a mais: p-valor $0{,}508$, com $\widehat\theta=-0{,}058$.
+**A lógica.** Se o C1 está correto, acrescentar um parâmetro não deve ajudar: ele deve sair não significativo. Acrescenta-se um termo em cada direção:
+- um AR(2) a mais (que é o C3): p-valor $0{,}111$;
+- um MA(1) a mais: p-valor $0{,}169$, com $\widehat\theta=-0{,}17$.
 
-Nenhum é significativo. Não falta dinâmica no C3. E o MA(1) extra, longe de $-1$, é o argumento 5 da Q2: $\Delta y$ não está sobrediferenciada.
+Nenhum é significativo. Não falta dinâmica no C1. E o MA(1) extra, longe de $-1$, é o argumento 5 da Q2: $\Delta y$ não está sobrediferenciada.
 
 ## 6. Q6: o que acontece quando se diferencia demais
 
@@ -472,9 +479,9 @@ O fator $(1-B)$ entra no **MA**. Sua raiz é $z=1$, exatamente sobre o círculo 
 | Sintoma | Por quê | O INPC com $d=2$ |
 |---|---|---|
 | $\widehat\theta\approx-1$ (convenção do R) | é o fator $(1-B)$ estimado | $\widehat\theta=-1{,}0000$ |
-| variância residual maior | diferenciar ruído soma variância: $\operatorname{Var}(a_t-a_{t-1})=2\sigma^2$ | $\widehat\sigma^2$ sobe $17{,}5\%$ sem o MA extra ($0{,}1341$ contra $0{,}1141$) |
-| $\rho_1$ negativo na série diferenciada | a diferença de uma série estacionária induz correlação negativa | $\widehat\rho_1(\Delta^2y)=-0{,}210$ |
-| AR que troca de sinal | o AR tenta absorver a correlação negativa | $\widehat\phi=-0{,}218$, contra $+0{,}633$ com $d=1$ |
+| variância residual maior | diferenciar ruído soma variância: $\operatorname{Var}(a_t-a_{t-1})=2\sigma^2$ | $\widehat\sigma^2$ sobe $19{,}9\%$ sem o MA extra ($0{,}1509$ contra $0{,}1259$) |
+| $\rho_1$ negativo na série diferenciada | a diferença de uma série estacionária induz correlação negativa | $\widehat\rho_1(\Delta^2y)=-0{,}339$ |
+| AR que troca de sinal | o AR tenta absorver a correlação negativa | $\widehat\phi=-0{,}345$, contra $+0{,}506$ com $d=1$ |
 
 **De onde vem o $\rho_1$ teórico.** Se $x_t=\Delta y_t$ é um AR(1) com parâmetro $\phi$, então $w_t=x_t-x_{t-1}$ tem:
 
@@ -486,7 +493,7 @@ $$
 \rho_1^w=\frac{\gamma_1^w}{\gamma_0^w}=-\frac{1-\phi}{2}.
 $$
 
-Com $\widehat\phi=0{,}633$, o valor teórico é $-0{,}183$; o observado é $-0{,}210$. Se $x_t$ fosse ruído branco ($\phi=0$), daria $-0{,}5$: é o valor de referência do "teste de olho" para sobrediferenciação.
+Com $\widehat\phi=0{,}506$, o valor teórico é $-0{,}247$; o observado é $-0{,}339$, na mesma direção e ordem de grandeza. Se $x_t$ fosse ruído branco ($\phi=0$), daria $-0{,}5$: é o valor de referência do "teste de olho" para sobrediferenciação.
 
 ![Sobrediferenciação](saidas/figuras/q6_sobrediferenciacao.png)
 
@@ -498,7 +505,7 @@ Com $\widehat\phi=0{,}633$, o valor teórico é $-0{,}183$; o observado é $-0{,
 
 ### O que estou fazendo
 
-Estou separando os últimos 24 meses, estimando o modelo só com os dados anteriores e vendo como ele prevê os meses que não viu.
+Estou separando os últimos 24 meses (out/2024 a set/2026), estimando o modelo só com os dados anteriores e vendo como ele prevê os meses que não viu.
 
 ### Por que fora da amostra
 
@@ -529,7 +536,7 @@ Num modelo integrado, os $\psi_j$ não vão a zero, e a variância cresce sem li
 
 ### Por que comparar com regras ingênuas
 
-Um RMSE sozinho não diz nada: 120 pontos é muito ou pouco? O que dá sentido ao número é a comparação com regras que qualquer um aplicaria sem econometria:
+Um RMSE sozinho não diz nada: 80 pontos é muito ou pouco? O que dá sentido ao número é a comparação com regras que qualquer um aplicaria sem econometria:
 - **passeio aleatório**: o próximo valor é igual ao último, $\widehat P_{t+h}=P_t$;
 - **sazonal ingênuo**: o próximo valor é igual ao do mesmo mês do ano anterior, $\widehat P_{t+h}=P_{t+h-12}$.
 
@@ -549,7 +556,7 @@ O RMSE pune mais os erros grandes. O MAE trata todos os erros igualmente. O MAPE
 
 | Previsor | RMSE, esquema 1 | MAPE, esquema 1 | RMSE, esquema 2 | MAPE, esquema 2 |
 |---|---|---|---|---|
-| SARIMA C3 | $120{,}1$ | $1{,}22\%$ | $30{,}8$ | $0{,}29\%$ |
+| SARIMA C1 | $81{,}5$ | $0{,}86\%$ | $30{,}7$ | $0{,}30\%$ |
 | passeio aleatório | $425{,}1$ | $4{,}96\%$ | $40{,}9$ | $0{,}43\%$ |
 | sazonal ingênuo | $525{,}3$ | $6{,}59\%$ | $328{,}7$ | $4{,}33\%$ |
 
@@ -560,7 +567,7 @@ O RMSE pune mais os erros grandes. O MAE trata todos os erros igualmente. O MAPE
 
 > [!WARNING]
 > **Cuidado com a comparação**
-> Na **inflação** $\Delta y$, o sazonal ingênuo é um competidor muito mais duro, porque não carrega o erro de nível. O trabalho em [trabalho_inpc/](../trabalho_inpc/README.md), que prevê a variação mensal, encontra o modelo perdendo para ele. O resultado de uma comparação depende da variável em que o erro é medido. E o enunciado proíbe mudar o modelo depois de ver o resultado (Q7f).
+> Na **inflação** $\Delta y$, o sazonal ingênuo é um competidor muito mais duro, porque não carrega o erro de nível. O resultado de uma comparação depende da variável em que o erro é medido. Na versão completa do código há também um terceiro benchmark, o passeio **com drift**, e contra ele o modelo empata: quase toda a vantagem vem de prever a inflação média. E o enunciado proíbe mudar o modelo depois de ver o resultado (Q7f).
 
 **A cobertura.** Dos 24 valores observados, $100\%$ caíram dentro do intervalo de 95% do esquema 1. Isso está acima do nominal, mas não prova que o intervalo está errado:
 - o intervalo de um modelo integrado se abre muito com $h$;
@@ -568,7 +575,24 @@ O RMSE pune mais os erros grandes. O MAE trata todos os erros igualmente. O MAPE
 
 ![Previsão, esquema 1](saidas/figuras/q7_esquema1.png)
 
-## 8. A Q8 (teoria, manuscrita)
+## 8. Por que 13 anos (2013–2026) e não 26 (2000–2026)
+
+A dupla tinha duas séries possíveis: esta, de jan/2013 a set/2026, e uma mais longa, de jan/2000 a set/2026, com 321 meses. Escolheu-se a curta. Essa escolha é uma pergunta de prova em potencial, porque ilustra um trade-off central de séries temporais.
+
+**O que a série longa oferece.** Mais dados significam estimativas mais precisas: o erro-padrão do $\widehat\phi$ do mesmo modelo C1 é $0{,}044$ com 26 anos e $0{,}067$ com 13. A banda da FAC é mais estreita, os testes de raiz unitária têm mais poder, e há mais repetições de cada mês para estimar a sazonalidade.
+
+**O que ela custa.** Ela mistura regimes. Os 13 anos a mais trazem a crise de 2002–2003 e a queda de patamar da inflação em 2004:
+- nos testes de raiz unitária, o ADF passa a rejeitar ($\tau_3=-3{,}985$), e o KPSS também rejeita a estacionariedade ($0{,}170$): os testes entram em **conflito**, porque confundem a mudança de regime com tendência;
+- os resíduos ficam muito menos normais: o JB do mesmo C1 vai de $18{,}1$ para $384{,}7$, por causa do choque de nov/2002;
+- a previsão piora: no esquema 1, o RMSE do C1 estimado com 26 anos é $110{,}9$, contra $81{,}5$ com 13. O drift da série longa ainda carrega a inflação média do começo dos anos 2000.
+
+**A regra prática.** Use a série mais longa **dentro de um regime estável**. É um trade-off entre variância (que cai com mais dados) e viés (que cresce quando a amostra mistura processos diferentes). O INPC recente ainda tem mudanças de patamar (Q1), mas sem um episódio da dimensão de 2002.
+
+> [!TIP]
+> **Na prova**
+> Se perguntarem "por que não usar a série mais longa disponível?", a resposta é: porque mais dados só ajudam se o mesmo modelo, com os mesmos parâmetros, vale para toda a amostra. Mostre a evidência: quebras na média (Bai-Perron), testes que mudam de conclusão e previsão pior com a amostra longa.
+
+## 9. A Q8 (teoria, manuscrita)
 
 A Q8 pede dois exercícios da lista teórica resolvidos à mão. Os mais ligados ao que a parte empírica fez são:
 
@@ -580,162 +604,172 @@ A Q8 pede dois exercícios da lista teórica resolvidos à mão. Os mais ligados
 | Q12 (SARIMA e previsão) | a estrutura multiplicativa e a Q7 | [03_lista](../03_arima_sarima/03_lista.md) |
 | Q14 (AIC e BIC) | a escolha da Q4 | [04_lista](../04_estimacao_selecao/04_lista.md) |
 
-## 9. As armadilhas que mais caem
+## 10. As armadilhas que mais caem
 
 1. **"Não rejeitar a raiz unitária prova que ela existe."** Falso. O ADF tem pouco poder perto de $\rho=1$. Por isso se usa o KPSS junto.
 2. **Usar o crítico da $t$ de Student no ADF.** Sob $H_0$, a distribuição é a de Dickey-Fuller, com críticos mais negativos.
-3. **Esquecer a tendência no ADF de uma série que cresce.** A alternativa fica absurda, e o teste perde poder; no INPC, o $\tau_1$ sai até positivo.
-4. **Comparar AIC entre modelos com $d$ diferentes.** São verossimilhanças de séries diferentes.
-5. **Contar o drift nos graus de liberdade do Ljung-Box.** Só $p+q+P+Q$ entram.
-6. **Achar que rejeitar a normalidade invalida o modelo.** Afeta os intervalos, não a consistência.
-7. **Trocar o sinal do MA.** O R usa $1+\theta B$; a lista usa $1-\theta B$.
-8. **Diferenciar sazonalmente uma sazonalidade fixa.** Cria um MA sazonal com raiz unitária.
-9. **Ler as raízes inversas como se fossem as raízes.** No gráfico do R, ficar **dentro** do círculo é o bom.
-10. **Mudar o modelo depois de ver o resultado da previsão.** A validação fora da amostra deixa de ser fora da amostra.
+3. **Parar no modelo com tendência.** Se $\tau_3$ e $\phi_3$ não rejeitam, a tendência sai, e a pergunta passa a ser se há drift ($\phi_1$).
+4. **Esquecer os termos determinísticos.** Sem constante, o $\tau_1$ do INPC sai até positivo.
+5. **Comparar AIC entre modelos com $d$ diferentes.** São verossimilhanças de séries diferentes.
+6. **Tratar uma diferença de AIC menor que 2 como decisiva.** Nessa faixa os modelos são praticamente equivalentes, e a parcimônia desempata.
+7. **Contar o drift nos graus de liberdade do Ljung-Box.** Só $p+q+P+Q$ entram.
+8. **Achar que rejeitar a normalidade invalida o modelo.** Afeta os intervalos, não a consistência.
+9. **Trocar o sinal do MA.** O R usa $1+\theta B$; a lista usa $1-\theta B$.
+10. **Ler as raízes inversas como se fossem as raízes.** No gráfico do R, ficar **dentro** do círculo é o bom.
+11. **Mudar o modelo depois de ver o resultado da previsão.** A validação fora da amostra deixa de ser fora da amostra.
 
-## 10. A ordem de raciocínio, numa página
+## 11. A ordem de raciocínio, numa página
 
 Se na prova vier uma série nova, siga esta ordem:
 
-1. **Gráfico.** Tendência? Sazonalidade? Variância crescente? Outliers?
-2. **Transformação.** Se a variância cresce com o nível, log (Box-Cox com $\lambda$ perto de 0).
-3. **$d$.** ADF com os termos determinísticos certos (tendência se a série cresce), PP e KPSS. Se discordarem, decidir com argumentos, e testar de novo na diferença.
+1. **Gráfico.** Tendência? Sazonalidade? Variância crescente? Outliers? Quebras?
+2. **Transformação.** Se a variância cresce com o nível, log (Box-Cox com $\lambda$ perto de 0). Se o Box-Cox for ambíguo, decide a interpretação.
+3. **$d$.** ADF começando com tendência e descendo pelo procedimento sequencial; PP e KPSS. Se discordarem, decidir com argumentos e testar de novo na diferença.
 4. **$D$.** OCSB ou Canova-Hansen. Sazonalidade estável pede $D=0$.
 5. **FAC e FACP** da série estacionária. Parte regular nas primeiras defasagens; parte sazonal em 12, 24, 36; picos em 11 e 13 indicam estrutura multiplicativa.
 6. **Candidatos.** Dois ou três, cobrindo as leituras possíveis.
-7. **MV exata.** Comparar AIC e BIC com a mesma amostra. Conferir as raízes.
+7. **MV exata.** Comparar AIC e BIC com a mesma amostra. Diferença menor que 2: parcimônia. Conferir as raízes.
 8. **Resíduos.** Ljung-Box com os graus de liberdade certos, ARCH-LM, Jarque-Bera. Sobreajuste.
 9. **Previsão fora da amostra** contra o passeio aleatório e o sazonal ingênuo.
 
-## 11. Perguntas de prova, com resposta
+## 12. Perguntas de prova, com resposta
 
 Tente responder antes de ler a resposta.
 
 **1. Por que modelar $100\ln P_t$ e não $P_t$?**
-Porque o log estabiliza a variância de uma série que cresce exponencialmente e lineariza a tendência. Além disso, a diferença do log é a taxa de inflação mensal em %.
+Porque o log estabiliza a variância de uma série que cresce exponencialmente e lineariza a tendência. Além disso, a diferença do log é a taxa de inflação mensal em %, e o drift vira uma taxa média que pode ser constante.
 
-**2. Qual a diferença entre uma série TS e uma DS? Por que importa?**
+**2. O $\lambda$ de Box-Cox de Guerrero deu 0,74. Por que mesmo assim usar o log?**
+Porque o outro estimador (MV) deu 0,30, e com o índice só dobrando em 13 anos há pouca informação para estimar $\lambda$. Quando a estatística é ambígua, decide a interpretação: com log, $\Delta y$ é a inflação.
+
+**3. Qual a diferença entre uma série TS e uma DS? Por que importa?**
 Na TS, choques são temporários, e a série volta para uma tendência determinística; estacionariza-se tirando a tendência. Na DS, choques são permanentes; estacionariza-se diferenciando. Tratar uma como a outra gera, respectivamente, um MA não invertível ou um resíduo com raiz unitária.
 
-**3. Por que o teste ADF não usa os valores críticos da normal?**
+**4. Por que o teste ADF não usa os valores críticos da normal?**
 Porque, sob $H_0$, o regressor $y_{t-1}$ é não estacionário, e a estatística $\tau$ converge para um funcional do movimento browniano, não para uma normal. A distribuição é deslocada para a esquerda.
 
-**4. Para que servem as defasagens $\Delta y_{t-i}$ no ADF?**
+**5. Para que servem as defasagens $\Delta y_{t-i}$ no ADF?**
 Para tornar o erro da regressão um ruído branco. Sem elas, a autocorrelação do erro distorce o tamanho do teste.
 
-**5. Por que o ADF do INPC deve ter constante e tendência?**
-Porque a série cresce. Sob a alternativa, ela só pode ser estacionária em torno de uma tendência. Sem a tendência, o teste compara a raiz unitária com uma alternativa absurda e perde poder; o $\phi_3=8{,}82$ confirma que a tendência é significativa.
+**6. Descreva o procedimento sequencial no INPC.**
+Começa com tendência: $\tau_3=-2{,}36$ não rejeita e $\phi_3=3{,}05$ não rejeita, então a tendência sai. Com constante: $\tau_2=-1{,}01$ não rejeita, mas $\phi_1=8{,}42$ rejeita $\alpha=\gamma=0$, então a constante fica. Conclusão: passeio aleatório com drift.
 
-**6. O ADF e o KPSS do INPC discordam. O que fazer?**
-Não há regra mecânica. Pesam a fragilidade da rejeição do ADF (depende de $k$ a 1%), o PP e o KPSS apontando raiz unitária, o argumento econômico (metas de inflação) e a ausência de um MA unitário no modelo da diferença. Conclui-se $d=1$.
+**7. ADF e PP não rejeitam, e o KPSS também não. O que fazer?**
+É o caso "dados pouco informativos". Pesam os testes de raiz unitária todos na mesma direção, o pouco poder do KPSS em amostra curta, o argumento econômico (metas de inflação) e a ausência de um MA unitário no modelo da diferença. Conclui-se $d=1$.
 
-**7. O que indica um pico na FACP em 1 e nada depois?**
-Um AR(1). A FACP de um AR($p$) corta depois de $p$.
+**8. O que indica um pico na FACP em 1 e um valor no limite da banda em 2?**
+Um AR(1) como leitura principal, com o AR(2) como alternativa a testar na estimação. Foi o que gerou o candidato C3.
 
-**8. O que indicam picos na FAC em 11, 12 e 13?**
+**9. O que indicam picos na FAC em 11, 12 e 13?**
 Uma estrutura multiplicativa regular × sazonal, que gera termos cruzados em $12\pm1$.
 
-**9. Por que o $k$ do AIC inclui $\sigma^2$?**
+**10. Por que o $k$ do AIC inclui $\sigma^2$?**
 Porque $\sigma^2$ também é estimado por MV. Ele conta como parâmetro na verossimilhança.
 
-**10. AIC escolhe um modelo e BIC escolhe outro. Qual usar?**
-Depende do objetivo. O BIC é consistente: escolhe o modelo verdadeiro se ele está entre os candidatos. O AIC é eficiente para previsão. Para prever, usa-se o AIC.
+**11. AIC escolhe C3 e BIC escolhe C1. Qual usar?**
+Em geral, para prever, o AIC. Mas aqui a diferença de AIC é de 0,51, menor que 2, o $\phi_2$ não é significativo e o LR não rejeita $\phi_2=0$. Os modelos são praticamente equivalentes, e fica o mais parcimonioso, o C1.
 
-**11. Quantos graus de liberdade tem o Ljung-Box com $K=24$ para um SARIMA(1,1,0)(1,0,1)$_{12}$ com drift?**
-$24-(1+0+1+1)=21$. O drift não entra.
+**12. Quantos graus de liberdade tem o Ljung-Box com $K=24$ para um SARIMA(1,1,0)(1,0,0)$_{12}$ com drift?**
+$24-(1+0+1+0)=22$. O drift não entra.
 
-**12. O Jarque-Bera rejeitou. O modelo é inválido?**
-Não. Os estimadores de MV gaussiana continuam consistentes, e a previsão pontual vale. O que fica errado são os intervalos de previsão nas caudas.
+**13. O Jarque-Bera rejeitou. O modelo é inválido?**
+Não. Os estimadores de MV gaussiana continuam consistentes, e a previsão pontual vale. O que fica errado são os intervalos de previsão nas caudas. Aqui, a não normalidade vem de três choques identificáveis.
 
-**13. Como reconhecer sobrediferenciação no output?**
+**14. Como reconhecer sobrediferenciação no output?**
 Um MA estimado perto de $-1$ (convenção do R), variância residual maior do que com uma diferença a menos e $\rho_1$ perto de $-0{,}5$ na série diferenciada.
 
-**14. Por que o modelo com $d=2$ não é invertível?**
+**15. Por que o modelo com $d=2$ não é invertível?**
 Porque diferenciar uma série estacionária introduz o fator $(1-B)$ no MA, com raiz em $z=1$, sobre o círculo unitário.
 
-**15. Qual a diferença entre o esquema 1 e o esquema 2 da Q7?**
+**16. Qual a diferença entre o esquema 1 e o esquema 2 da Q7?**
 O esquema 1 prevê 24 meses de uma vez, só com a informação até $T_0$. O esquema 2 prevê um mês por vez, usando os dados observados até ali, com os mesmos coeficientes. O esquema 2 é mais fácil e erra menos.
 
-**16. Por que o intervalo de previsão de um ARIMA se abre com o horizonte?**
+**17. Por que o intervalo de previsão de um ARIMA se abre com o horizonte?**
 Porque a variância do erro é $\sigma^2\sum_{j=0}^{h-1}\psi_j^2$. Num modelo integrado, os $\psi_j$ não vão a zero, e a soma cresce sem limite.
 
-**17. Por que o sazonal ingênuo vai tão mal no índice?**
+**18. Por que o sazonal ingênuo vai tão mal no índice?**
 Porque ele repete o nível de 12 meses antes. No índice, isso significa errar sistematicamente por um ano inteiro de inflação.
 
-**18. Uma cobertura de 100% num intervalo de 95% indica um problema?**
+**19. Uma cobertura de 100% num intervalo de 95% indica um problema?**
 Não necessariamente. São só 24 pontos, de uma única origem, com erros fortemente correlacionados. A amostra é pequena demais para concluir.
 
-**19. O que significa o drift num modelo com $d=1$?**
-É a média da série diferenciada. Aqui, é a inflação média mensal, $\widehat\mu=0{,}502\%$. No nível, vira uma tendência linear do log.
-
-**20. Por que se escolhem três candidatos, e não um?**
-Porque a FAC e a FACP raramente apontam um único modelo. A identificação propõe; a estimação, os critérios e o diagnóstico decidem.
+**20. Por que usar 13 anos e não a série inteira desde 2000?**
+Porque a série longa mistura regimes: a crise de 2002–2003 e a queda de patamar de 2004 fazem os testes de raiz unitária entrarem em conflito, pioram muito a normalidade dos resíduos e pioram a previsão. Mais dados reduzem a variância das estimativas, mas só valem a pena se o mesmo modelo serve para toda a amostra.
 
 <!-- conferência numérica
 | chave_R | nota |
 |---|---|
-| l01_T | 321 |
-| l01_lambda | 0,30 |
-| l01_adf_tau3 | -3,985 |
-| l01_adf_k | 13 |
-| l01_adf_bic_tau3 | -3,61 |
+| l01_T | 165 |
+| l01_kmax | 13 |
+| l01_lambda_mv | 0,30 |
+| l01_lambda_g | 0,74 |
+| l01_p_ini | 3749 |
+| l01_p_fim | 7874 |
+| l01_adf_tau3 | -2,36 |
+| l01_adf_k | 2 |
+| l01_adf_bic_tau3 | -2,09 |
 | l01_adf_bic_k | 1 |
-| l01_adf_rho | 0,975 |
-| l01_pp | -2,38 |
-| l01_kpss | 0,170 |
-| l01_adf_tau2 | -1,82 |
-| l01_adf_tau1 | 5,99 |
-| l01_adf_phi3 | 8,82 |
-| l01_adf_phi1 | 20,7 |
-| l01_adf_dy | -6,93 |
-| l01_kpss_dy | 0,238 |
+| l01_adf_rho | 0,972 |
+| l01_pp | -1,96 |
+| l01_kpss | 0,082 |
+| l01_adf_phi3 | 3,05 |
+| l01_adf_tau2 | -1,01 |
+| l01_adf_phi1 | 8,42 |
+| l01_adf_tau1 | 3,94 |
+| l01_adf_dy | -5,16 |
+| l01_kpss_dy | 0,114 |
 | l01_ndiffs | 1 |
 | l01_nsdiffs | 0 |
-| l01_sobre_ma1 | -0,058 |
-| l01_banda | 0,110 |
-| l01_facp1 | 0,628 |
-| l01_facp2 | 0,038 |
-| l01_fac1 | 0,628 |
-| l01_fac2 | 0,417 |
-| l01_fac3 | 0,252 |
-| l01_fac12 | 0,212 |
-| l01_facp12 | 0,114 |
-| l01_fac24 | 0,049 |
-| l01_facp13 | -0,131 |
-| l01_c3_ar1 | 0,633 |
-| l01_c3_sar1 | 0,822 |
-| l01_c3_sma1 | -0,677 |
-| l01_c3_drift | 0,502 |
-| l01_c3_sigma2 | 0,1141 |
-| l01_c3_n | 320 |
-| l01_c1_aic | 217,899 |
-| l01_c2_aic | 220,034 |
-| l01_c3_aic | 216,537 |
-| l01_c1_bic | 232,972 |
-| l01_c2_bic | 235,107 |
-| l01_c3_bic | 235,378 |
-| l01_lr | 3,36 |
-| l01_lr_p | 0,067 |
-| l01_c3_sma1_p | 0,0005 |
-| l01_lb_q | 14,05 |
-| l01_lb_p | 0,868 |
+| l01_sobre_ma1 | -0,17 |
+| l01_banda | 0,153 |
+| l01_facp1 | 0,518 |
+| l01_facp2 | 0,147 |
+| l01_fac1 | 0,518 |
+| l01_fac2 | 0,376 |
+| l01_fac3 | 0,180 |
+| l01_fac12 | 0,216 |
+| l01_facp12 | 0,105 |
+| l01_fac24 | -0,031 |
+| l01_facp13 | -0,078 |
+| l01_c1_ar1 | 0,506 |
+| l01_c1_sar1 | 0,178 |
+| l01_c1_sar1_p | 0,022 |
+| l01_c1_drift | 0,453 |
+| l01_c1_sigma2 | 0,1259 |
+| l01_c1_n | 164 |
+| l01_c1_aic | 125,618 |
+| l01_c2_aic | 125,966 |
+| l01_c3_aic | 125,104 |
+| l01_c1_bic | 138,017 |
+| l01_c2_bic | 138,366 |
+| l01_c3_bic | 140,603 |
+| l01_dAIC | 0,51 |
+| l01_peso_c3 | 0,41 |
+| l01_peso_c1 | 0,32 |
+| l01_c3_ar2 | 0,126 |
+| l01_c3_ar2_p | 0,111 |
+| l01_lr | 2,51 |
+| l01_lr_p | 0,113 |
+| l01_c1_raiz_saz | 0,866 |
+| l01_lb_q | 20,32 |
+| l01_lb_p | 0,563 |
 | l01_semar_lb_p | 0,000 |
-| l01_jb | 402,5 |
-| l01_curtose | 8,2 |
-| l01_arch | 11,00 |
-| l01_arch_p | 0,529 |
-| l01_sobre_ar2_p | 0,490 |
-| l01_sobre_ma1_p | 0,508 |
+| l01_jb | 18,1 |
+| l01_curtose | 4,4 |
+| l01_arch | 5,95 |
+| l01_arch_p | 0,918 |
+| l01_sobre_ar2_p | 0,111 |
+| l01_sobre_ma1_p | 0,169 |
 | l01_d2m_ma1 | -1,0000 |
-| l01_d2_aumento | 17,5 |
-| l01_d2_sigma2 | 0,1341 |
-| l01_d2_rho1 | -0,210 |
-| l01_d2_ar1 | -0,218 |
-| l01_d2_rho1_teo | -0,183 |
-| l01_q7_rmse_s1 | 120,1 |
-| l01_q7_mape_s1 | 1,22 |
-| l01_q7_rmse_s2 | 30,8 |
-| l01_q7_mape_s2 | 0,29 |
+| l01_d2_aumento | 19,9 |
+| l01_d2_sigma2 | 0,1509 |
+| l01_d2_rho1 | -0,339 |
+| l01_d2_ar1 | -0,345 |
+| l01_d2_rho1_teo | -0,247 |
+| l01_q7_rmse_s1 | 81,5 |
+| l01_q7_mape_s1 | 0,86 |
+| l01_q7_rmse_s2 | 30,7 |
+| l01_q7_mape_s2 | 0,30 |
 | l01_q7_rmse_rw1 | 425,1 |
 | l01_q7_mape_rw1 | 4,96 |
 | l01_q7_rmse_rw2 | 40,9 |
@@ -745,4 +779,11 @@ Porque a FAC e a FACP raramente apontam um único modelo. A identificação prop
 | l01_q7_rmse_sn2 | 328,7 |
 | l01_q7_mape_sn2 | 4,33 |
 | l01_q7_cobertura | 100 |
+| l01_longa_T | 321 |
+| l01_longa_ar1_ep | 0,044 |
+| l01_c1_ar1_ep | 0,067 |
+| l01_longa_adf | -3,985 |
+| l01_longa_kpss | 0,170 |
+| l01_longa_jb | 384,7 |
+| l01_longa_rmse_s1 | 110,9 |
 -->

@@ -138,7 +138,7 @@ ch_tab <- data.frame(estatistica = c("conjunta", paste0("frequência ", seq_alon
 # mais poder contra alternativas persistentes. Mesmas defasagens do ADF por AIC.
 ers <- ur.ers(y, type = "DF-GLS", model = "trend", lag.max = max(1, a_ct$k))
 # Zivot-Andrews (1992): H0 raiz unitária sem quebra vs. H1 TS com UMA quebra em data
-# desconhecida no intercepto e na tendência. Relevante porque a Q1 achou quebra em 2004.
+# desconhecida no intercepto e na tendência: checa se uma quebra explica a persistência.
 za <- ur.za(y, model = "both", lag = max(1, a_ct$k))
 za_data <- time(y)[za@bpoint]
 tab_d <- data.frame(
@@ -149,19 +149,22 @@ tab_d <- data.frame(
   stringsAsFactors = FALSE)
 tab_d$decisao <- ifelse(tab_d$estatistica < tab_d$critico_5, "rejeita H0", "não rejeita H0")
 
-# Subamostra posterior à quebra da Q1 (jan/2004 em diante): o ADF ainda rejeita?
-# Se a rejeição no nível vier só do episódio 2002-03, ela some aqui.
-y_pos <- window(y, start = c(2004, 1))
-s_ct <- adf(y_pos, "trend"); s_ct_bic <- adf(y_pos, "trend", "BIC"); s_k <- kpss(y_pos, "tau")
+# Amostra longa (jan/2000 a set/2026, dados/inpc_2000_2026.csv): a decisão d = 1 muda
+# quando se acrescentam 13 anos, incluindo a crise de 2002-03? Com mais dados o teste
+# ganha poder, mas passa a misturar regimes de inflação diferentes.
+longa <- read.csv(file.path("dados", "inpc_2000_2026.csv"), stringsAsFactors = FALSE)
+y_pos <- ts(100 * log(longa$indice), start = c(2000, 1), frequency = S)
+PMAX_LONGA <- floor(12 * (length(y_pos) / 100)^(1 / 4))
+s_ct <- adf(y_pos, "trend", pmax = PMAX_LONGA); s_ct_bic <- adf(y_pos, "trend", "BIC", pmax = PMAX_LONGA); s_k <- kpss(y_pos, "tau")
 s_pp <- pp(y_pos, "trend")
 tab_sub <- rbind(
-  linha("y, 2004:01–", "ADF", "constante + tendência", s_ct$tau, s_ct$cv["5pct"], fp(s_ct$p), s_ct$k, "AIC",
+  linha("y, 2000:01–2026:09", "ADF", "constante + tendência", s_ct$tau, s_ct$cv["5pct"], fp(s_ct$p), s_ct$k, "AIC",
         ifelse(s_ct$tau < s_ct$cv["5pct"], "rejeita H0", "não rejeita H0")),
-  linha("y, 2004:01–", "ADF", "constante + tendência", s_ct_bic$tau, s_ct_bic$cv["5pct"], fp(s_ct_bic$p), s_ct_bic$k, "BIC",
+  linha("y, 2000:01–2026:09", "ADF", "constante + tendência", s_ct_bic$tau, s_ct_bic$cv["5pct"], fp(s_ct_bic$p), s_ct_bic$k, "BIC",
         ifelse(s_ct_bic$tau < s_ct_bic$cv["5pct"], "rejeita H0", "não rejeita H0")),
-  linha("y, 2004:01–", "PP (Z-tau)", "constante + tendência", s_pp$tau, s_pp$cv["5pct"], fp(s_pp$p), s_pp$k, "Newey-West (long)",
+  linha("y, 2000:01–2026:09", "PP (Z-tau)", "constante + tendência", s_pp$tau, s_pp$cv["5pct"], fp(s_pp$p), s_pp$k, "Newey-West (long)",
         ifelse(s_pp$tau < s_pp$cv["5pct"], "rejeita H0", "não rejeita H0")),
-  linha("y, 2004:01–", "KPSS", "constante + tendência", s_k$stat, s_k$cv["5pct"], s_k$p_txt, s_k$k, "Newey-West (long)",
+  linha("y, 2000:01–2026:09", "KPSS", "constante + tendência", s_k$stat, s_k$cv["5pct"], s_k$p_txt, s_k$k, "Newey-West (long)",
         ifelse(s_k$stat > s_k$cv["5pct"], "rejeita H0", "não rejeita H0")))
 
 ## ---- 2.6 Figura: as regressões auxiliares do ADF ----------------------------------------
@@ -178,7 +181,7 @@ figura("q2_nivel_diferenca", {
 
 ## ---- 2.7 Saídas -----------------------------------------------------------------------
 salvar_tabela(tab_a, "q2a_nivel"); salvar_tabela(tab_b, "q2b_sequencial")
-salvar_tabela(tab_c, "q2c_diferenca"); salvar_tabela(hegy_tab, "q2c_hegy"); salvar_tabela(tab_d, "q2d_robustez"); salvar_tabela(tab_sub, "q2d_subamostra")
+salvar_tabela(tab_c, "q2c_diferenca"); salvar_tabela(hegy_tab, "q2c_hegy"); salvar_tabela(tab_d, "q2d_robustez"); salvar_tabela(tab_sub, "q2d_amostra_longa")
 salvar(list(PMAX = PMAX, tab_a = tab_a, tab_b = tab_b, tab_c = tab_c, tab_d = tab_d,
             a_ct = a_ct[c("tau", "cv", "k", "p", "phi", "n_reg")], a_c = a_c[c("tau", "cv", "k", "p", "phi")],
             a_n = a_n[c("tau", "cv", "k", "p")], t_tendencia = t_tendencia,

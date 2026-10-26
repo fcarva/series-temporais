@@ -20,17 +20,17 @@ Esta pasta é uma versão autossuficiente da parte empírica da Lista 01 (Quest�
 - o `sessionInfo()`;
 - o relatório em PDF, gerado direto do código, sem nenhum número digitado à mão.
 
-A série é o **INPC em nível** (número-índice), modelado como $y_t=100\ln P_t$. A diferença em relação a [trabalho_inpc/](../trabalho_inpc/README.md) é a série de partida: lá a série modelada é a variação mensal, com $d=0$; aqui é o índice, com $d=1$. Os modelos são equivalentes (um SARMA para $\Delta y$ é um SARIMA com $d=1$ para $y$). Partir do índice, porém, exercita todas as etapas que o enunciado pede: transformação, testes no nível e na diferença e sobrediferenciação para $d=2$.
+A série é o **INPC em nível** (número-índice), de **jan/2013 a set/2026 (165 meses)**, modelado como $y_t=100\ln P_t$. A série longa, de jan/2000 a set/2026, fica em `dados/inpc_2000_2026.csv` e entra só como checagem de robustez (Q2d e seção 8 do guia). A diferença em relação a [trabalho_inpc/](../trabalho_inpc/README.md) é a série de partida: lá a série modelada é a variação mensal, com $d=0$; aqui é o índice, com $d=1$. Os modelos são equivalentes (um SARMA para $\Delta y$ é um SARIMA com $d=1$ para $y$). Partir do índice, porém, exercita todas as etapas que o enunciado pede: transformação, testes no nível e na diferença e sobrediferenciação para $d=2$.
 
 > [!TIP]
 > **Para estudar para a prova**
-> Comece pelo [guia de estudo](guia_estudo.md). Ele explica, questão por questão, o que cada passo está tentando descobrir, por que cada teste e não outro, como o teste funciona por dentro e o que o INPC respondeu. Termina com as armadilhas mais comuns e 20 perguntas de prova com resposta.
+> Comece pelo [guia de estudo](guia_estudo.md). Ele explica, questão por questão, o que cada passo está tentando descobrir, por que cada teste e não outro, como o teste funciona por dentro e o que o INPC respondeu. Explica também por que a janela é 2013–2026 e não 2000–2026. Termina com as armadilhas mais comuns e 20 perguntas de prova com resposta.
 
 ## O jeito mais simples: um script só, em qualquer lugar
 
 [lista01_inpc.R](lista01_inpc.R) é autossuficiente. Copie-o para qualquer pasta e rode no RStudio, bloco a bloco, ou com `Rscript lista01_inpc.R`; é preciso ter R e internet. O script:
 1. instala os pacotes que faltarem (`forecast`, `tseries`, `urca`, `lmtest`, `FinTS`, `jsonlite`);
-2. baixa o INPC da API do IBGE (SIDRA, tabela 1736), com o período fixo jan/2000–set/2026;
+2. baixa o INPC da API do IBGE (SIDRA, tabela 1736), com o período fixo jan/2013–set/2026, definido em duas linhas no topo (`INICIO` e `FIM`);
 3. roda os testes das Questões 1 a 7 na ordem da lista.
 
 Cada passo é comentado como num roteiro de investigação: a pergunta, a fórmula por extenso, as hipóteses, o que esperar sob $H_0$ e como ler o resultado. Os testes imprimem a decisão em português, e os gráficos aparecem na janela de plots, já anotados (no gráfico da previsão, por exemplo, a cobertura do intervalo aparece no título). O script grava na pasta a base usada (`inpc_lista01.csv`) e as versões dos pacotes (`sessionInfo_lista01.txt`).
@@ -61,7 +61,7 @@ No Windows, use `scripts\r.ps1 lista01\rodar_tudo.R`. Para o PDF é preciso LaTe
 |---|---|---|
 | `00_configuracao.R` | — | pacotes, semente, caminhos e funções auxiliares (correlograma com banda de Bartlett, polinômios regular × sazonal, raízes inversas) |
 | `01_dados_inspecao.R` | Q1 | gráficos em nível e em log; amplitude × média e $\lambda$ de Box-Cox (Guerrero e MV); quebras na inclinação (Bai-Perron, `strucchange`); outliers AO/LS/TC (Chen-Liu, `tsoutliers`); sazonalidade |
-| `02_raiz_unitaria.R` | Q2 | ADF (`urca::ur.df`, defasagens por AIC/BIC com $p_{\max}$ de Schwert, p-valor de MacKinnon), PP, KPSS; procedimento sequencial de Dolado et al. com $\tau_3,\phi_3,\phi_2,\tau_2,\phi_1,\tau_1$; OCSB, Canova-Hansen e HEGY (`uroot`) para $D$; DF-GLS, Zivot-Andrews e subamostra pós-quebra para DS × TS |
+| `02_raiz_unitaria.R` | Q2 | ADF (`urca::ur.df`, defasagens por AIC/BIC com $p_{\max}$ de Schwert, p-valor de MacKinnon), PP, KPSS; procedimento sequencial de Dolado et al. com $\tau_3,\phi_3,\phi_2,\tau_2,\phi_1,\tau_1$; OCSB, Canova-Hansen e HEGY (`uroot`) para $D$; DF-GLS, Zivot-Andrews e a série longa (2000–2026) como robustez para DS × TS |
 | `03_identificacao.R` | Q3 | FAC/FACP com 48 defasagens, bandas $\pm1{,}96/\sqrt T$ e de Bartlett, leitura em $s-1,s,s+1$; três candidatos |
 | `04_estimacao_selecao.R` | Q4 | MV exata dos candidatos (e de um extra com dummies sazonais acumuladas); tabela única; conferência numérica de que $\sigma^2$ entra em $k$; pesos de Akaike; LR; raízes no círculo unitário; grade de 64 SARIMA |
 | `05_diagnostico.R` | Q5 | painel de resíduos; Ljung-Box com $\nu=K-(p+q+P+Q)$; Jarque-Bera; ARCH-LM (`FinTS`); McLeod-Li; caminho dos 64 modelos com o motivo de cada descarte; intervenções nos outliers; sobreajuste com teste $t$ e LR |
@@ -69,18 +69,19 @@ No Windows, use `scripts\r.ps1 lista01\rodar_tudo.R`. Para o PDF é preciso LaTe
 | `07_previsao.R` | Q7 | 24 meses de validação; esquema 1 (origem fixa) e 2 (um passo, coeficientes fixos via `Arima(y, model = ...)`); RMSE/MAE/MAPE contra passeio aleatório e sazonal ingênuo; extras: passeio com drift, Diebold-Mariano (HLN), Kupiec e Mincer-Zarnowitz com HAC (`sandwich`) |
 | `rodar_tudo.R` | — | roda tudo em processos separados, grava `saidas/sessionInfo.txt` e gera o PDF |
 | `relatorio_lista01.Rmd` | Q1–Q7 | o relatório: lê `saidas/` e escreve cada número inline |
-| `dados/inpc_lista01.csv` | — | o banco: INPC (SIDRA, tabela 1736), jan/2000 a set/2026 |
+| `dados/inpc_lista01.csv` | — | o banco: INPC (SIDRA, tabela 1736), jan/2013 a set/2026 |
+| `dados/inpc_2000_2026.csv` | Q2(d) | a série longa, só para a checagem de robustez |
 
 ## O que o código encontrou (para estudar)
 
 | Questão | Resultado |
 |---|---|
-| Q1 | índice com tendência exponencial; log justificado (amplitude × média, $\lambda$ de Guerrero = 0,30); uma quebra na inflação média em jan/2004; 5 outliers (nov/2002, jun/2003, jun/2018, jul/2022, fev/2025) |
-| Q2 | **ambiguidade real**: o ADF com AIC e o Zivot-Andrews rejeitam a raiz unitária; o PP, o DF-GLS e o ADF com BIC na subamostra não rejeitam; o KPSS rejeita a estacionariedade em tendência. Adota-se $d=1$ (testes mais confiáveis, teoria das metas de inflação, ausência de MA unitário em $\Delta y$); $D=0$ (OCSB, HEGY e Canova-Hansen concordam) |
-| Q3 | FACP trunca em 1, pico sazonal em 12 e um pico em 13 que sugere estrutura multiplicativa; candidatos com AR(1) e SAR, SMA ou os dois |
-| Q4 | o AIC escolhe SARIMA(1,1,0)(1,0,1)₁₂ e o BIC escolhe SARIMA(1,1,0)(1,0,0)₁₂ (o LR não rejeita $\Theta_1=0$ a 5%); quase cancelamento SAR-SMA perto do círculo |
-| Q5 | ruído branco e sem ARCH; o JB rejeita por caudas; com intervenções, o JB cai de 402 para 10; o sobreajuste não é significativo |
-| Q6 | com $d=2$, $\widehat\theta=-1{,}0000$ (raiz MA unitária); $\widehat\sigma^2$ sobe 17,5% sem o MA extra; o AR troca de sinal |
+| Q1 | índice com tendência; três quebras na inflação média (jul/2016, jun/2020, jun/2022); 3 outliers (jun/2018, jul/2022, fev/2025); o Box-Cox é ambíguo ($\lambda$ de 0,30 por MV e 0,74 por Guerrero) e o log é escolhido pela interpretação |
+| Q2 | nenhum teste rejeita a raiz unitária (ADF com AIC e BIC, PP, DF-GLS, Zivot-Andrews); o procedimento sequencial termina em passeio com drift; o KPSS também não rejeita (dados pouco informativos). Adota-se $d=1$; $D=0$ (OCSB, HEGY e Canova-Hansen concordam). Com a série longa, o ADF passa a rejeitar e o KPSS também: conflito causado pela crise de 2002–2003 |
+| Q3 | FACP com pico em 1 e valor no limite da banda em 2; sazonalidade fraca em 12; candidatos AR(1)+SAR, AR(1)+SMA e AR(2)+SAR |
+| Q4 | o AIC escolhe SARIMA(2,1,0)(1,0,0)₁₂ e o BIC escolhe SARIMA(1,1,0)(1,0,0)₁₂; a diferença de AIC é 0,5 (< 2) e o LR não rejeita $\phi_2=0$: fica o SARIMA(1,1,0)(1,0,0)₁₂ |
+| Q5 | ruído branco e sem ARCH; o JB rejeita por caudas; com intervenções nos 3 outliers, o JB cai de 18 para 4 e deixa de rejeitar; o sobreajuste não é significativo |
+| Q6 | com $d=2$, $\widehat\theta=-1{,}0000$ (raiz MA unitária); $\widehat\sigma^2$ sobe 19,9% sem o MA extra; o AR troca de sinal |
 | Q7 | bate o passeio aleatório e o sazonal ingênuo nos dois esquemas (DM significativo), mas empata com o passeio com drift; cobertura de 100% no esquema 1 e de 92% no esquema 2 |
 
 > [!WARNING]

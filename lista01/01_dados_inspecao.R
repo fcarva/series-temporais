@@ -1,7 +1,7 @@
 # =====================================================================================
 # 01_dados_inspecao.R — Questão 1: inspeção gráfica e transformação
 #
-# Série: INPC/IBGE, número-índice (dez/1993 = 100), mensal, jan/2000 a set/2026.
+# Série: INPC/IBGE, número-índice (dez/1993 = 100), mensal, jan/2013 a set/2026 (165 meses).
 # Fonte: SIDRA, tabela 1736, variável 2289. O arquivo dados/inpc_lista01.csv é o
 # banco efetivamente utilizado (entregue junto com o código).
 #
@@ -91,7 +91,7 @@ figura("q1_amplitude_media", {
   op <- par(mfrow = c(1, 2))
   plot(am$media, am$amplitude, log = "xy", pch = 19, col = COR[["azul"]],
        xlab = "média anual do índice (escala log)", ylab = "amplitude anual (escala log)",
-       main = "(a) Amplitude cresce com o nível")
+       main = "(a) Amplitude anual × média anual")
   xm <- seq(min(am$media), max(am$media), length.out = 50)   # reta ajustada em escala log-log
   lines(xm, exp(predict(reg_am, newdata = data.frame(media = xm))), col = COR[["laranja"]], lwd = 2)
   # subséries sazonais (equivalente ao monthplot): cada mês com os seus anos e a média

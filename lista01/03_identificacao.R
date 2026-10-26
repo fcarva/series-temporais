@@ -45,11 +45,11 @@ sazonais <- data.frame(lag = c(S, 2 * S, 3 * S), FAC = fac[c(S, 2 * S, 3 * S)], 
 # Todos para y com d = 1, D = 0 e drift (a média de Δy, ≈ inflação média, é não nula).
 #   C1: SARIMA(1,1,0)(1,0,0)[12] — FACP corta em 1; FAC sazonal decaindo em 12, 24 (SAR)
 #   C2: SARIMA(1,1,0)(0,0,1)[12] — idem, mas lendo a FAC sazonal como pico só em 12 (SMA)
-#   C3: SARIMA(1,1,0)(1,0,1)[12] — a FAC e a FACP sazonais não cortam: SARMA(1,1) sazonal
+#   C3: SARIMA(2,1,0)(1,0,0)[12] — a FACP em 2 fica no limite da banda: AR(2) regular
 candidatos <- list(
   C1 = list(order = c(1, 1, 0), seasonal = c(1, 0, 0)),
   C2 = list(order = c(1, 1, 0), seasonal = c(0, 0, 1)),
-  C3 = list(order = c(1, 1, 0), seasonal = c(1, 0, 1)))
+  C3 = list(order = c(2, 1, 0), seasonal = c(1, 0, 0)))
 
 salvar_tabela(tab_corr, "q3_correlogramas")
 salvar(list(fac = fac, facp = facp, banda = banda, bartlett = bartlett, tab_corr = tab_corr,

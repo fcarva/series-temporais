@@ -1,4 +1,4 @@
-Gerado em 2026-10-26 16:47
+Gerado em 2026-10-26 19:14
 R version 4.3.3 (2024-02-29)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 24.04.5 LTS

@@ -53,7 +53,7 @@ gerais <- do.call(rbind, lapply(names(fits), function(m) {
 comparavel <- length(unique(gerais$n_efetivo)) == 1
 # Contraexemplo didático: com d = 2 a verossimilhança passa a ser a de Δ²y (outra
 # variável) e n cai em 1 — o AIC deixa de ser comparável.
-fit_d2 <- Arima(y, order = c(1, 2, 0), seasonal = list(order = c(1, 0, 1), period = S), method = "ML")
+fit_d2 <- Arima(y, order = c(1, 2, 0), seasonal = list(order = c(1, 0, 0), period = S), method = "ML")
 
 ## ---- 4.4 (d) Convenção de contagem: σ² entra em k? -----------------------------------
 # Documentação: ?stats::arima diz que o AIC só vale para method = "ML"; o código do
@@ -77,10 +77,13 @@ sel_aic <- cand$modelo[which.min(cand$AIC)]; sel_bic <- cand$modelo[which.min(ca
 # Diferenças de AIC em relação ao melhor e pesos de Akaike (Burnham e Anderson, 2002)
 cand$dAIC <- cand$AIC - min(cand$AIC); cand$peso_akaike <- exp(-cand$dAIC / 2) / sum(exp(-cand$dAIC / 2))
 cand$dBIC <- cand$BIC - min(cand$BIC)
-# C1 está aninhado em C3 (Θ1 = 0): teste da razão de verossimilhança
+# C1 está aninhado em C3 (φ2 = 0): teste da razão de verossimilhança
 lr_c1_c3 <- 2 * (fits$C3$loglik - fits$C1$loglik)
 p_lr_c1_c3 <- pchisq(lr_c1_c3, df = 1, lower.tail = FALSE)
-SELECIONADO <- sel_aic     # objetivo do trabalho é prever (Q7): critério eficiente (AIC)
+# Regra fixada antes da Q7: o objetivo é prever, então vale o AIC (eficiente). Mas uma
+# diferença de AIC menor que 2 não discrimina os modelos (Burnham e Anderson, 2002);
+# nesse caso fica o mais parcimonioso, que é o do BIC.
+SELECIONADO <- if (cand$dAIC[cand$modelo == sel_bic] < 2) sel_bic else sel_aic
 
 ## ---- 4.6 (f) Raízes -------------------------------------------------------------------
 raizes <- do.call(rbind, lapply(names(fits), function(m) {
