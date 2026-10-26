@@ -288,6 +288,8 @@ tibble(Modelo = names(modelos),
 
 **O R inclui $\hat\sigma_a^2$ em $k$.** O código mostra: no M1 há `r length(coef(modelo1))` coeficientes (AR, SAR e média), mas o AIC reportado corresponde a $k = `r (AIC(modelo1) + 2 * modelo1$loglik) / 2`$. A diferença de 1 é a variância. A documentação confirma: em `?arima`, o AIC é "$-2\log L + 2k$" com o número de parâmetros incluindo a variância, e o código da função soma 1 ao número de coeficientes livres (`2 * sum(mask) + 2`). O `logLik()` reporta `df` = `r attr(logLik(modelo1), "df")`. Como todos os modelos ganham o mesmo +1, a ordenação pelo AIC não muda, mas o valor do critério sim.
 
+**A convenção da aula é outra.** A aula 02 (slides 98–99) conta $k = p + q + 1$ num ARMA com média, sem a variância, e divide os critérios por $T$. A diferença para o R é a mesma em todos os modelos: muda o valor do critério, não a escolha.
+
 (e) AIC e BIC selecionam o mesmo modelo? Se divergirem, discuta a divergência à luz do dilema entre consistência e eficiência, e indique qual critério é mais apropriado ao seu objetivo.
 
 Os dois selecionam o **M1**, com AIC de `r f(AIC(modelo1), 2)` e BIC de `r f(BIC(modelo1), 2)`, os menores entre os três. Não há divergência a resolver. Em tese, o BIC é **consistente** (escolhe o modelo verdadeiro com probabilidade que tende a 1, se ele estiver entre os candidatos), e o AIC é **eficiente** (minimiza o erro de previsão quando nenhum candidato é o verdadeiro). Como o objetivo é prever, o AIC seria o critério de desempate; aqui ele não é necessário. Vale notar que o M2 fica muito perto (diferença de AIC de `r f(AIC(modelo2) - AIC(modelo1), 2)`, menor que 2): SAR e SMA são praticamente equivalentes nesta amostra.
@@ -481,20 +483,23 @@ sn1 <- snaive(treino, h = H)$mean                                               
 rw2 <- window(stats::lag(inpc_ts, -1),  start = start(teste), end = end(teste))   # y_t
 sn2 <- window(stats::lag(inpc_ts, -12), start = start(teste), end = end(teste))   # y_{t+1-12}
 
+# MASE (aula 03): erro absoluto dividido pelo erro médio do ingênuo sazonal (m = 12) no treino
+Q_mase <- mean(abs(diff(as.numeric(treino), lag = 12)))
 metricas <- function(p) {
   e <- as.numeric(teste) - as.numeric(p); y <- as.numeric(teste)
   c(RMSE = sqrt(mean(e^2)), MAE = mean(abs(e)),
-    MAPE = 100 * mean(abs(e / y)[y != 0]))   # MAPE sem os meses de inflação zero
+    MAPE = 100 * mean(abs(e / y)[y != 0]),   # MAPE sem os meses de inflação zero
+    MASE = mean(abs(e)) / Q_mase)
 }
 tab7 <- rbind("SARIMA M1"         = c(metricas(prev1$mean), metricas(prev2)),
               "Passeio aleatório" = c(metricas(rw1), metricas(rw2)),
               "Sazonal ingênuo"   = c(metricas(sn1), metricas(sn2)))
-colnames(tab7) <- paste(rep(c("Esquema 1", "Esquema 2"), each = 3), colnames(tab7))
+colnames(tab7) <- paste(rep(c("Esquema 1", "Esquema 2"), each = 4), colnames(tab7))
 kable(tab7, digits = 3, caption = "Métricas na validação (p.p. de inflação; MAPE em %).")
 sum(teste == 0)   # meses com inflação exatamente zero
 ```
 
-**O MAPE precisa de cuidado nesta série.** Ele divide o erro pelo valor observado, e a inflação mensal fica perto de zero em vários meses. Na validação há meses com variação exatamente zero (`r sum(teste == 0)` no total), o que tornaria o MAPE infinito, e outros próximos de zero, o que o infla. Os meses com zero foram excluídos do cálculo. Mesmo assim, os valores acima de 100% mostram que o MAPE não é informativo aqui. A comparação deve se apoiar no RMSE e no MAE.
+**O MAPE precisa de cuidado nesta série.** Ele divide o erro pelo valor observado, e a inflação mensal fica perto de zero em vários meses. Na validação há meses com variação exatamente zero (`r sum(teste == 0)` no total), o que tornaria o MAPE infinito, e outros próximos de zero, o que o infla. Os meses com zero foram excluídos do cálculo. Mesmo assim, os valores acima de 100% mostram que o MAPE não é informativo aqui. A aula 03 faz o mesmo alerta (o MAPE exige $y_t \neq 0$ e fica instável perto de zero) e indica, para séries que cruzam o zero, o **MASE**: o erro absoluto dividido pelo erro médio do ingênuo sazonal no treino ($m = 12$). MASE menor que 1 significa bater o ingênuo. A comparação deve se apoiar no RMSE, no MAE e no MASE.
 
 (f) Seu modelo superou os benchmarks?
 

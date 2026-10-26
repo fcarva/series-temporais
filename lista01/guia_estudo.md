@@ -395,11 +395,15 @@ $$
 AIC=-2\ln L+2k,\qquad BIC=-2\ln L+k\ln n.
 $$
 
-Menor é melhor. $k$ conta **todos** os parâmetros estimados, **incluindo $\sigma^2$** (o script confere à mão que o R faz isso). Com $n=164$, $\ln n\approx5{,}1$: o BIC cobra mais que o dobro do AIC por parâmetro.
+Menor é melhor. No **R**, $k$ conta **todos** os parâmetros estimados, **incluindo $\sigma^2$** (o script confere à mão). Com $n=164$, $\ln n\approx5{,}1$: o BIC cobra mais que o dobro do AIC por parâmetro.
 
 > [!NOTE]
-> **A versão das aulas**
-> A AU02 divide os critérios por $T$: $AIC=(-2\ln L+2k)/T$. Com o mesmo $T$ para todos os modelos, a ordenação é idêntica.
+> **A versão das aulas (AU02, slides 98–99)**
+> A aula difere do R em dois pontos:
+> - divide os critérios por $T$: $AIC=(-2\ln L+2k)/T$;
+> - conta $k=p+q+1$ num ARMA com média, **sem** $\sigma^2$. O R usa $k=p+q+P+Q+1+1$.
+>
+> Com o mesmo $T$ e os mesmos ajustes em todos os modelos, a ordenação é idêntica: só muda o valor do critério. É exatamente o que a Q4(d) pede: dizer qual convenção o software usa. A resposta é "o R inclui $\sigma^2$; a convenção da aula não inclui". A mesma aula alerta que não se comparam critérios entre séries de tamanhos diferentes: $T$ deve ser o mesmo.
 
 **Quando a comparação é válida.** Só se compara AIC entre modelos com a **mesma variável dependente** e a **mesma amostra efetiva**. Um modelo com $d=1$ e outro com $d=2$ têm verossimilhanças de séries diferentes ($\Delta y$ e $\Delta^2y$), e seus AIC não se comparam. Aqui os três têm $d=1$, $D=0$ e $n=T-d-sD=165-1-0=164$. A comparação vale.
 
@@ -592,6 +596,10 @@ $$
 
 O RMSE pune mais os erros grandes. O MAE trata todos os erros igualmente. O MAPE é em %, o que permite comparar séries de escalas diferentes.
 
+A AU03 (slides 46 e 49) faz dois alertas que valem para este trabalho:
+- **o MAPE exige $y_t\neq0$** e fica instável perto de zero. No índice, que vale milhares de pontos, não há problema; na **variação** mensal, que tem meses com inflação zero, ele não serve. Para uma série que cruza o zero, a aula sugere o **MASE**: o erro absoluto dividido pelo erro médio de um ingênuo (sazonal, com $m=12$) no treino. MASE menor que 1 bate o ingênuo;
+- **um modelo em log precisa ser retro-transformado** antes de calcular as métricas. É por isso que as métricas aqui usam $\exp(y/100)$, no índice.
+
 ### O que o INPC respondeu
 
 | Previsor | RMSE, esquema 1 | MAPE, esquema 1 | RMSE, esquema 2 | MAPE, esquema 2 |
@@ -625,6 +633,8 @@ A dupla tinha duas séries possíveis: esta, de jan/2013 a set/2026, e uma mais 
 - nos testes de raiz unitária, o ADF passa a rejeitar ($\tau_3=-3{,}985$), e o KPSS também rejeita a estacionariedade ($0{,}170$): os testes entram em **conflito**, porque confundem a mudança de regime com tendência;
 - os resíduos ficam muito menos normais: o JB do mesmo C1 vai de $18{,}1$ para $384{,}7$, por causa do choque de nov/2002;
 - a previsão piora: no esquema 1, o RMSE do C1 estimado com 26 anos é $110{,}9$, contra $81{,}5$ com 13. O drift da série longa ainda carrega a inflação média do começo dos anos 2000.
+
+**O que a AU03 diz sobre isso (slides 24 e 37).** Um modelo estimado na amostra inteira pode passar em todos os testes de resíduos e ainda descrever mal cada subperíodo: a estabilidade dos parâmetros é uma hipótese a mais, que se verifica com Chow ou CUSUM. Quando há instabilidade, a aula indica a **janela deslizante**, que descarta o passado distante e é mais robusta a quebras, ao custo de estimativas mais ruidosas. Escolher 2013–2026 é aplicar essa ideia: descartar o regime de 2000–2004.
 
 **A regra prática.** Use a série mais longa **dentro de um regime estável**. É um trade-off entre variância (que cai com mais dados) e viés (que cresce quando a amostra mistura processos diferentes). O INPC recente ainda tem mudanças de patamar (Q1), mas sem um episódio da dimensão de 2002.
 
@@ -706,8 +716,8 @@ Um AR(1) como leitura principal, com o AR(2) como alternativa a testar na estima
 **9. O que indicam picos na FAC em 11, 12 e 13?**
 Uma estrutura multiplicativa regular × sazonal, que gera termos cruzados em $12\pm1$.
 
-**10. Por que o $k$ do AIC inclui $\sigma^2$?**
-Porque $\sigma^2$ também é estimado por MV. Ele conta como parâmetro na verossimilhança.
+**10. O $k$ do AIC inclui $\sigma^2$?**
+Depende da convenção, e a Q4(d) pede para dizer qual. No R, sim: $\sigma^2$ também é estimado por MV e entra em $k$. Na AU02, não: $k=p+q+1$ num ARMA com média. Como o $+1$ é igual para todos os modelos, a ordenação pelo AIC não muda.
 
 **11. AIC escolhe C3 e BIC escolhe C1. Qual usar?**
 Em geral, para prever, o AIC. Mas aqui a diferença de AIC é de 0,51, menor que 2, o $\phi_2$ não é significativo e o LR não rejeita $\phi_2=0$. Os modelos são praticamente equivalentes, e fica o mais parcimonioso, o C1.
@@ -738,6 +748,29 @@ Não necessariamente. São só 24 pontos, de uma única origem, com erros fortem
 
 **20. Por que usar 13 anos e não a série inteira desde 2000?**
 Porque a série longa mistura regimes: a crise de 2002–2003 e a queda de patamar de 2004 fazem os testes de raiz unitária entrarem em conflito, pioram muito a normalidade dos resíduos e pioram a previsão. Mais dados reduzem a variância das estimativas, mas só valem a pena se o mesmo modelo serve para toda a amostra.
+
+## 13. Onde cada ponto está nos slides do professor
+
+Conferência deste guia contra as aulas de 2026 (AU01 a AU03) e o texto de Mattos (MAT), que é a leitura do curso para raiz unitária. As aulas AU04 (raiz unitária) e AU05 (ARIMA e SARIMA) não estavam disponíveis na conferência; os pontos delas ficam apoiados no MAT.
+
+| Ponto do guia | Onde está | O que confirma |
+|---|---|---|
+| Estacionariedade fraca × estrita | AU01, slides 24–26 | a fraca exige média, variância e autocovariâncias constantes; a estrita, a distribuição conjunta inteira. Os testes da Q2 falam da fraca |
+| Passeio aleatório e passeio com drift | AU01, slides 28–29, 45–47 | $\operatorname{Var}(y_t)=t\sigma^2$; com drift, a média é $y_0+\alpha t$, "tendência linear", e a variância continua $t\sigma^2$: as duas tendências da DS |
+| Drift **e** tendência num passeio | AU01, slide 30; MAT, nota 9 | gera tendência quadrática. Por isso, sob $H_0$ do ADF com tendência, o termo $bt$ desaparece |
+| FAC que decai devagar | AU01, slides 48–50 | é o primeiro sinal de não estacionariedade, antes de qualquer teste (painéis de cima da figura da Q3) |
+| Raízes fora do círculo; inversas dentro | AU02, slides 27–36 | estacionariedade olha o lado AR; invertibilidade, o lado MA. Um MA puro é sempre estacionário; um AR puro é sempre invertível |
+| $\lvert\rho_1\rvert\le1/2$ num MA(1), máximo em $\theta=\pm1$ | AU02, slide 35 | é o limite que a série sobrediferenciada atinge (Q6) |
+| MV exata pelo filtro de Kalman | AU02, slide 60 | não condiciona nos valores iniciais e é preferível quando o MA está perto de não invertível |
+| AIC e BIC | AU02, slides 98–99 | divididos por $T$, com $k=p+q+1$ sem $\sigma^2$; o mesmo $T$ em todos os modelos |
+| Ljung-Box com graus de liberdade corrigidos | AU03, slide 15 | $\nu=K-p-q$ para resíduos de um ARMA; aqui, com a parte sazonal, $K-p-q-P-Q$ |
+| Jarque-Bera | AU03, slides 11–14 | a normalidade não é necessária para a estrutura ARMA; importa para inferência, intervalos e a MV gaussiana |
+| ARCH-LM | AU03, slide 20 | $nR^2\sim\chi^2(p)$, com $n=T-p$ |
+| Estabilidade e janela | AU03, slides 24–37 | um ajuste único pode esconder subperíodos; a janela deslizante é robusta a quebras |
+| Esquemas 1 e 2 da Q7 | AU03, slides 36 e 39–42 | o esquema 1 é a previsão **iterada**, com a informação congelada em $T_0$; o esquema 2 é a janela fixa, com a origem avançando sem reestimar |
+| RMSE, MAD (o nosso MAE), MAPE e MASE | AU03, slides 45–49 | o MAPE falha perto de zero; o MASE serve para séries que cruzam o zero |
+| Diebold-Mariano e cobertura | AU03, slides 50–51 e 59 | diferença de RMSE só conta se sobreviver ao DM; a cobertura se testa com Christoffersen (o Kupiec é a parte incondicional) |
+| ADF, PP, DF-GLS, as versões e os quatro processos | MAT, seções 1.11 e 2.2–2.6 | ver a seção 2 deste guia |
 
 <!-- conferência numérica
 | chave_R | nota |

@@ -32,7 +32,7 @@ Os números do original foram todos reproduzidos no R e **batem** (por exemplo, 
 | Q2(d) | o DF-GLS "pode confundir a alta persistência da inflação com uma raiz unitária" | é o contrário: o DF-GLS foi feito para ter **mais** poder contra alternativas persistentes. A não rejeição vem de `lag.max = 12`: no `urca`, isso fixa 12 defasagens, sem seleção. Com 12, dá $-1{,}213$; com 1, dá $-3{,}650$ e rejeita (crítico $-1{,}94$) | problema de especificação, não do teste. Mattos (2019, seção 2.4) lembra que o DF-GLS, como o ADF, exige escolher antes o número de defasagens |
 | Q2(d) | não responde se a série é DS ou TS | a variação não tem tendência nenhuma; é I(0) em torno da média, o "processo estacionário" da classificação de Mattos (2019). Quem é diferença estacionária (DS) é o **log do índice**: tendência determinística (o drift) mais tendência estocástica | responder explicitamente |
 | Q4(a) | "Intercepto" | no `arima()`, o *intercept* é a **média** $\mu=0{,}461$, não a constante da equação, que é $c=\mu(1-\phi)(1-\Phi)=0{,}187$ | chamar de média |
-| Q4(d) | o `arima()` **não** conta $\widehat\sigma^2$ em $k$ | **errado**, e os próprios números do original desmentem: o AIC do M1 é $128{,}65$ com $\ln L=-60{,}33$, o que implica $k=(AIC+2\ln L)/2=4$. O M1 tem 3 coeficientes; o quarto parâmetro é a variância. A documentação de `?arima` e o `logLik()` (`df = 4`) confirmam | o R **inclui** $\widehat\sigma^2$ em $k$ |
+| Q4(d) | o `arima()` **não** conta $\widehat\sigma^2$ em $k$ | **errado**, e os próprios números do original desmentem: o AIC do M1 é $128{,}65$ com $\ln L=-60{,}33$, o que implica $k=(AIC+2\ln L)/2=4$. O M1 tem 3 coeficientes; o quarto parâmetro é a variância. A documentação de `?arima` e o `logLik()` (`df = 4`) confirmam | o R **inclui** $\widehat\sigma^2$ em $k$. Atenção: a convenção da aula 02 (slides 98–99) é $k=p+q+1$, sem $\widehat\sigma^2$; a afirmação do original vale para a aula, não para o R. A resposta certa diz as duas coisas |
 
 ## Respostas incompletas
 
@@ -50,7 +50,7 @@ Os números do original foram todos reproduzidos no R e **batem** (por exemplo, 
 
 - **Q5:** os resíduos do M1 são ruído branco e sem ARCH, mas não normais, por três choques (jun/2018, jul/2022, fev/2025). O sobreajuste não é significativo.
 - **Q6:** com $d=1$, o MA vai para $-1$, a variância residual sobe e o AR troca de sinal: os sintomas clássicos de sobrediferenciação.
-- **Q7:** na variação, o M1 bate o passeio aleatório, mas **perde para o sazonal ingênuo**. No RMSE, são $0{,}388$ contra $0{,}317$ no esquema 1 e $0{,}410$ contra $0{,}366$ no esquema 2, sem diferença significativa no Diebold-Mariano. A cobertura do intervalo é de $95{,}8\%$. O **MAPE não serve** nesta série: ela tem meses com inflação zero (1 na validação), o que torna o MAPE infinito, e muitos meses perto de zero, que o inflam.
+- **Q7:** na variação, o M1 bate o passeio aleatório, mas **perde para o sazonal ingênuo**. No RMSE, são $0{,}388$ contra $0{,}317$ no esquema 1 e $0{,}410$ contra $0{,}366$ no esquema 2, sem diferença significativa no Diebold-Mariano. A cobertura do intervalo é de $95{,}8\%$. O **MAPE não serve** nesta série: ela tem meses com inflação zero (1 na validação), o que torna o MAPE infinito, e muitos meses perto de zero, que o inflam. A aula 03 (slides 46 e 49) faz o mesmo alerta e indica o MASE, que a versão revisada passou a reportar.
 
 ## Problemas de reprodutibilidade
 

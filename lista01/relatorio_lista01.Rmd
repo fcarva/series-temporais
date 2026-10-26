@@ -238,9 +238,10 @@ $$
 k = \#\{\text{coeficientes livres}\} + 1, \qquad AIC = -2\ln L + 2k, \qquad BIC = -2\ln L + k\ln n .
 $$
 
-No código do `forecast` isso aparece como `npar <- length(coef[mask]) + 1`; a documentação de `?arima` acrescenta que o AIC só é válido com `method = "ML"`. A conferência numérica bate: recalculando com o "+1", o AIC reproduz o do software em todos os modelos (`r ifelse(q4$convencao_inclui_sigma, "confere", "NÃO confere")`; tabela `q4_convencao.csv`). Ainda há duas diferenças de convenção que importam ao comparar com outros textos:
+No código do `forecast` isso aparece como `npar <- length(coef[mask]) + 1`; a documentação de `?arima` acrescenta que o AIC só é válido com `method = "ML"`. A conferência numérica bate: recalculando com o "+1", o AIC reproduz o do software em todos os modelos (`r ifelse(q4$convencao_inclui_sigma, "confere", "NÃO confere")`; tabela `q4_convencao.csv`). Ainda há três diferenças de convenção que importam ao comparar com outros textos:
 
-- a aula (AU02) divide os critérios por $T$, e o R não divide; com $T$ comum, a ordenação é a mesma;
+- a aula (AU02, slides 98–99) divide os critérios por $T$, e o R não divide; com $T$ comum, a ordenação é a mesma;
+- a aula conta $k = p + q + 1$ num ARMA com média, sem $\hat\sigma^2_a$; o R soma a variância. O acréscimo é o mesmo em todos os modelos, e a escolha não muda;
 - o BIC usa o $n$ efetivo, e não $T$.
 
 **(e) AIC e BIC divergem.**
