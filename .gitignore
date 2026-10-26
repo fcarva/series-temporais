@@ -2,8 +2,10 @@
 materiais/
 *.pdf
 *.PDF
-# exceção: o laboratório da Lista 01 é material nosso e vai para o cofre do Obsidian
+# exceções: o laboratório da Lista 01 e o volume 4 do caderno são material nosso e vão
+# para o cofre do Obsidian
 !lista01/laboratorio_lista01.pdf
+!caderno/pdf/caderno_volume4_lista01_laboratorio.pdf
 *.jpg
 *.jpeg
 
