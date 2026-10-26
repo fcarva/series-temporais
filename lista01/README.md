@@ -22,7 +22,16 @@ Esta pasta é uma versão autossuficiente da parte empírica da Lista 01 (Quest�
 
 A série é o **INPC em nível** (número-índice), modelado como $y_t=100\ln P_t$. A diferença em relação a [trabalho_inpc/](../trabalho_inpc/README.md) é a série de partida: lá a série modelada é a variação mensal, com $d=0$; aqui é o índice, com $d=1$. Os modelos são equivalentes (um SARMA para $\Delta y$ é um SARIMA com $d=1$ para $y$). Partir do índice, porém, exercita todas as etapas que o enunciado pede: transformação, testes no nível e na diferença e sobrediferenciação para $d=2$.
 
-## Como rodar
+## O jeito mais simples: um script só, em qualquer lugar
+
+[lista01_inpc.R](lista01_inpc.R) é autossuficiente e não depende do repositório. Basta copiá-lo para qualquer pasta e rodar `Rscript lista01_inpc.R`, numa máquina com R e internet. O script:
+1. instala os pacotes que faltarem (`forecast`, `tseries`, `urca`, `lmtest`, `FinTS`, `jsonlite`);
+2. baixa o INPC da API do IBGE (SIDRA, tabela 1736), com o período fixo jan/2000–set/2026;
+3. roda os testes das Questões 1 a 7, com a resposta de cada item em comentário.
+
+Ele deixa na pasta a base usada (`inpc_lista01.csv`), os gráficos (`graficos_lista01.pdf`) e as versões dos pacotes (`sessionInfo_lista01.txt`). Esses são os três itens de reprodutibilidade que as normas de entrega pedem.
+
+## Como rodar a versão completa
 
 ```bash
 Rscript lista01/rodar_tudo.R            # scripts 01–07 + relatorio_lista01.pdf
