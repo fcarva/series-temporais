@@ -1,7 +1,0 @@
-"especificacao","estatistica","hipotese_nula","valor","critico_5","defasagens","rejeita","p_mackinnon"
-"constante + tendência","tau3","γ = 0",-2.35670938303869,-3.43,2,FALSE,"0,401"
-"constante + tendência","phi3","β = γ = 0",3.04676522202372,6.49,2,FALSE,"—"
-"constante + tendência","phi2","α = β = γ = 0",7.44912050516792,4.75,2,TRUE,"—"
-"só constante","tau2","γ = 0",-1.01027360980548,-2.88,2,FALSE,"0,749"
-"só constante","phi1","α = γ = 0",8.41961311674124,4.63,2,TRUE,"—"
-"nenhum","tau1","γ = 0",3.93504407799161,-1.95,2,FALSE,"1,000"

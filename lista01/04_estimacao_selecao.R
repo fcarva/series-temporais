@@ -8,8 +8,7 @@
 # (d)    Confere numericamente a convenção de contagem de parâmetros do software.
 # (e)    AIC × BIC.
 # (f)    Raízes dos polinômios AR e MA (regular × sazonal) e o gráfico no círculo unitário.
-# Extra: C4 = AR(1) com sazonalidade DETERMINÍSTICA (11 dummies), sugerido pelo HEGY e
-#        pelo Canova-Hansen na Q2; e uma grade completa usada para documentar o caminho (Q5d).
+# Extra: uma grade completa de SARIMA, usada para documentar o caminho (Q5d).
 # =====================================================================================
 # localiza 00_configuracao.R ao lado deste script (funciona de qualquer diretório)
 source(file.path(local({ a <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE))
@@ -22,34 +21,26 @@ ajusta <- function(order, seasonal, xreg = NULL, dados = y) {
   Arima(dados, order = order, seasonal = list(order = seasonal, period = S), xreg = xreg,
         include.drift = TRUE, method = "ML")
 }
-# Dummies sazonais para o modelo com d = 1: o Arima diferencia também os regressores,
-# então entram as SOMAS ACUMULADAS das dummies — assim Δ(regressor) = dummy, e o efeito
-# fixo de cada mês incide sobre a inflação Δy (e não sobre o nível do log do índice).
-dummies_acum <- function(serie) {
-  D <- seasonaldummy(serie)                       # 11 colunas (dezembro é a base)
-  apply(D, 2, cumsum)
-}
 fits <- lapply(q3$candidatos, function(cd) ajusta(cd$order, cd$seasonal))
-fits$C4 <- ajusta(c(1, 1, 0), c(0, 0, 0), xreg = dummies_acum(y))
 
 ## ---- 4.2 (a)(b) Tabela única ---------------------------------------------------------
 resumo_fit <- function(fit, rotulo) {
   tc <- tabela_coef(fit)
   tc$modelo <- rotulo
-  tc$especificacao <- if (rotulo == "C4") "SARIMA(1,1,0) + 11 dummies sazonais" else nome_modelo(fit)
+  tc$especificacao <- nome_modelo(fit)
   tc
 }
 coefs <- do.call(rbind, Map(resumo_fit, fits, names(fits)))
 gerais <- do.call(rbind, lapply(names(fits), function(m) {
   fit <- fits[[m]]
-  data.frame(modelo = m, especificacao = if (m == "C4") "SARIMA(1,1,0) + 11 dummies sazonais" else nome_modelo(fit),
+  data.frame(modelo = m, especificacao = nome_modelo(fit),
              n_total = T_, n_efetivo = fit$nobs, k = k_aic(fit), sigma2 = fit$sigma2,
              loglik = fit$loglik, AIC = fit$aic, AICc = fit$aicc, BIC = fit$bic)
 }))
 
 ## ---- 4.3 (c) Validade da comparação --------------------------------------------------
 # Todos: mesma variável dependente (y = 100 log INPC), mesmo d = 1 e D = 0 => mesma
-# amostra efetiva n = T - d - sD. A log-verossimilhança é a de Δy nos quatro casos.
+# amostra efetiva n = T - d - sD. A log-verossimilhança é a de Δy nos três casos.
 comparavel <- length(unique(gerais$n_efetivo)) == 1
 # Contraexemplo didático: com d = 2 a verossimilhança passa a ser a de Δ²y (outra
 # variável) e n cai em 1 — o AIC deixa de ser comparável.
@@ -74,16 +65,21 @@ convencao_inclui_sigma <- isTRUE(all.equal(conv$aic_com_sigma, conv$aic_software
 ## ---- 4.5 (e) Seleção --------------------------------------------------------------------
 cand <- gerais[gerais$modelo %in% c("C1", "C2", "C3"), ]
 sel_aic <- cand$modelo[which.min(cand$AIC)]; sel_bic <- cand$modelo[which.min(cand$BIC)]
-# Diferenças de AIC em relação ao melhor e pesos de Akaike (Burnham e Anderson, 2002)
-cand$dAIC <- cand$AIC - min(cand$AIC); cand$peso_akaike <- exp(-cand$dAIC / 2) / sum(exp(-cand$dAIC / 2))
-cand$dBIC <- cand$BIC - min(cand$BIC)
-# C1 está aninhado em C3 (φ2 = 0): teste da razão de verossimilhança
-lr_c1_c3 <- 2 * (fits$C3$loglik - fits$C1$loglik)
-p_lr_c1_c3 <- pchisq(lr_c1_c3, df = 1, lower.tail = FALSE)
-# Regra fixada antes da Q7: o objetivo é prever, então vale o AIC (eficiente). Mas uma
-# diferença de AIC menor que 2 não discrimina os modelos (Burnham e Anderson, 2002);
-# nesse caso fica o mais parcimonioso, que é o do BIC.
-SELECIONADO <- if (cand$dAIC[cand$modelo == sel_bic] < 2) sel_bic else sel_aic
+cand$dAIC <- cand$AIC - min(cand$AIC); cand$dBIC <- cand$BIC - min(cand$BIC)
+# Regra fixada antes da Q7. Se AIC e BIC concordam, fica o escolhido. Se divergem, olha-se
+# a significância do parâmetro a mais do modelo maior (teste t, aula 03: "significância dos
+# parâmetros" no model checking): se ele não for significativo a 5%, fica o modelo menor,
+# pelo princípio da parcimônia (aula 02).
+k_mod <- setNames(gerais$k, gerais$modelo)
+if (sel_aic == sel_bic) {
+  SELECIONADO <- sel_aic
+} else {
+  maior <- if (k_mod[[sel_aic]] > k_mod[[sel_bic]]) sel_aic else sel_bic
+  menor <- setdiff(c(sel_aic, sel_bic), maior)
+  extra <- setdiff(names(coef(fits[[maior]])), names(coef(fits[[menor]])))
+  p_extra <- tabela_coef(fits[[maior]])$p[tabela_coef(fits[[maior]])$termo %in% extra]
+  SELECIONADO <- if (all(p_extra > 0.05)) menor else maior
+}
 
 ## ---- 4.6 (f) Raízes -------------------------------------------------------------------
 raizes <- do.call(rbind, lapply(names(fits), function(m) {
@@ -129,5 +125,5 @@ salvar_tabela(raizes, "q4_raizes"); salvar_tabela(grade, "q4_grade")
 salvar(list(fits = fits, coefs = coefs, gerais = gerais, cand = cand, conv = conv,
             convencao_inclui_sigma = convencao_inclui_sigma, comparavel = comparavel,
             n_d2 = fit_d2$nobs, sel_aic = sel_aic, sel_bic = sel_bic, SELECIONADO = SELECIONADO,
-            lr_c1_c3 = lr_c1_c3, p_lr_c1_c3 = p_lr_c1_c3, raizes = raizes, grade = grade), "q4")
+            raizes = raizes, grade = grade), "q4")
 message("Q4 ok: AIC escolhe ", sel_aic, ", BIC escolhe ", sel_bic, "; σ² em k: ", convencao_inclui_sigma)

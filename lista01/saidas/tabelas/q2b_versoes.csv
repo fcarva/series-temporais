@@ -1,0 +1,4 @@
+"versao","estatistica","h0","h1","valor","critico_5","defasagens","p_mackinnon","decisao"
+"sem constante","tau1","I(1) puro (só tendência estocástica)","estacionária, média zero",3.93504407799161,-1.95,2,"1,000","não rejeita H0"
+"só constante","tau2","I(1) puro (só tendência estocástica)","estacionária, média não nula",-1.01027360980548,-2.88,2,"0,749","não rejeita H0"
+"constante + tendência","tau3","DS (tendência determinística + estocástica)","TS (tendência determinística + erro estacionário)",-2.35670938303869,-3.43,2,"0,401","não rejeita H0"

@@ -7,9 +7,10 @@
 #     a parte ARMA, que é o que reduz os graus de liberdade da estatística Q.
 # (c) Jarque-Bera (normalidade) e ARCH-LM de Engle (heterocedasticidade condicional),
 #     mais o McLeod-Li (Ljung-Box dos resíduos ao quadrado) como confirmação.
-# (d) Caminho percorrido: modelos descartados e por quê; a falha da normalidade leva a
-#     um modelo com intervenções nos outliers da Q1 (Chen-Liu), como robustez.
-# (e) Sobreajuste deliberado: +1 AR e +1 MA ao modelo selecionado; teste t e LR.
+# (d) Caminho percorrido: modelos descartados e por quê.
+# (e) Sobreajuste deliberado: +1 AR e +1 MA ao modelo selecionado; teste t.
+# Estabilidade (aula 03): Chow break-point numa data escolhida a priori e CUSUM/CUSUM-Q
+#     com resíduos recursivos.
 # =====================================================================================
 # localiza 00_configuracao.R ao lado deste script (funciona de qualquer diretório)
 source(file.path(local({ a <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE))
@@ -33,7 +34,7 @@ figura("q5_residuos", {
   qqnorm(as.numeric(z), pch = 19, cex = 0.5, col = COR[["ciano"]], main = "(e) QQ-plot normal",
          xlab = "quantis teóricos", ylab = "quantis amostrais")
   qqline(as.numeric(z), col = COR[["laranja"]], lwd = 2)
-  correlograma(e^2, 36, "FAC", "(f) FAC dos resíduos ao quadrado (efeito ARCH?)", bartlett = FALSE)
+  correlograma(e^2, 36, "FAC", "(f) FAC dos resíduos ao quadrado (efeito ARCH?)")
   par(op)
 }, largura = 10, altura = 10)
 
@@ -70,42 +71,64 @@ names(resumo_caminho) <- c("motivo", "n_modelos")
 # exemplos concretos de descarte por autocorrelação (os mais parcimoniosos)
 desc_lb <- head(g[g$motivo == "autocorrelação residual (Ljung-Box 24, 5%)", c("modelo", "aic", "bic", "lb24_p")], 6)
 
-# Robustez à não normalidade: intervenções nos outliers detectados na Q1.
-# outliers.effects() devolve o padrão de cada outlier em Δy (AO = pulso, TC = pulso que
-# decai com δ = 0,7, LS = degrau); como o modelo é para y com d = 1, o regressor entra
-# acumulado (a primeira diferença do regressor reproduz o efeito em Δy).
-mo <- q1$outliers_raw
-fit_int <- NULL; jb_int <- NULL
-if (!is.null(mo) && nrow(mo)) {
-  ef <- outliers.effects(mo, n = length(q1$dy), weights = FALSE, delta = 0.7, freq = S)
-  X <- apply(rbind(0, ef), 2, cumsum)
-  colnames(X) <- paste0(mo$type, "_", gsub(":", "_", mo$time))
-  fit_int <- Arima(y, order = c(ordem[1], 1, ordem[2]), seasonal = list(order = c(ordem[3], 0, ordem[4]), period = S),
-                   xreg = X, include.drift = TRUE, method = "ML")
-  jb_int <- jarque.bera.test(residuals(fit_int))
-  lb_int <- Box.test(residuals(fit_int), lag = 24, type = "Ljung-Box", fitdf = n_arma)
-}
-
 ## ---- 5.4 (e) Sobreajuste deliberado ---------------------------------------------------
 sobre <- function(dp, dq) {
   f2 <- Arima(y, order = c(ordem[1] + dp, 1, ordem[2] + dq), seasonal = list(order = c(ordem[3], 0, ordem[4]), period = S),
               include.drift = TRUE, method = "ML")
   termo <- if (dp) paste0("ar", ordem[1] + 1) else paste0("ma", ordem[2] + 1)
   tc <- tabela_coef(f2); ex <- tc[tc$termo == termo, ]
-  lr <- 2 * (f2$loglik - fit$loglik)
   data.frame(modelo = nome_modelo(f2), termo_extra = termo, coef = ex$coef, ep = ex$ep, t = ex$t, p = ex$p,
-             LR = lr, p_LR = pchisq(lr, 1, lower.tail = FALSE), AIC = f2$aic, BIC = f2$bic,
+             AIC = f2$aic, BIC = f2$bic,
              dAIC = f2$aic - fit$aic,
              outros_mudam = max(abs(coef(f2)[names(coef(fit))] - coef(fit)) / sqrt(diag(fit$var.coef))))
 }
 tab_sobre <- rbind(sobre(1, 0), sobre(0, 1))
 
+## ---- 5.5 Estabilidade (aula 03): Chow e CUSUM --------------------------------------------
+# Chow e CUSUM pedem um modelo de regressão estimado por MQO. Usa-se a forma
+# autorregressiva da inflação com a estrutura do modelo selecionado: Δy_t em Δy_{t-1},
+# Δy_{t-12} e Δy_{t-13} (o produto (1 - φB)(1 - ΦB^12) gera essas três defasagens).
+dyv <- as.numeric(q1$dy); nn <- length(dyv)
+df_ols <- data.frame(dy = dyv[14:nn], l1 = dyv[13:(nn - 1)], l12 = dyv[2:(nn - 12)], l13 = dyv[1:(nn - 13)])
+tempo_ols <- time(q1$dy)[14:nn]
+ols <- lm(dy ~ ., data = df_ols)
+# Chow break-point: data escolhida A PRIORI (mar/2020, início da pandemia), como a aula
+# exige; escolhida pelos dados, os valores críticos usuais deixariam de valer.
+TB <- which(abs(tempo_ols - (2020 + 2 / 12)) < 1e-6)
+chow <- sctest(dy ~ ., data = df_ols, type = "Chow", point = TB - 1)
+# CUSUM (resíduos recursivos padronizados acumulados) e CUSUM-Q (soma acumulada dos
+# quadrados, normalizada). Sob H0, E(CUSUM) = 0 e E(CUSUM-Q_t) = (t - k)/(T - k).
+cus <- efp(dy ~ ., data = df_ols, type = "Rec-CUSUM")
+sc_cus <- sctest(cus)
+w <- recresid(ols); kq <- length(coef(ols)); nw <- length(w)
+cusumq <- cumsum(w^2) / sum(w^2)
+esperado_q <- seq_len(nw) / nw
+# banda de 5% do CUSUM-Q: aproximação de Durbin para amostras grandes, c0 ≈ 1,36/√(n/2)
+c0 <- 1.36 / sqrt(nw / 2)
+fora_q <- any(abs(cusumq - esperado_q) > c0)
+figura("q5_estabilidade", {
+  op <- par(mfrow = c(1, 2))
+  cs <- as.numeric(cus$process); tc <- seq(0, 1, length.out = length(cs))
+  lim <- 0.948 * (1 + 2 * tc)                       # bandas de 5% do CUSUM recursivo
+  tt <- seq(tempo_ols[kq], tail(tempo_ols, 1), length.out = length(cs))
+  plot(tt, cs, type = "n", ylim = range(c(cs, lim, -lim)), xlab = "", ylab = "CUSUM", main = "(a) CUSUM")
+  grade(); lines(tt, lim, lty = 2, col = COR[["vermelho"]]); lines(tt, -lim, lty = 2, col = COR[["vermelho"]])
+  lines(tt, cs, col = COR[["azul"]], lwd = 1.6)
+  tq <- tail(tempo_ols, nw)
+  plot(tq, cusumq, type = "n", ylim = c(-0.1, 1.1), xlab = "", ylab = "CUSUM-Q", main = "(b) CUSUM-Q")
+  grade(); lines(tq, esperado_q + c0, lty = 2, col = COR[["vermelho"]]); lines(tq, esperado_q - c0, lty = 2, col = COR[["vermelho"]])
+  lines(tq, esperado_q, col = COR[["eixo"]]); lines(tq, cusumq, col = COR[["azul"]], lwd = 1.6)
+  par(op)
+}, largura = 10, altura = 4.2)
+estab <- list(chow_F = unname(chow$statistic), chow_p = chow$p.value, TB = "2020-03",
+              cusum_stat = unname(sc_cus$statistic), cusum_p = sc_cus$p.value,
+              cusumq_maxdesvio = max(abs(cusumq - esperado_q)), cusumq_c0 = c0, cusumq_fora = fora_q,
+              coef_ols = coef(ols))
+
 ## ---- 5.5 Saídas ----------------------------------------------------------------------
 salvar_tabela(testes, "q5_testes"); salvar_tabela(g, "q5_caminho"); salvar_tabela(tab_sobre, "q5_sobreajuste")
 salvar(list(modelo = nome_modelo(fit), n_arma = n_arma, testes = testes, assim = assim, curt = curt,
             grandes = grandes, resumo_caminho = resumo_caminho, desc_lb = desc_lb,
-            fit_int = fit_int, jb_int = if (!is.null(jb_int)) c(stat = unname(jb_int$statistic), p = jb_int$p.value),
-            lb_int = if (!is.null(fit_int)) c(stat = unname(lb_int$statistic), p = lb_int$p.value),
-            coef_int = if (!is.null(fit_int)) tabela_coef(fit_int), tab_sobre = tab_sobre), "q5")
+            tab_sobre = tab_sobre, estab = estab), "q5")
 message("Q5 ok: LB24 p = ", round(lb$p[2], 3), "; JB = ", round(jb$statistic, 1), "; ARCH p = ",
-        round(arch$p.value, 3), "; JB com intervenções = ", if (!is.null(jb_int)) round(jb_int$statistic, 1) else NA)
+        round(arch$p.value, 3), "; Chow p = ", round(chow$p.value, 3), "; CUSUM p = ", round(sc_cus$p.value, 3))

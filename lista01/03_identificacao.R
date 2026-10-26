@@ -3,9 +3,7 @@
 #
 # Série identificada: Δy = (1 - B) y, com d = 1 e D = 0 (Q2).
 # Defasagens: 48 = quatro ciclos sazonais completos (o enunciado pede pelo menos dois).
-# Bandas: ±1,96/√T (azul, tracejada) para FAC e FACP; para a FAC, também a banda de
-# Bartlett (vermelha, pontilhada), que é a correta para testar ρ_k = 0 quando as
-# defasagens anteriores podem ser não nulas.
+# Bandas: ±1,96/√T (azul, tracejada) para FAC e FACP, como na aula 01.
 # =====================================================================================
 # localiza 00_configuracao.R ao lado deste script (funciona de qualquer diretório)
 source(file.path(local({ a <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE))
@@ -17,7 +15,7 @@ LAGS <- 4L * S
 ## ---- 3.1 Correlogramas ----------------------------------------------------------------
 figura("q3_fac_facp", {
   op <- par(mfrow = c(2, 2), mar = c(4, 4.2, 2.6, 1))
-  correlograma(y,  LAGS, "FAC",  "(a) FAC de y em nível: decaimento lento", bartlett = FALSE)
+  correlograma(y,  LAGS, "FAC",  "(a) FAC de y em nível: decaimento lento")
   correlograma(y,  LAGS, "FACP", "(b) FACP de y em nível: um pico perto de 1")
   r_fac  <- correlograma(dy, LAGS, "FAC",  "(c) FAC de Δy")
   r_facp <- correlograma(dy, LAGS, "FACP", "(d) FACP de Δy")
@@ -27,10 +25,9 @@ figura("q3_fac_facp", {
 fac  <- stats::acf(dy, lag.max = LAGS, plot = FALSE)$acf[-1]
 facp <- stats::pacf(dy, lag.max = LAGS, plot = FALSE)$acf[, 1, 1]
 n <- length(dy); banda <- 1.96 / sqrt(n)
-bartlett <- 1.96 * sqrt((1 + 2 * c(0, cumsum(fac^2))[seq_along(fac)]) / n)
 chave <- c(1:3, 11:13, 23:25, 35:37, 47:48)
 tab_corr <- data.frame(defasagem = chave, FAC = fac[chave], FACP = facp[chave],
-                       FAC_signif = abs(fac[chave]) > bartlett[chave],
+                       FAC_signif = abs(fac[chave]) > banda,
                        FACP_signif = abs(facp[chave]) > banda)
 lb_dy <- Box.test(dy, lag = 24, type = "Ljung-Box")
 
@@ -52,7 +49,7 @@ candidatos <- list(
   C3 = list(order = c(2, 1, 0), seasonal = c(1, 0, 0)))
 
 salvar_tabela(tab_corr, "q3_correlogramas")
-salvar(list(fac = fac, facp = facp, banda = banda, bartlett = bartlett, tab_corr = tab_corr,
+salvar(list(fac = fac, facp = facp, banda = banda, tab_corr = tab_corr,
             lb_dy = c(stat = unname(lb_dy$statistic), p = lb_dy$p.value),
             corte_facp = corte_facp, razao_fac = razao_fac, sazonais = sazonais,
             candidatos = candidatos, LAGS = LAGS), "q3")

@@ -57,20 +57,20 @@ No Windows, use `scripts\r.ps1 lista01\rodar_tudo.R`. Para o PDF é preciso LaTe
 - `lmtest`: `coeftest`;
 - `FinTS`: ARCH-LM.
 
-É o arquivo para estudar rodando no RStudio. Os scripts `01_`…`07_` e o `relatorio_lista01.Rmd` são a versão completa, com os testes extras de robustez. O comando `Rscript lista01/renderizar_laboratorio.R` transforma o laboratório em PDF e na nota [laboratorio_lista01.md](laboratorio_lista01.md), que aparece no Obsidian e no volume 4 do caderno.
+É o arquivo para estudar rodando no RStudio. Os scripts `01_`…`07_` e o `relatorio_lista01.Rmd` são a versão completa. Todas as versões usam só as ferramentas das aulas 01 a 03, do texto de Mattos (2019), leitura do curso para raiz unitária, e as que o enunciado pede. O comando `Rscript lista01/renderizar_laboratorio.R` transforma o laboratório em PDF e na nota [laboratorio_lista01.md](laboratorio_lista01.md), que aparece no Obsidian e no volume 4 do caderno.
 
 ## Arquivos, na ordem de execução
 
 | Arquivo | Questão | O que faz e com quais ferramentas |
 |---|---|---|
-| `00_configuracao.R` | — | pacotes, semente, caminhos e funções auxiliares (correlograma com banda de Bartlett, polinômios regular × sazonal, raízes inversas) |
-| `01_dados_inspecao.R` | Q1 | gráficos em nível e em log; amplitude × média e $\lambda$ de Box-Cox (Guerrero e MV); quebras na inclinação (Bai-Perron, `strucchange`); outliers AO/LS/TC (Chen-Liu, `tsoutliers`); sazonalidade |
-| `02_raiz_unitaria.R` | Q2 | ADF (`urca::ur.df`, defasagens por AIC/BIC com $p_{\max}$ de Schwert, p-valor de MacKinnon), PP, KPSS; procedimento sequencial de Dolado et al. com $\tau_3,\phi_3,\phi_2,\tau_2,\phi_1,\tau_1$; OCSB, Canova-Hansen e HEGY (`uroot`) para $D$; DF-GLS, Zivot-Andrews e a série longa (2000–2026) como robustez para DS × TS |
-| `03_identificacao.R` | Q3 | FAC/FACP com 48 defasagens, bandas $\pm1{,}96/\sqrt T$ e de Bartlett, leitura em $s-1,s,s+1$; três candidatos |
-| `04_estimacao_selecao.R` | Q4 | MV exata dos candidatos (e de um extra com dummies sazonais acumuladas); tabela única; conferência numérica de que $\sigma^2$ entra em $k$; pesos de Akaike; LR; raízes no círculo unitário; grade de 64 SARIMA |
-| `05_diagnostico.R` | Q5 | painel de resíduos; Ljung-Box com $\nu=K-(p+q+P+Q)$; Jarque-Bera; ARCH-LM (`FinTS`); McLeod-Li; caminho dos 64 modelos com o motivo de cada descarte; intervenções nos outliers; sobreajuste com teste $t$ e LR |
+| `00_configuracao.R` | — | pacotes, semente, caminhos e funções auxiliares (correlograma com banda $\pm1{,}96/\sqrt T$, polinômios regular × sazonal, raízes inversas) |
+| `01_dados_inspecao.R` | Q1 | gráficos em nível e em log; amplitude × média anual; inflação média de cada ano e de cada mês; maiores e menores valores |
+| `02_raiz_unitaria.R` | Q2 | ADF (`urca::ur.df`, defasagens por AIC/BIC com $p_{\max}$ de Schwert, p-valor de MacKinnon), PP, KPSS; as três versões do ADF lidas como em Mattos (2019, seção 2.2); ADF com 11 dummies sazonais centradas (MAT, seção 2.6) para $D$; DF-GLS (MAT, seção 2.4) e a série longa (2000–2026) para DS × TS |
+| `03_identificacao.R` | Q3 | FAC/FACP com 48 defasagens, banda $\pm1{,}96/\sqrt T$, leitura em $s-1,s,s+1$; três candidatos |
+| `04_estimacao_selecao.R` | Q4 | MV exata dos candidatos; tabela única; conferência numérica de que $\sigma^2$ entra em $k$; regra de parcimônia quando AIC e BIC divergem; raízes no círculo unitário; grade de 64 SARIMA |
+| `05_diagnostico.R` | Q5 | painel de resíduos; Ljung-Box com $\nu=K-(p+q+P+Q)$; Jarque-Bera; ARCH-LM (`FinTS`); McLeod-Li; Chow em mar/2020, CUSUM e CUSUM-Q (`strucchange`, aula 03); caminho dos 64 modelos com o motivo de cada descarte; sobreajuste com teste $t$ |
 | `06_sobrediferenciacao.R` | Q6 | o modelo com $d=2$, com e sem o MA extra: $\widehat\theta$, raiz MA, $\widehat\sigma^2$, FAC; o $\rho_1$ teórico de $\Delta^2y$ |
-| `07_previsao.R` | Q7 | 24 meses de validação; esquema 1 (origem fixa) e 2 (um passo, coeficientes fixos via `Arima(y, model = ...)`); RMSE/MAE/MAPE contra passeio aleatório e sazonal ingênuo; extras: passeio com drift, Diebold-Mariano (HLN), Kupiec e Mincer-Zarnowitz com HAC (`sandwich`) |
+| `07_previsao.R` | Q7 | 24 meses de validação; esquema 1 (origem fixa) e 2 (um passo, coeficientes fixos via `Arima(y, model = ...)`); RMSE/MAE/MAPE contra passeio aleatório e sazonal ingênuo; Diebold-Mariano (HLN) e cobertura incondicional de Christoffersen ($LR_{uc}$), da aula 03 |
 | `rodar_tudo.R` | — | roda tudo em processos separados, grava `saidas/sessionInfo.txt` e gera o PDF |
 | `relatorio_lista01.Rmd` | Q1–Q7 | o relatório: lê `saidas/` e escreve cada número inline |
 | `dados/inpc_lista01.csv` | — | o banco: INPC (SIDRA, tabela 1736), jan/2013 a set/2026 |
@@ -80,13 +80,13 @@ No Windows, use `scripts\r.ps1 lista01\rodar_tudo.R`. Para o PDF é preciso LaTe
 
 | Questão | Resultado |
 |---|---|
-| Q1 | índice com tendência; três quebras na inflação média (jul/2016, jun/2020, jun/2022); 3 outliers (jun/2018, jul/2022, fev/2025); o Box-Cox é ambíguo ($\lambda$ de 0,30 por MV e 0,74 por Guerrero) e o log é escolhido pela interpretação |
-| Q2 | nenhum teste rejeita a raiz unitária (ADF com AIC e BIC, PP, DF-GLS, Zivot-Andrews); o procedimento sequencial termina em passeio com drift; o KPSS também não rejeita (dados pouco informativos). Adota-se $d=1$; $D=0$ (OCSB, HEGY e Canova-Hansen concordam). Com a série longa, o ADF passa a rejeitar e o KPSS também: conflito causado pela crise de 2002–2003 |
+| Q1 | índice com tendência; a inflação média anual vai de 0,17% a.m. (2017) a 0,89% a.m. (2015); sazonalidade em $\Delta y$ (fev, mar e dez altos; ago baixo); o gráfico de amplitude × média não decide, e o log é escolhido pela interpretação |
+| Q2 | nenhum teste rejeita a raiz unitária no nível (ADF com AIC e BIC, com e sem dummies sazonais, PP, DF-GLS); na versão com tendência, isso quer dizer DS (MAT); o KPSS também não rejeita (dados pouco informativos). Adota-se $d=1$; $D=0$ (dummies sazonais significativas e FAC sazonal que cai logo). Com a série longa, o ADF passa a rejeitar e o KPSS também: conflito causado pela crise de 2002–2003 |
 | Q3 | FACP com pico em 1 e valor no limite da banda em 2; sazonalidade fraca em 12; candidatos AR(1)+SAR, AR(1)+SMA e AR(2)+SAR |
-| Q4 | o AIC escolhe SARIMA(2,1,0)(1,0,0)₁₂ e o BIC escolhe SARIMA(1,1,0)(1,0,0)₁₂; a diferença de AIC é 0,5 (< 2) e o LR não rejeita $\phi_2=0$: fica o SARIMA(1,1,0)(1,0,0)₁₂ |
-| Q5 | ruído branco e sem ARCH; o JB rejeita por caudas; com intervenções nos 3 outliers, o JB cai de 18 para 4 e deixa de rejeitar; o sobreajuste não é significativo |
+| Q4 | o AIC escolhe SARIMA(2,1,0)(1,0,0)₁₂ e o BIC escolhe SARIMA(1,1,0)(1,0,0)₁₂; o $\phi_2$ do primeiro não é significativo ($p=0{,}11$): pela parcimônia, fica o SARIMA(1,1,0)(1,0,0)₁₂ |
+| Q5 | ruído branco e sem ARCH; o JB rejeita por caudas (choques de jun/2018, jul/2022 e fev/2025); Chow ($p=0{,}77$), CUSUM ($p=0{,}37$) e CUSUM-Q não rejeitam a estabilidade; o sobreajuste não é significativo |
 | Q6 | com $d=2$, $\widehat\theta=-1{,}0000$ (raiz MA unitária); $\widehat\sigma^2$ sobe 19,9% sem o MA extra; o AR troca de sinal |
-| Q7 | bate o passeio aleatório e o sazonal ingênuo nos dois esquemas (DM significativo), mas empata com o passeio com drift; cobertura de 100% no esquema 1 e de 92% no esquema 2 |
+| Q7 | bate o passeio aleatório e o sazonal ingênuo nos dois esquemas (DM significativo a 5%); cobertura de 100% no esquema 1 e de 92% no esquema 2 |
 
 > [!WARNING]
 > **Antes de entregar**

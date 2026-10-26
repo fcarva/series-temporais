@@ -35,34 +35,32 @@ for (d in c(DIR_SAIDA, DIR_FIG, DIR_TAB)) dir.create(d, showWarnings = FALSE, re
 
 ## ---- 0.2 Pacotes ---------------------------------------------------------------------
 # Cada pacote e o que ele faz aqui:
-#   forecast    Arima() por máxima verossimilhança exata, forecast(), BoxCox.lambda(),
-#               ndiffs()/nsdiffs(), ocsb.test(), checkresiduals()
-#   urca        testes de raiz unitária com as regressões auxiliares completas:
-#               ur.df (ADF, com as estatísticas tau e phi de Dickey-Fuller), ur.pp
-#               (Phillips-Perron), ur.kpss, ur.ers (DF-GLS de Elliott-Rothenberg-Stock),
-#               ur.za (Zivot-Andrews) e punitroot() (p-valores de MacKinnon, 1996)
-#   tseries     kpss.test() (p-valor interpolado), jarque.bera.test(), bds.test()
-#   uroot       hegy.test() (raízes unitárias sazonais, HEGY) e ch.test() (Canova-Hansen)
-#   FinTS       ArchTest() (ARCH-LM de Engle, 1982)
-#   lmtest      coeftest(), lrtest() e o teste de Breusch-Godfrey
-#   sandwich    matriz de covariância HAC de Newey-West (regressão de Mincer-Zarnowitz)
-#   strucchange breakpoints() (Bai-Perron) e efp()/sctest() (CUSUM)
-#   tsoutliers  tso(): detecção de outliers aditivos, de nível e transitórios (Chen-Liu)
+# Só ferramentas vistas nas aulas 01 a 03 e no texto de Mattos (MAT), ou exigidas
+# pelo enunciado. Cada pacote e o que ele faz aqui:
+#   forecast    Arima() por máxima verossimilhança exata (AU02), forecast(), dm.test()
+#               (Diebold-Mariano, AU03)
+#   urca        ur.df (ADF), ur.pp (Phillips-Perron), ur.ers (DF-GLS), todos no MAT;
+#               ur.kpss (KPSS, exigido pelo enunciado); punitroot() (p-valores de
+#               MacKinnon, como nas tabelas do MAT)
+#   tseries     jarque.bera.test() (AU03)
+#   FinTS       ArchTest() (ARCH-LM, AU03)
+#   lmtest      coeftest()
+#   strucchange sctest(type = "Chow") e efp(type = "Rec-CUSUM") (Chow e CUSUM, AU03)
 #   knitr, kableExtra, rmarkdown   o relatório em PDF
-PACOTES <- c("forecast", "urca", "tseries", "uroot", "FinTS", "lmtest", "sandwich",
-             "strucchange", "tsoutliers", "knitr", "kableExtra", "rmarkdown")
+PACOTES <- c("forecast", "urca", "tseries", "FinTS", "lmtest", "strucchange",
+             "knitr", "kableExtra", "rmarkdown")
 faltam <- PACOTES[!vapply(PACOTES, requireNamespace, logical(1), quietly = TRUE)]
 if (length(faltam)) {
   message("Instalando: ", paste(faltam, collapse = ", "))
   install.packages(faltam, repos = "https://cloud.r-project.org")
 }
 suppressPackageStartupMessages({
-  library(forecast); library(urca); library(tseries); library(uroot); library(FinTS)
-  library(lmtest); library(sandwich); library(strucchange); library(tsoutliers)
+  library(forecast); library(urca); library(tseries); library(FinTS)
+  library(lmtest); library(strucchange)
 })
 
 ## ---- 0.3 Opções globais --------------------------------------------------------------
-SEMENTE <- 20261026            # para tudo o que é aleatório (bootstrap, tso)
+SEMENTE <- 20261026            # para tudo o que é aleatório
 set.seed(SEMENTE)
 options(digits = 6, scipen = 6, warn = 1)
 S  <- 12L                      # período sazonal (série mensal)
@@ -100,9 +98,8 @@ figura <- function(nome, expr, largura = 9, altura = 5, res = 200) {
 }
 grade <- function() graphics::grid(nx = NA, ny = NULL, col = COR[["grade"]], lty = 1)
 
-# Correlograma com a banda de 95% usual (±1,96/√T) e, para a FAC, a banda de
-# Bartlett, que cresce com a defasagem sob H0: "MA(k-1)" (Box, Jenkins e Reinsel, §6.2)
-correlograma <- function(x, lag.max, tipo = c("FAC", "FACP"), titulo = "", s = S, bartlett = TRUE) {
+# Correlograma com a banda de 95% da aula 01: ±1,96/√T
+correlograma <- function(x, lag.max, tipo = c("FAC", "FACP"), titulo = "", s = S) {
   tipo <- match.arg(tipo)
   x <- stats::na.omit(as.numeric(x)); n <- length(x)
   r <- if (tipo == "FAC") stats::acf(x, lag.max = lag.max, plot = FALSE)$acf[-1]
@@ -114,10 +111,6 @@ correlograma <- function(x, lag.max, tipo = c("FAC", "FACP"), titulo = "", s = S
        xlab = "defasagem (meses)", ylab = tipo, main = titulo, font.main = 1, cex.main = 0.95)
   graphics::abline(h = 0, col = COR[["eixo"]])
   graphics::abline(h = c(-1, 1) * 1.96 / sqrt(n), lty = 2, col = COR[["azul"]])
-  if (tipo == "FAC" && bartlett) {
-    lb <- 1.96 * sqrt((1 + 2 * c(0, cumsum(r^2))[k]) / n)
-    graphics::lines(k, lb, lty = 3, col = COR[["vermelho"]]); graphics::lines(k, -lb, lty = 3, col = COR[["vermelho"]])
-  }
   graphics::abline(v = seq(s, lag.max, by = s), col = transp(COR[["laranja"]], 0.25))
   invisible(r)
 }

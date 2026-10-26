@@ -22,11 +22,11 @@ knitr:
 # Pacotes
 library(tidyverse)   # leitura e gráficos (ggplot2)
 library(tseries)     # jarque.bera.test, kpss.test
-library(forecast)    # ggtsdisplay, ndiffs, nsdiffs, forecast, accuracy, checkresiduals
+library(forecast)    # ggtsdisplay, forecast, accuracy, checkresiduals, dm.test
 library(urca)        # ur.df, ur.pp, ur.kpss, ur.ers
 library(lmtest)      # coeftest
 library(FinTS)       # ArchTest
-library(strucchange) # breakpoints (Bai-Perron)
+library(strucchange) # Chow e CUSUM (aula 03)
 library(knitr)       # kable
 
 # Base: variação mensal do INPC (%), IBGE/SIDRA, tabela 1736, variável 44.
@@ -40,7 +40,7 @@ f  <- function(x, d = 3) formatC(x, format = "f", digits = d, decimal.mark = ","
 fm <- function(x, d = 3) gsub(",", "{,}", f(x, d), fixed = TRUE)   # dentro de $...$
 ```
 
-**Série escolhida.** A série modelada é a **variação mensal do INPC**, em % ao mês, de jan/2013 a set/2026: $T = `r length(inpc_ts)`$ observações (o mínimo é 120). Ela é uma taxa, e não um índice: é aproximadamente a primeira diferença do log do número-índice, $\pi_t \approx 100\,\Delta\ln P_t$. Por isso não se aplica transformação. Box-Cox e log não servem, porque a série assume valores negativos e nulos.
+**Série escolhida.** A série modelada é a **variação mensal do INPC**, em % ao mês, de jan/2013 a set/2026: $T = `r length(inpc_ts)`$ observações (o mínimo é 120). Ela é uma taxa, e não um índice: é aproximadamente a primeira diferença do log do número-índice, $\pi_t \approx 100\,\Delta\ln P_t$. Por isso não se aplica transformação. O log não serve, porque a série assume valores negativos e nulos.
 
 # Preparação e Inspeção Preliminar
 
@@ -49,27 +49,25 @@ fm <- function(x, d = 3) gsub(",", "{,}", f(x, d), fixed = TRUE)   # dentro de $
 (a) Apresente o gráfico da série em nível. Descreva o que observa quanto a: tendência, sazonalidade, mudanças de nível ou de inclinação, outliers e comportamento da dispersão ao longo do tempo.
 
 ```{r}
-# Quebras na média (Bai-Perron), para apoiar a leitura de "mudanças de nível"
-bp <- breakpoints(inpc_ts ~ 1, h = 0.15)
-regime <- breakfactor(bp)
-inpc <- inpc |> mutate(media_regime = ave(variacao, regime))
-datas_quebra <- inpc$mes[bp$breakpoints]
+# Média de cada ano, para apoiar a leitura de "mudanças de nível"
+ano <- floor(time(inpc_ts) + 1e-9)
+inpc <- inpc |> mutate(media_ano = ave(variacao, ano))
+media_ano <- tapply(inpc$variacao, ano, mean)
 
 inpc |>
   ggplot(aes(x = mes)) +
   geom_line(aes(y = variacao), linewidth = 0.5) +
-  geom_step(aes(y = media_regime), colour = "darkorange", linewidth = 0.8) +
+  geom_step(aes(y = media_ano), colour = "darkorange", linewidth = 0.8) +
   geom_hline(yintercept = mean(inpc$variacao), linetype = 2) +
   labs(title = "Variação mensal do INPC",
-       subtitle = "Laranja: média de cada regime (Bai-Perron); tracejado: média da amostra",
+       subtitle = "Laranja: média de cada ano; tracejado: média da amostra",
        x = "Mês/Ano", y = "% a.m.") +
   theme_classic()
 ```
 
 ```{r}
-# Sazonalidade: média de cada mês do ano e teste F de igualdade das médias
+# Sazonalidade: média de cada mês do ano
 medias_mes <- tapply(inpc$variacao, cycle(inpc_ts), mean)
-anova_mes <- anova(lm(inpc$variacao ~ factor(cycle(inpc_ts))))
 ggsubseriesplot(inpc_ts) +
   labs(title = "Variação mensal por mês do ano (linha azul: média do mês)", y = "% a.m.") +
   theme_classic()
@@ -79,9 +77,9 @@ Quanto à descrição do gráfico da variação mensal do INPC:
 
 **Tendência.** Não há tendência crescente ou decrescente ao longo do período. A série oscila em torno de uma média positiva, de `r f(mean(inpc_ts), 2)`% ao mês. Isso é o esperado para uma taxa de inflação: a tendência do *índice* de preços aparece aqui como uma média positiva.
 
-**Sazonalidade.** Há um padrão sazonal, embora fraco diante da variabilidade da série. A média de fevereiro (`r f(medias_mes[2], 2)`%), março (`r f(medias_mes[3], 2)`%) e dezembro (`r f(medias_mes[12], 2)`%) é alta, e a de agosto (`r f(medias_mes[8], 2)`%) é baixa. O teste $F$ de igualdade das médias mensais rejeita a hipótese de médias iguais ($F = `r fm(anova_mes[["F value"]][1], 2)`$, $p = `r fm(anova_mes[["Pr(>F)"]][1], 3)`$). O pico na FAC em 12 (Questão 3) confirma.
+**Sazonalidade.** Há um padrão sazonal, embora fraco diante da variabilidade da série. A média de fevereiro (`r f(medias_mes[2], 2)`%), março (`r f(medias_mes[3], 2)`%) e dezembro (`r f(medias_mes[12], 2)`%) é alta, e a de agosto (`r f(medias_mes[8], 2)`%) é baixa. O pico na FAC em 12 (Questão 3) e as dummies sazonais significativas no ADF da Questão 2(c) confirmam.
 
-**Mudanças de nível ou de inclinação.** Não há mudança de inclinação, porque não há tendência. Há, porém, **mudanças de nível da média**. O teste de Bai e Perron encontra `r length(datas_quebra)` quebras, em `r paste(format(datas_quebra, "%m/%Y"), collapse = ", ")`. A inflação média passa por quatro regimes: `r paste(f(unique(inpc$media_regime), 2), collapse = " → ")`% a.m. São eles: a inflação mais alta até meados de 2016 (com o pico de 2015, do realinhamento de preços administrados), a baixa de 2016–2020, a alta do pós-pandemia e a moderação depois. São mudanças temporárias de patamar, e a média geral é estável, o que é compatível com estacionariedade.
+**Mudanças de nível ou de inclinação.** Não há mudança de inclinação, porque não há tendência. Há, porém, **mudanças de nível da média**. A média anual vai de `r f(min(media_ano), 2)`% a.m. (`r names(which.min(media_ano))`) a `r f(max(media_ano), 2)`% a.m. (`r names(which.max(media_ano))`): mais alta em 2015–2016 (realinhamento de preços administrados) e no pós-pandemia (2021–2022), mais baixa em 2017–2019. São mudanças temporárias de patamar, e a média geral é estável, o que é compatível com estacionariedade. A Questão 5 testa se elas quebram os parâmetros do modelo (Chow e CUSUM, aula 03).
 
 **Outliers.** Os maiores valores ocorrem em mar/2022 (`r f(max(inpc_ts), 2)`%), em 2015–2016 e em fev/2025. O menor é jul/2022 (`r f(min(inpc_ts), 2)`%), com o corte de impostos sobre combustíveis. Os picos de 2015 e 2020–2022 fazem parte dos regimes de inflação alta. Os outliers propriamente ditos, os choques que o modelo não explica, aparecem nos resíduos da Questão 5: jun/2018 (greve dos caminhoneiros), jul/2022 e fev/2025 (fim do bônus de Itaipu).
 
@@ -137,18 +135,17 @@ O KPSS não tem p-valor exato: a tabela de Kwiatkowski et al. (1992) só tem cr�
 (b) Justifique explicitamente a inclusão ou não de constante e de tendência na regressão auxiliar do ADF. Mostre como a conclusão se altera (ou não) entre as especificações.
 
 ```{r}
-# Estatísticas tau e phi de cada especificação, com os críticos de 5%
-rbind(DF_III = c(df_trend@teststat[1, ], crit_tau3 = df_trend@cval["tau3", "5pct"],
-                 crit_phi3 = df_trend@cval["phi3", "5pct"]),
-      DF_II  = c(df_drift@teststat[1, ], NA, crit_tau2 = df_drift@cval["tau2", "5pct"],
-                 crit_phi1 = df_drift@cval["phi1", "5pct"]))
+# Estatística tau de cada especificação, com o crítico de 5%
+rbind(DF_III = c(tau = df_trend@teststat[1, "tau3"], critico = df_trend@cval["tau3", "5pct"]),
+      DF_II  = c(df_drift@teststat[1, "tau2"], df_drift@cval["tau2", "5pct"]),
+      DF_I   = c(df_none@teststat[1, "tau1"], df_none@cval["tau1", "5pct"]))
 # Coeficientes da regressão auxiliar com tendência
 summary(df_trend)@testreg$coefficients
 ```
 
 A regressão auxiliar do ADF é $\Delta \pi_t = \alpha + \beta t + \gamma\,\pi_{t-1} + \sum_i \delta_i \Delta\pi_{t-i} + e_t$, com $H_0: \gamma = 0$.
 
-- **Tendência ($\beta t$).** Uma taxa de inflação não tem razão econômica para crescer ou cair indefinidamente, e o gráfico não mostra tendência. Ainda assim, começa-se pelo modelo com tendência (DF-III), para não depender do olho. Como $\tau_3 = `r fm(df_trend@teststat[1, "tau3"], 3)`$ rejeita a raiz unitária, a regressão é estacionária, e o teste $t$ usual da tendência passa a valer. Ele não é significativo ($p = `r fm(summary(df_trend)@testreg$coefficients["tt", 4], 3)`$): a tendência é dispensável. Atenção: esse $t$ só pode ser usado porque $H_0$ foi rejeitada. Se a raiz unitária não tivesse sido rejeitada, a decisão sobre a tendência teria de vir do $\phi_3$, que tem tabela própria.
+- **Tendência ($\beta t$).** Uma taxa de inflação não tem razão econômica para crescer ou cair indefinidamente, e o gráfico não mostra tendência. Ainda assim, começa-se pelo modelo com tendência (DF-III), para não depender do olho. Como $\tau_3 = `r fm(df_trend@teststat[1, "tau3"], 3)`$ rejeita a raiz unitária, a regressão é estacionária, e o teste $t$ usual da tendência passa a valer. Ele não é significativo ($p = `r fm(summary(df_trend)@testreg$coefficients["tt", 4], 3)`$): a tendência é dispensável. Atenção: esse $t$ só pode ser usado porque $H_0$ foi rejeitada; sob raiz unitária, ele não tem a distribuição usual. Mattos (2019, seção 2.2.5) recomenda escolher a versão pelo gráfico, e o gráfico de uma taxa que oscila em torno de uma média aponta a versão só com constante.
 - **Constante ($\alpha$).** A inflação oscila em torno de uma média positiva, de `r f(mean(inpc_ts), 2)`% a.m. Sem constante, a hipótese alternativa seria "estacionária em torno de zero", uma descrição errada da série. Por isso a especificação adequada é a DF-II.
 - **A conclusão não muda** entre as especificações: $\tau_3 = `r fm(df_trend@teststat[1, "tau3"], 3)`$, $\tau_2 = `r fm(df_drift@teststat[1, "tau2"], 3)`$ e $\tau_1 = `r fm(df_none@teststat[1, "tau1"], 3)`$ rejeitam a raiz unitária a 5%. A especificação sem constante (DF-I) rejeita com menos folga: omitir a média tira poder do teste.
 
@@ -161,16 +158,33 @@ c(ADF_tau2 = ur.df(d_inpc, type = "drift", lags = kmax, selectlags = "BIC")@test
   PP = ur.pp(d_inpc, type = "Z-tau", model = "constant", lags = "short")@teststat,
   KPSS = ur.kpss(d_inpc, type = "mu", lags = "short")@teststat)
 
-# Quantas diferenças os testes sequenciais pedem
-c(d_kpss = ndiffs(inpc_ts, test = "kpss"), d_adf = ndiffs(inpc_ts, test = "adf"),
-  d_pp = ndiffs(inpc_ts, test = "pp"))
-# Diferença sazonal: OCSB (H0: precisa de 1 - B^12) e Canova-Hansen (H0: sazonalidade estável)
-c(D_ocsb = nsdiffs(inpc_ts, test = "ocsb"), D_ch = nsdiffs(inpc_ts, test = "ch"))
 ```
 
-Os testes na série em nível já rejeitam a raiz unitária, então a série não precisa ser diferenciada: **$d = 0$**. Na série diferenciada, o ADF e o PP rejeitam com folga, como esperado. A diferença de uma série estacionária continua estacionária, mas ganha uma raiz unitária no MA, o que a Questão 6 explora. O `ndiffs` dá $d = 0$ pelos três critérios.
+```{r}
+# Diferença sazonal (Mattos, 2019, seção 2.6): ADF com 11 dummies sazonais centradas
+# (Dickey-Miller). As dummies captam a sazonalidade determinística; tau mantém os
+# críticos do ADF. Defasagens por BIC.
+adf_saz <- function(x, pmax = kmax) {
+  dx <- diff(x); m <- cycle(dx); idx <- (pmax + 1):length(dx)
+  DC <- sapply(1:11, function(j) ifelse(m == j, 1 - 1 / 12, -1 / 12)); colnames(DC) <- paste0("DC", 1:11)
+  ajuste <- function(p) {
+    X <- cbind(nivel = as.numeric(x)[idx], DC[idx, ])
+    if (p > 0) X <- cbind(X, sapply(1:p, function(j) as.numeric(dx)[idx - j]))
+    lm(as.numeric(dx)[idx] ~ X)
+  }
+  p <- which.min(sapply(0:pmax, function(k) BIC(ajuste(k)))) - 1
+  cf <- summary(ajuste(p))$coefficients
+  c(tau = cf["Xnivel", "t value"], defasagens = p, dummies_signif = sum(cf[grepl("^XDC", rownames(cf)), 4] < 0.05))
+}
+saz <- adf_saz(inpc_ts)
+round(saz, 3)
+# FAC nos múltiplos de 12: uma raiz unitária sazonal a faria decair devagar
+round(acf(inpc_ts, lag.max = 36, plot = FALSE)$acf[c(13, 25, 37)], 3)
+```
 
-A série é sazonal (Questão 1), então é preciso avaliar $D$. O OCSB e o Canova-Hansen indicam **$D = 0$**: a sazonalidade é **determinística**, com médias mensais estáveis, e não um passeio aleatório sazonal. Ela será modelada com termos sazonais ARMA, sem a diferença $1 - B^{12}$.
+Os testes na série em nível já rejeitam a raiz unitária, então a série não precisa ser diferenciada: **$d = 0$**. Na série diferenciada, o ADF e o PP rejeitam com folga, como esperado. A diferença de uma série estacionária continua estacionária, mas ganha uma raiz unitária no MA, o que a Questão 6 explora.
+
+A série é sazonal (Questão 1), então é preciso avaliar $D$. Com as 11 dummies sazonais centradas, o ADF continua rejeitando a raiz unitária ($\tau = `r fm(saz[["tau"]], 3)`$), e `r saz[["dummies_signif"]]` dummies são significativas a 5%. A FAC nos múltiplos de 12 não decai devagar. Logo **$D = 0$**: a sazonalidade é **determinística**, com médias mensais estáveis, e não um passeio aleatório sazonal. Ela será modelada com termos sazonais ARMA, sem a diferença $1 - B^{12}$.
 
 Portanto, a série é estacionária (no sentido fraco: média, variância e autocovariâncias constantes) e não requer diferenciação.
 
@@ -385,12 +399,24 @@ O diagnóstico de autocorrelação não falhou no M1, então não é preciso ref
 ```{r}
 sobre_ar <- arima(inpc_ts, order = c(2, 0, 0), seasonal = list(order = c(1, 0, 0), period = 12), method = "ML")
 sobre_ma <- arima(inpc_ts, order = c(1, 0, 1), seasonal = list(order = c(1, 0, 0), period = 12), method = "ML")
-lr <- function(m) 2 * (m$loglik - modelo1$loglik)
-rbind("+AR: ar2" = c(coeftest(sobre_ar)["ar2", ], LR = lr(sobre_ar), p_LR = pchisq(lr(sobre_ar), 1, lower.tail = FALSE)),
-      "+MA: ma1" = c(coeftest(sobre_ma)["ma1", ], LR = lr(sobre_ma), p_LR = pchisq(lr(sobre_ma), 1, lower.tail = FALSE))) |> round(3)
+rbind("+AR: ar2" = coeftest(sobre_ar)["ar2", ], "+MA: ma1" = coeftest(sobre_ma)["ma1", ]) |> round(3)
 ```
 
-Nenhum dos coeficientes adicionais é significativo a 5%: $\hat\phi_2 = `r fm(coef(sobre_ar)[["ar2"]], 3)`$ ($p = `r fm(coeftest(sobre_ar)["ar2", 4], 3)`$) e $\hat\theta_1 = `r fm(coef(sobre_ma)[["ma1"]], 3)`$ ($p = `r fm(coeftest(sobre_ma)["ma1", 4], 3)`$). O teste LR concorda. Isso indica que o M1 é **adequado**: não falta dinâmica regular. O AR(2) sugerido pela FACP em 2 não se confirma. O MA acrescentado fica longe de $-1$, sinal de que a série não está sobrediferenciada, o que reforça $d = 0$.
+Nenhum dos coeficientes adicionais é significativo a 5%: $\hat\phi_2 = `r fm(coef(sobre_ar)[["ar2"]], 3)`$ ($p = `r fm(coeftest(sobre_ar)["ar2", 4], 3)`$) e $\hat\theta_1 = `r fm(coef(sobre_ma)[["ma1"]], 3)`$ ($p = `r fm(coeftest(sobre_ma)["ma1", 4], 3)`$). Isso indica que o M1 é **adequado**: não falta dinâmica regular. O AR(2) sugerido pela FACP em 2 não se confirma. O MA acrescentado fica longe de $-1$, sinal de que a série não está sobrediferenciada, o que reforça $d = 0$.
+
+**Estabilidade dos parâmetros (aula 03).** Chow e CUSUM pedem uma regressão por MQO: usa-se a forma autorregressiva do M1, $\pi_t$ em $\pi_{t-1}$, $\pi_{t-12}$ e $\pi_{t-13}$. A data de quebra do Chow é escolhida antes de olhar os dados: mar/2020, o início da pandemia.
+
+```{r}
+xv <- as.numeric(inpc_ts); nn <- length(xv)
+df_ols <- data.frame(pi = xv[14:nn], l1 = xv[13:(nn - 1)], l12 = xv[2:(nn - 12)], l13 = xv[1:(nn - 13)])
+TB <- which(abs(time(inpc_ts)[14:nn] - (2020 + 2 / 12)) < 1e-6)
+chow <- sctest(pi ~ ., data = df_ols, type = "Chow", point = TB - 1)
+cusum <- efp(pi ~ ., data = df_ols, type = "Rec-CUSUM")
+c(Chow_F = unname(chow$statistic), p_Chow = chow$p.value, p_CUSUM = sctest(cusum)$p.value)
+plot(cusum, main = "CUSUM dos resíduos recursivos (bandas de 5%)")
+```
+
+Nem o Chow ($p = `r fm(chow$p.value, 3)`$) nem o CUSUM ($p = `r fm(sctest(cusum)$p.value, 3)`$) rejeitam a estabilidade: os coeficientes são os mesmos antes e depois da pandemia, e as mudanças de patamar da Questão 1 não quebram o modelo.
 
 # Sobrediferenciação
 
@@ -518,10 +544,14 @@ A explicação é que, nesta série, o padrão de cada mês do ano é a informa�
 ```{r}
 dentro <- teste >= prev1$lower & teste <= prev1$upper
 c(dentro = sum(dentro), total = H, cobertura = mean(dentro))
-binom.test(sum(!dentro), H, p = 0.05)$p.value   # H0: taxa de violação = 5%
+# Cobertura incondicional de Christoffersen (LR_uc, aula 03): H0: taxa de violação = 5%
+x <- sum(!dentro)
+lr_uc <- -2 * ((H - x) * log(0.95) + x * log(0.05) -
+               (if (x %in% c(0, H)) 0 else (H - x) * log(1 - x / H) + x * log(x / H)))
+c(LR_uc = lr_uc, p = pchisq(lr_uc, 1, lower.tail = FALSE))
 ```
 
-Caíram `r sum(dentro)` das `r H` observações dentro do intervalo de 95%, uma cobertura de `r f(100 * mean(dentro), 1)`%, muito perto da nominal. O teste binomial não rejeita a taxa de violação de 5%. Uma ressalva: as 24 observações vêm de uma única origem, e os erros de previsão são correlacionados entre si, o que torna a evidência mais fraca do que 24 testes independentes.
+Caíram `r sum(dentro)` das `r H` observações dentro do intervalo de 95%, uma cobertura de `r f(100 * mean(dentro), 1)`%, muito perto da nominal. O teste de cobertura incondicional de Christoffersen ($LR_{uc}$) não rejeita a taxa de violação de 5%. Uma ressalva: as 24 observações vêm de uma única origem, e os erros de previsão são correlacionados entre si, o que torna a evidência mais fraca do que 24 testes independentes.
 
 # Reprodutibilidade
 

@@ -35,11 +35,12 @@ $1 - \theta B$.
 # Pacotes e dados
 
 ``` r
-library(forecast)   # Arima, forecast, accuracy, checkresiduals, ndiffs, nsdiffs, BoxCox.lambda
+library(forecast)   # Arima, forecast, accuracy, checkresiduals
 library(tseries)    # jarque.bera.test, kpss.test
-library(urca)       # ur.df, ur.pp, ur.kpss (com as regressões auxiliares completas)
+library(urca)       # ur.df, ur.pp, ur.kpss, ur.ers (com as regressões auxiliares completas)
 library(lmtest)     # coeftest
 library(FinTS)      # ArchTest (ARCH-LM)
+library(strucchange) # Chow e CUSUM (aula 03)
 
 arq <- if (file.exists("dados/inpc_lista01.csv")) "dados/inpc_lista01.csv" else "lista01/dados/inpc_lista01.csv"
 dados <- read.csv(arq)
@@ -80,29 +81,29 @@ monthplot(dy, main = "Δy por mês do ano", ylab = "% a.m.")
 ![](laboratorio_lista01_files/figure-markdown_strict/q1b-1.png)
 
 ``` r
-c(guerrero = BoxCox.lambda(P, method = "guerrero"),   # lambda de Box-Cox: 0 = log, 1 = nada
-  mv = BoxCox.lambda(P, method = "loglik"))
+round(tapply(as.numeric(dy), floor(time(dy) + 1e-9), mean), 2)   # inflação média de cada ano
 ```
 
-    #> guerrero       mv 
-    #> 0.740765 0.300000
+    #> 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025 2026 
+    #> 0.41 0.50 0.89 0.53 0.17 0.28 0.37 0.44 0.81 0.48 0.30 0.39 0.32 0.44
 
 **Resposta (a).**
 
 -   **Tendência:** forte no nível (o índice dobra em 13 anos). Em log,
     vira quase uma reta.
--   **Inclinação:** a inclinação do log (a inflação) muda: mais alta até
-    2016, baixa em 2017–2020, alta no pós-pandemia (2020–2022) e menor
-    depois.
+-   **Inclinação:** a inclinação do log (a inflação) muda. A média anual
+    vai de 0,17% a.m.
+    1.  a 0,89% a.m. (2015): alta em 2015–2016 e no pós-pandemia, baixa
+        em 2017–2019.
 -   **Nível:** não há mudança de nível; choques no índice não são
     revertidos.
 -   **Sazonalidade:** aparece só em $\Delta y$. Fevereiro, março e
     dezembro são altos, agosto é baixo.
--   **Outliers:** são os picos de $\Delta y$ (jun/2018, jul/2022,
-    fev/2025).
--   **Dispersão:** muda pouco com o nível nesta janela. Os dois
-    $\lambda$ de Box-Cox discordam: o de máxima verossimilhança (0,3)
-    aponta o log, o de Guerrero (0,7) aponta não transformar.
+-   **Outliers:** os maiores $\Delta y$ estão em mar/2022, jan/2016,
+    mar/2015 e fev/2025; o menor, em jul/2022. Os choques que o modelo
+    não explica aparecem nos resíduos (Q5).
+-   **Dispersão:** muda pouco com o nível nesta janela (o índice só
+    dobra em 13 anos), e o gráfico não decide sozinho a transformação.
 
 **Transformação:** log. Quem decide é a interpretação: com log,
 $\Delta y$ é a taxa de inflação e o drift é uma taxa média, que pode ser
@@ -224,36 +225,35 @@ summary(ur.kpss(y, type = "tau", lags = "long"))
 
 ## (b) Constante e tendência
 
-A série sobe por 13 anos. Sob a alternativa ela só pode ser estacionária
-**em torno de uma tendência**, então o teste começa com constante e
-tendência. Depois segue o procedimento sequencial: se o $\phi_3$ (que
-testa $\beta = \gamma = 0$) não rejeita, a tendência sai, e passa-se ao
-modelo só com constante:
+Cada versão do ADF compara hipóteses diferentes (Mattos, 2019, seção
+2.2):
+
+-   **constante e tendência:** $H_0$ DS (tendência determinística mais
+    estocástica) contra $H_1$ TS (só determinística); as duas são não
+    estacionárias;
+-   **só constante:** $H_0$ I(1) contra $H_1$ estacionária em torno de
+    uma média;
+-   **nada:** $H_0$ I(1) contra $H_1$ estacionária com média zero.
+
+A versão se escolhe pelo gráfico: $y$ cresce, então constante e
+tendência. Os p-valores vêm de MacKinnon (`punitroot`).
 
 ``` r
-summary(ur.df(y, type = "drift", lags = 13, selectlags = "AIC"))@teststat   # tau2, phi1
+tau <- c(tau3 = adf_ct@teststat[1, "tau3"],
+         tau2 = ur.df(y, type = "drift", lags = 13, selectlags = "AIC")@teststat[1, "tau2"],
+         tau1 = ur.df(y, type = "none",  lags = 13, selectlags = "AIC")@teststat[1, "tau1"])
+rbind(tau, p = c(punitroot(tau[1], trend = "ct"), punitroot(tau[2], trend = "c"), punitroot(tau[3], trend = "nc")))
 ```
 
-    #>                tau2     phi1
-    #> statistic -1.010274 8.419613
+    #>           tau3      tau2      tau1
+    #> tau -2.3567094 -1.010274 3.9350441
+    #> p    0.4025205  0.751864 0.9999843
 
-``` r
-summary(ur.df(y, type = "none",  lags = 13, selectlags = "AIC"))@teststat   # tau1
-```
-
-    #>               tau1
-    #> statistic 3.935044
-
-**Resposta.** O caminho do procedimento sequencial:
-
--   **Com tendência:** $\tau_3$ não rejeita a raiz unitária, e o
-    $\phi_3$ não rejeita $\beta = \gamma = 0$: a tendência é
-    dispensável.
--   **Só com constante:** $\tau_2$ não rejeita, mas o $\phi_1$ rejeita
-    $\alpha = \gamma = 0$. Como $\gamma = 0$ ficou, quem é diferente de
-    zero é a constante: passeio com **drift**.
--   **Sem determinísticos:** $\tau_1$ é positivo, o sintoma de ter
-    omitido o drift.
+**Resposta.** Nenhuma versão rejeita. Na versão com tendência, isso quer
+dizer que a série é **DS**: $y_t = y_0 + \alpha t + \sum_{j \le t} u_j$,
+uma tendência determinística (o drift, a inflação média) mais uma
+estocástica. Sem determinísticos, $\tau_1$ é positivo: o teste confunde
+a tendência omitida com explosividade.
 
 ## (c) Série diferenciada e diferença sazonal
 
@@ -274,30 +274,94 @@ kpss.test(dy)                          # H0: estacionária
     #> data:  dy
     #> KPSS Level = 0.16442, Truncation lag parameter = 4, p-value = 0.1
 
+Para $D$, segue-se Mattos (2019, seção 2.6): o ADF com 11 dummies
+sazonais **centradas** na regressão auxiliar (Dickey-Miller). As dummies
+captam a sazonalidade determinística, e $\tau$ mantém os críticos do
+ADF.
+
 ``` r
-ndiffs(y)                              # d sugerido (KPSS sequencial)
+adf_saz <- function(x, tendencia, pmax = 13) {
+  dx <- diff(x); m <- cycle(dx); idx <- (pmax + 1):length(dx)
+  DC <- sapply(1:11, function(j) ifelse(m == j, 1 - 1 / 12, -1 / 12)); colnames(DC) <- paste0("DC", 1:11)
+  ajuste <- function(p) {
+    X <- cbind(nivel = as.numeric(x)[idx], DC[idx, ])
+    if (p > 0) X <- cbind(X, sapply(1:p, function(j) as.numeric(dx)[idx - j]))
+    if (tendencia) X <- cbind(X, tt = idx)
+    lm(as.numeric(dx)[idx] ~ X)
+  }
+  p <- which.min(sapply(0:pmax, function(k) BIC(ajuste(k)))) - 1
+  cf <- summary(ajuste(p))$coefficients
+  c(tau = cf["Xnivel", "t value"], defasagens = p, dummies_signif = sum(cf[grepl("^XDC", rownames(cf)), 4] < 0.05))
+}
+rbind(y = adf_saz(y, TRUE), dy = adf_saz(dy, FALSE))
 ```
 
-    #> [1] 1
+    #>          tau defasagens dummies_signif
+    #> y  -2.207251          2              4
+    #> dy -6.743067          0              3
 
 ``` r
-nsdiffs(y, test = "ocsb")              # D sugerido pelo OCSB (H0: precisa de 1 - B^12)
+acf(dy, lag.max = 36, plot = FALSE)$acf[c(13, 25, 37)]   # FAC de Δy em 12, 24, 36
 ```
 
-    #> [1] 0
+    #> [1]  0.21609575 -0.03133938  0.01758861
 
 **Resposta.** Em $\Delta y$, o ADF rejeita com folga e o KPSS não
-rejeita: **$d = 1$**. O teste OCSB não pede diferença sazonal:
-**$D = 0$**, e a sazonalidade é determinística.
+rejeita: **$d = 1$**. Com as dummies, o nível continua sem rejeitar
+($-2{,}21$ contra $-3{,}43$) e $\Delta y$ continua rejeitando; várias
+dummies são significativas, logo a sazonalidade é determinística. A FAC
+sazonal de $\Delta y$ cai logo (0,22 em 12, quase zero em 24 e 36), sem
+o decaimento lento de uma raiz sazonal: **$D = 0$**.
 
 ## (d) DS ou TS?
 
 No nível, ADF e PP não rejeitam a raiz unitária, e o KPSS também não
-rejeita a estacionariedade: os dados são pouco informativos. **Adota-se
-DS ($d = 1$).** As razões:
+rejeita a estacionariedade: os dados são pouco informativos. O DF-GLS
+(Mattos, 2019, seção 2.4), mais potente contra alternativas
+persistentes, também não rejeita:
 
-1.  Todos os testes de raiz unitária apontam DS, e o procedimento
-    sequencial termina em passeio com drift.
+``` r
+summary(ur.ers(y, type = "DF-GLS", model = "trend", lag.max = 1))   # 1 defasagem, a do ADF por BIC
+```
+
+    #> 
+    #> ############################################### 
+    #> # Elliot, Rothenberg and Stock Unit Root Test # 
+    #> ############################################### 
+    #> 
+    #> Test of type DF-GLS 
+    #> detrending of series with intercept and trend 
+    #> 
+    #> 
+    #> Call:
+    #> lm(formula = dfgls.form, data = data.dfgls)
+    #> 
+    #> Residuals:
+    #>      Min       1Q   Median       3Q      Max 
+    #> -1.06159 -0.18542 -0.00639  0.17683  1.23612 
+    #> 
+    #> Coefficients:
+    #>              Estimate Std. Error t value Pr(>|t|)    
+    #> yd.lag       -0.01776    0.01042  -1.704   0.0902 .  
+    #> yd.diff.lag1  0.53237    0.06719   7.923  3.6e-13 ***
+    #> ---
+    #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    #> 
+    #> Residual standard error: 0.3516 on 161 degrees of freedom
+    #> Multiple R-squared:  0.2833, Adjusted R-squared:  0.2744 
+    #> F-statistic: 31.82 on 2 and 161 DF,  p-value: 2.261e-12
+    #> 
+    #> 
+    #> Value of test-statistic is: -1.7044 
+    #> 
+    #> Critical values of DF-GLS are:
+    #>                  1pct  5pct 10pct
+    #> critical values -3.46 -2.93 -2.64
+
+**Adota-se DS ($d = 1$).** As razões:
+
+1.  Todos os testes de raiz unitária (ADF com e sem dummies, PP, DF-GLS)
+    apontam DS.
 2.  O KPSS tem pouco poder em amostra curta.
 3.  Sob metas de inflação, o nível de preços não volta a uma trajetória
     fixa.
@@ -422,19 +486,18 @@ cada parâmetro ($\ln n \approx 5{,}1$ contra 2).
 -   O AIC é **eficiente** para prever.
 
 O objetivo aqui é prever (Q7), o que favorece o AIC. Mas a vantagem do
-C3 é de só 0,5 ponto de AIC, menos que 2, e o $\phi_2$ não é
-significativo. O teste LR confirma:
+C3 é de só 0,5 ponto de AIC e vem de um $\phi_2$ não significativo:
 
 ``` r
-LR <- 2 * (C3$loglik - C1$loglik)
-c(LR = LR, p = pchisq(LR, 1, lower.tail = FALSE))
+coeftest(C3)["ar2", ]
 ```
 
-    #>        LR         p 
-    #> 2.5138971 0.1128466
+    #>   Estimate Std. Error    z value   Pr(>|z|) 
+    #> 0.12582411 0.07904902 1.59172253 0.11144706
 
-Fica o **C1**, o mais parcimonioso. A regra (AIC, salvo diferença menor
-que 2) foi fixada antes de olhar a validação.
+Fica o **C1**, o mais parcimonioso (aula 02). A regra, fixada antes de
+olhar a validação: se AIC e BIC divergem, fica o modelo menor quando o
+parâmetro extra do maior não é significativo a 5%.
 
 **(f)** Raízes inversas dentro do círculo unitário: o modelo é
 estacionário.
@@ -519,6 +582,43 @@ tributos em 2022, bônus de Itaipu em 2025). Ela afeta os intervalos de
 previsão, mas não a consistência do estimador. Modelos sem o AR(1) foram
 descartados, porque deixam autocorrelação nos resíduos (Ljung-Box
 rejeita).
+
+**Estabilidade (aula 03).** Chow com a quebra fixada antes (mar/2020) e
+CUSUM dos resíduos recursivos, na versão de MQO do C1 ($\Delta y_t$ em
+$\Delta y_{t-1}$, $\Delta y_{t-12}$ e $\Delta y_{t-13}$):
+
+``` r
+dyv <- as.numeric(dy); nn <- length(dyv)
+df_ols <- data.frame(dy = dyv[14:nn], l1 = dyv[13:(nn - 1)], l12 = dyv[2:(nn - 12)], l13 = dyv[1:(nn - 13)])
+TB <- which(abs(time(dy)[14:nn] - (2020 + 2 / 12)) < 1e-6)
+sctest(dy ~ ., data = df_ols, type = "Chow", point = TB - 1)
+```
+
+    #> 
+    #>  Chow test
+    #> 
+    #> data:  dy ~ .
+    #> F = 0.4573, p-value = 0.7669
+
+``` r
+cusum <- efp(dy ~ ., data = df_ols, type = "Rec-CUSUM")
+sctest(cusum)
+```
+
+    #> 
+    #>  Recursive CUSUM test
+    #> 
+    #> data:  cusum
+    #> S = 0.62251, p-value = 0.3716
+
+``` r
+plot(cusum, main = "CUSUM dos resíduos recursivos")
+```
+
+![](laboratorio_lista01_files/figure-markdown_strict/q5_estab-1.png)
+
+Nenhum dos dois rejeita: os coeficientes são estáveis na janela de 13
+anos.
 
 **(e) Sobreajuste:** um AR e um MA a mais.
 
@@ -683,19 +783,19 @@ sessionInfo()
     #> [1] stats     graphics  grDevices utils     datasets  methods   base     
     #> 
     #> other attached packages:
-    #> [1] FinTS_0.4-9     lmtest_0.9-40   zoo_1.8-12      urca_1.3-3     
-    #> [5] tseries_0.10-55 forecast_8.21.1
+    #> [1] strucchange_1.5-3 sandwich_3.1-0    FinTS_0.4-9       lmtest_0.9-40    
+    #> [5] zoo_1.8-12        urca_1.3-3        tseries_0.10-55   forecast_8.21.1  
     #> 
     #> loaded via a namespace (and not attached):
-    #>  [1] gtable_0.3.4      highr_0.10        dplyr_1.1.4       compiler_4.3.3   
-    #>  [5] tinytex_0.49      tidyselect_1.2.0  Rcpp_1.0.12       parallel_4.3.3   
-    #>  [9] scales_1.3.0      yaml_2.3.8        fastmap_1.1.1     lattice_0.22-5   
-    #> [13] ggplot2_3.4.4     R6_2.5.1          labeling_0.4.3    generics_0.1.3   
-    #> [17] curl_5.2.0        knitr_1.45        tibble_3.2.1      munsell_0.5.0    
-    #> [21] nnet_7.3-19       timeDate_4032.109 pillar_1.9.0      rlang_1.1.3      
-    #> [25] quantmod_0.4.26   utf8_1.2.4        xfun_0.41         quadprog_1.5-8   
-    #> [29] cli_3.6.2         withr_2.5.0       magrittr_2.0.3    xts_0.13.2       
-    #> [33] digest_0.6.34     grid_4.3.3        nlme_3.1-164      lifecycle_1.0.4  
-    #> [37] fracdiff_1.5-3    vctrs_0.6.5       evaluate_0.23     glue_1.7.0       
-    #> [41] farver_2.1.1      fansi_1.0.5       colorspace_2.1-0  TTR_0.24.4       
-    #> [45] rmarkdown_2.25    tools_4.3.3       pkgconfig_2.0.3   htmltools_0.5.7
+    #>  [1] utf8_1.2.4        generics_0.1.3    lattice_0.22-5    digest_0.6.34    
+    #>  [5] magrittr_2.0.3    evaluate_0.23     grid_4.3.3        fastmap_1.1.1    
+    #>  [9] nnet_7.3-19       tinytex_0.49      fansi_1.0.5       scales_1.3.0     
+    #> [13] cli_3.6.2         rlang_1.1.3       munsell_0.5.0     withr_2.5.0      
+    #> [17] yaml_2.3.8        tools_4.3.3       parallel_4.3.3    dplyr_1.1.4      
+    #> [21] colorspace_2.1-0  ggplot2_3.4.4     curl_5.2.0        vctrs_0.6.5      
+    #> [25] R6_2.5.1          lifecycle_1.0.4   pkgconfig_2.0.3   pillar_1.9.0     
+    #> [29] gtable_0.3.4      glue_1.7.0        quantmod_0.4.26   Rcpp_1.0.12      
+    #> [33] highr_0.10        xfun_0.41         tibble_3.2.1      tidyselect_1.2.0 
+    #> [37] knitr_1.45        farver_2.1.1      htmltools_0.5.7   nlme_3.1-164     
+    #> [41] rmarkdown_2.25    xts_0.13.2        labeling_0.4.3    timeDate_4032.109
+    #> [45] fracdiff_1.5-3    compiler_4.3.3    quadprog_1.5-8    TTR_0.24.4

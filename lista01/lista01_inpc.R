@@ -17,14 +17,15 @@
 # =====================================================================================
 
 # ---- Pacotes ------------------------------------------------------------------------
-pacotes <- c("jsonlite", "forecast", "tseries", "urca", "lmtest", "FinTS")
+pacotes <- c("jsonlite", "forecast", "tseries", "urca", "lmtest", "FinTS", "strucchange")
 novos <- pacotes[!pacotes %in% rownames(installed.packages())]
 if (length(novos)) install.packages(novos, repos = "https://cloud.r-project.org")
-library(forecast)   # Arima, forecast, accuracy, checkresiduals, ndiffs, nsdiffs
+library(forecast)   # Arima, forecast, accuracy, checkresiduals
 library(tseries)    # jarque.bera.test, kpss.test
-library(urca)       # ur.df, ur.pp, ur.kpss (mostram a regressão auxiliar inteira)
+library(urca)       # ur.df, ur.pp, ur.kpss, ur.ers (mostram a regressão auxiliar inteira)
 library(lmtest)     # coeftest
 library(FinTS)      # ArchTest
+library(strucchange) # Chow e CUSUM (aula 03)
 
 # ---- Dados ----------------------------------------------------------------------------
 # INPC/IBGE, número-índice (dez/1993 = 100), mensal, jan/2013 a set/2026 (165 meses).
@@ -65,16 +66,11 @@ par(mfrow = c(1, 1))
 # Sazonalidade: para cada mês, a trajetória daquele mês ao longo dos anos e sua média.
 monthplot(dy, main = "Inflação por mês do ano (linha horizontal = média do mês)", ylab = "% a.m.")
 
-# Transformação de Box-Cox:
-#   FÓRMULA   y(λ) = (P^λ - 1)/λ  se λ ≠ 0;   y(0) = ln P.
-#   IDEIA     escolher λ de modo que a variância deixe de depender do nível.
-#             λ = 1 é não transformar; λ = 0 é o log.
-#   ESTIMADOR Guerrero (1993): o λ que torna constante o coeficiente de variação
-#             (desvio-padrão / média) entre subperíodos.
-#   Dois estimadores: Guerrero (coeficiente de variação) e máxima verossimilhança.
-lambda_g  <- BoxCox.lambda(P, method = "guerrero")
-lambda_mv <- BoxCox.lambda(P, method = "loglik")
-cat(sprintf("λ de Box-Cox: Guerrero = %.2f | máxima verossimilhança = %.2f\n", lambda_g, lambda_mv))
+# Mudanças de inclinação: a inclinação de y é a inflação. A média de Δy em cada ano mostra
+# os patamares.
+round(tapply(as.numeric(dy), floor(time(dy) + 1e-9), mean), 2)
+# Outliers: os maiores e o menor valor de Δy.
+round(sort(setNames(as.numeric(dy), format(as.Date(paste0(floor(time(dy) + 1e-9), "-", cycle(dy), "-01")), "%Y-%m")), decreasing = TRUE)[c(1:4, length(dy))], 2)
 
 # LEITURA (Q1a).
 # - Tendência: forte no nível (o índice dobra em 13 anos); em log, quase linear.
@@ -83,11 +79,11 @@ cat(sprintf("λ de Box-Cox: Guerrero = %.2f | máxima verossimilhança = %.2f\n"
 #   São mudanças de inclinação, não de nível.
 # - Nível: choques no índice nunca são revertidos.
 # - Sazonalidade: invisível no índice, visível em Δy (fev, mar e dez altos, ago baixo).
-# - Outliers: picos de Δy em jun/2018 (greve dos caminhoneiros), jul/2022 (corte de
-#   impostos sobre combustíveis) e fev/2025 (fim do bônus de Itaipu).
-# - Transformação: os dois λ discordam (MV ≈ 0,3, perto do log; Guerrero ≈ 0,7, perto
-#   de não transformar): em 13 anos a variância quase não muda com o nível. Decide a
-#   interpretação: com log, Δy é a inflação e o drift é uma TAXA média, que pode ser
+# - Outliers: os maiores Δy são mar/2022, jan/2016, mar/2015 e fev/2025; o menor é jul/2022
+#   (corte de impostos sobre combustíveis). Os choques que o modelo não explica (jun/2018,
+#   jul/2022, fev/2025) aparecem nos resíduos padronizados da Q5.
+# - Transformação: em 13 anos o gráfico não mostra a variância crescendo com o nível
+#   (o índice só dobra), e por isso ele não decide sozinho. Decide a interpretação: com log, Δy é a inflação e o drift é uma TAXA média, que pode ser
 #   constante; sem log, o drift seria um aumento em pontos de índice, que cresce com o
 #   nível (0,5% vale 19 pontos em 2013 e 39 em 2026). Transformação: log.
 
@@ -108,9 +104,8 @@ cat(sprintf("λ de Box-Cox: Guerrero = %.2f | máxima verossimilhança = %.2f\n"
 # ESTATÍSTICA τ = γ̂ / ep(γ̂). Sob H0 ela NÃO segue a t de Student: segue a distribuição de
 #   Dickey-Fuller, mais deslocada para a esquerda. Críticos de 5%: -1,95 (sem α e β),
 #   -2,86 (só α), -3,41 (α e β). Rejeita-se H0 se τ < crítico.
-# TESTES CONJUNTOS (estatísticas F com tabelas próprias):
-#   φ3: H0: β = γ = 0 (sem tendência e com raiz unitária)
-#   φ2: H0: α = β = γ = 0;   φ1 (modelo só com constante): H0: α = γ = 0
+# P-VALORES: o urca só dá críticos; os p-valores vêm das superfícies de MacKinnon
+#   (urca::punitroot).
 
 # Defasagem máxima pela regra de Schwert: k_max = 12·(T/100)^(1/4)
 kmax <- floor(12 * (length(y) / 100)^(1/4))
@@ -140,20 +135,21 @@ summary(kpss_ct)
 cat(sprintf("KPSS (tendência): %.3f | crítico 5%% = %.3f -> %s\n", kpss_ct@teststat, kpss_ct@cval[1, "5pct"],
             ifelse(kpss_ct@teststat > kpss_ct@cval[1, "5pct"], "rejeita H0 (não é estacionária em tendência)", "não rejeita H0")))
 
-# (b) Constante e tendência: por que incluir? Sob H1 (estacionária), uma série que sobe
-#   por 13 anos só pode ser estacionária EM TORNO DE UMA TENDÊNCIA; por isso o teste
-#   começa com β. Depois, o procedimento sequencial (Dolado et al.) desce:
-#   φ3 não rejeita -> a tendência é dispensável -> modelo só com constante (τ2, φ1).
-adf_c <- ur.df(y, type = "drift", lags = kmax, selectlags = "AIC")   # só constante: τ2, φ1
+# (b) Constante e tendência: as três versões testam coisas diferentes (Mattos, 2019, seção 2.2).
+#   versão 3 (α e β): H0 DS (tendência determinística + estocástica) vs H1 TS (só a
+#                     determinística): as DUAS hipóteses são não estacionárias;
+#   versão 2 (só α):  H0 I(1) sem drift vs H1 estacionária em torno de uma média;
+#   versão 1 (nada):  H0 I(1) vs H1 estacionária com média zero.
+#   A versão se escolhe pelo GRÁFICO: y cresce, então a versão 3.
+adf_c <- ur.df(y, type = "drift", lags = kmax, selectlags = "AIC")   # só constante: τ2
 adf_n <- ur.df(y, type = "none",  lags = kmax, selectlags = "AIC")   # nada: τ1
-round(rbind("constante + tendência" = c(tau = adf_ct@teststat[1, "tau3"], critico = adf_ct@cval["tau3", "5pct"], phi = adf_ct@teststat[1, "phi3"], critico_phi = adf_ct@cval["phi3", "5pct"]),
-            "só constante"          = c(adf_c@teststat[1, "tau2"], adf_c@cval["tau2", "5pct"], adf_c@teststat[1, "phi1"], adf_c@cval["phi1", "5pct"]),
-            "nenhum"                = c(adf_n@teststat[1, "tau1"], adf_n@cval["tau1", "5pct"], NA, NA)), 3)
-# LEITURA (Q2b). Nenhum τ rejeita a raiz unitária. φ3 < crítico: dada a raiz unitária, a
-# tendência é dispensável. φ1 > crítico: rejeita α = γ = 0; como γ = 0 não foi rejeitado,
-# quem é diferente de zero é a constante. Conclusão: passeio aleatório COM DRIFT (o drift
-# é a inflação média). Sem nada, τ1 sai POSITIVO: o teste "vê" o drift omitido como
-# explosividade.
+tau <- c(adf_ct@teststat[1, "tau3"], adf_c@teststat[1, "tau2"], adf_n@teststat[1, "tau1"])
+round(cbind(tau, critico_5 = c(adf_ct@cval["tau3", "5pct"], adf_c@cval["tau2", "5pct"], adf_n@cval["tau1", "5pct"]),
+            p_MacKinnon = c(punitroot(tau[1], trend = "ct"), punitroot(tau[2], trend = "c"), punitroot(tau[3], trend = "nc"))), 3)
+# LEITURA (Q2b). Nenhum τ rejeita. Na versão 3, não rejeitar quer dizer: a série é DS. Somando
+# Δy_t = α + u_t desde o início, y_t = y_0 + α t + Σ u_j: tendência determinística (α t,
+# α = inflação média) mais tendência estocástica (Σ u_j). Sem nada, τ1 sai POSITIVO: o teste
+# "vê" a tendência omitida como explosividade.
 
 # (c) A série diferenciada Δy: ela ainda tem raiz unitária? Agora sem tendência
 #   (Δy oscila em torno de uma média), só com constante, porque a inflação média ≠ 0.
@@ -161,29 +157,49 @@ adf_d <- ur.df(dy, type = "drift", lags = kmax, selectlags = "AIC")
 kpss_d <- kpss.test(dy)        # H0: Δy é estacionária em nível
 cat(sprintf("Δy: ADF τ2 = %.3f (crítico %.2f) | KPSS p = %.3f -> d = 1\n",
             adf_d@teststat[1, "tau2"], adf_d@cval["tau2", "5pct"], kpss_d$p.value))
-cat("ndiffs (quantas diferenças o KPSS sequencial pede):", ndiffs(y), "\n")
 
-# Diferença sazonal: é preciso aplicar (1 - B^12)?
-#   OCSB (Osborn-Chui-Smith-Birchenhall): regressão de Δ12 Δy em defasagens; H0: raiz
-#   unitária sazonal (precisa de 1 - B^12). nsdiffs devolve 1 se rejeitar a estacionariedade
-#   sazonal, 0 caso contrário.
-cat("nsdiffs (OCSB): D =", nsdiffs(y, test = "ocsb"), "\n")
-# LEITURA (Q2c). Em Δy o ADF rejeita com folga e o KPSS não rejeita: d = 1. O OCSB não pede
-# diferença sazonal: D = 0. A sazonalidade é DETERMINÍSTICA (médias mensais fixas), e não um
-# passeio aleatório sazonal.
+# Diferença sazonal: é preciso aplicar (1 - B^12)? Procedimento de Dickey-Miller (Mattos,
+#   2019, seção 2.6): pôr 11 dummies sazonais CENTRADAS na regressão do ADF. Elas captam a
+#   sazonalidade determinística sem mudar a distribuição de τ (mesmos críticos do ADF).
+adf_saz <- function(x, tendencia, pmax = kmax) {
+  dx <- diff(x); n <- length(dx); m <- cycle(dx)
+  DC <- sapply(1:11, function(j) ifelse(m == j, 1 - 1 / 12, -1 / 12))   # dummies centradas
+  colnames(DC) <- paste0("DC", 1:11)
+  idx <- (pmax + 1):n
+  ajuste <- function(p) {
+    X <- cbind(nivel = as.numeric(x)[idx], DC[idx, ])
+    if (p > 0) X <- cbind(X, sapply(1:p, function(j) as.numeric(dx)[idx - j]))
+    if (tendencia) X <- cbind(X, tt = idx)
+    lm(as.numeric(dx)[idx] ~ X)
+  }
+  p <- which.min(sapply(0:pmax, function(k) BIC(ajuste(k)))) - 1        # defasagens por BIC
+  cf <- summary(ajuste(p))$coefficients
+  c(tau = cf["Xnivel", "t value"], defasagens = p, dummies_signif = sum(cf[grepl("^XDC", rownames(cf)), 4] < 0.05))
+}
+round(rbind("y, constante + tendência" = adf_saz(y, TRUE), "Δy, constante" = adf_saz(dy, FALSE)), 3)
+acf(dy, lag.max = 48, plot = FALSE)$acf[c(13, 25, 37)]   # FAC de Δy em 12, 24 e 36
+# LEITURA (Q2c). Em Δy o ADF rejeita com folga e o KPSS não rejeita: d = 1. Com as dummies,
+# nada muda: o nível não rejeita, Δy rejeita, e várias dummies são significativas (a
+# sazonalidade é DETERMINÍSTICA). A FAC de Δy em 12, 24 e 36 cai logo (0,22; -0,03; 0,02);
+# uma raiz unitária sazonal a faria decair devagar. D = 0.
 
 # (d) DS ou TS? No nível, ADF e PP não rejeitam a raiz unitária, mas o KPSS também não
 # rejeita a estacionariedade: pela análise confirmatória, "dados pouco informativos".
+# DF-GLS (Mattos, 2019, seção 2.4): tira a tendência por MQG antes do DF e tem mais poder
+#   quando a série é muito persistente. O número de defasagens é fixado antes: o do ADF por BIC.
+k_bic <- sum(grepl("z.diff.lag", rownames(ur.df(y, type = "trend", lags = kmax, selectlags = "BIC")@testreg$coefficients)))
+gls <- ur.ers(y, type = "DF-GLS", model = "trend", lag.max = max(1, k_bic))
+cat(sprintf("DF-GLS: %.3f | crítico 5%% = %.2f\n", gls@teststat, gls@cval[1, "5pct"]))
 # Adota-se tendência estocástica (d = 1):
-# (i) todos os testes de raiz unitária, em todas as especificações, apontam DS, e o
-#     procedimento sequencial termina em passeio com drift;
+# (i) todos os testes de raiz unitária (ADF com e sem dummies, PP, DF-GLS) apontam DS;
 # (ii) o KPSS tem pouco poder em amostra curta com janela de Newey-West longa;
 # (iii) sob metas de inflação o nível de preços não volta a uma trajetória fixa;
 # (iv) na Q5 o MA acrescentado a Δy fica longe de -1 — se a série fosse TS, diferenciar
 #      criaria um MA com raiz unitária.
 # Robustez: com a série longa (2000–2026) o ADF rejeita, mas PP não e o KPSS rejeita a
 # estacionariedade; os anos a mais trazem a crise de 2002–03, que os testes confundem
-# com tendência. A decisão d = 1 não muda.
+# com tendência. A decisão d = 1 não muda, e a Q5 mostra que, na janela de 13 anos, os
+# parâmetros são estáveis (Chow e CUSUM).
 
 
 # =====================================================================================
@@ -247,15 +263,13 @@ sel_bic <- rownames(tabela)[which.min(tabela[, "BIC"])]
 dAIC <- tabela[sel_bic, "AIC"] - min(tabela[, "AIC"])
 cat("AIC escolhe:", sel_aic, "| BIC escolhe:", sel_bic, sprintf("| ΔAIC do modelo do BIC = %.2f\n", dAIC))
 
-# (e) REGRA DE ESCOLHA, fixada antes de olhar a validação (Q7): o objetivo é prever, então
-#   vale o AIC (eficiente). Mas uma diferença de AIC menor que 2 não discrimina modelos
-#   (Burnham e Anderson): nesse caso fica o mais parcimonioso, o do BIC (consistente).
-escolhido <- if (dAIC < 2) sel_bic else sel_aic
+# (e) REGRA DE ESCOLHA, fixada antes de olhar a validação (Q7), pelo princípio da parcimônia
+#   (aula 02): se AIC e BIC divergem, fica o modelo menor quando o parâmetro extra do maior
+#   não é significativo a 5%. Aqui o extra é o φ2 do C3.
+p_ar2 <- coeftest(C3)["ar2", 4]
+escolhido <- if (sel_aic != sel_bic && p_ar2 > 0.05) sel_bic else sel_aic
 modelo <- get(escolhido)
-cat("Modelo escolhido:", escolhido, "\n")
-# Teste LR de C1 (restrito, φ2 = 0) contra C3: LR = 2(ln L3 - ln L1) ~ χ²(1)
-LR <- 2 * (C3$loglik - C1$loglik)
-cat(sprintf("LR (φ2 = 0) = %.2f, p = %.3f\n", LR, pchisq(LR, 1, lower.tail = FALSE)))
+cat(sprintf("p do φ2 no C3 = %.3f | modelo escolhido: %s\n", p_ar2, escolhido))
 
 # (d) Conferência: o R inclui σ² em k?
 cat(sprintf("AIC à mão com k = coeficientes + 1: %.4f | AIC do R: %.4f\n",
@@ -270,8 +284,8 @@ plot(modelo)
 #   a comparação por AIC/BIC é válida.
 # - (e) O AIC escolhe C3 e o BIC escolhe C1. O BIC é CONSISTENTE: escolhe o modelo
 #   verdadeiro com probabilidade -> 1, se ele estiver entre os candidatos. O AIC é
-#   EFICIENTE para previsão. Mas a vantagem de C3 no AIC é de 0,5 ponto (< 2), o φ2 não
-#   é significativo (p = 0,11) e o LR não rejeita φ2 = 0: fica C1, o mais parcimonioso.
+#   EFICIENTE para previsão. Mas a vantagem de C3 no AIC é de 0,5 ponto e vem de um φ2
+#   não significativo (p = 0,11): fica C1, o mais parcimonioso.
 # - (f) Todas as raízes inversas estão dentro do círculo: a regular é φ ≈ 0,51, e as 12
 #   sazonais têm módulo Φ^(1/12) ≈ 0,87 (um Φ pequeno vira raízes inversas de módulo alto).
 
@@ -308,6 +322,24 @@ cat(sprintf("ARCH-LM(12): LM = %.2f, p = %.3f -> %s\n", arch$statistic, arch$p.v
 sem_ar <- Arima(y, order = c(0, 1, 0), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML")
 cat(sprintf("Sem o AR(1): Ljung-Box(24) p = %.4f -> descartado\n",
             Box.test(residuals(sem_ar), lag = 24, type = "Ljung-Box", fitdf = 1)$p.value))
+
+# ESTABILIDADE (aula 03). Chow e CUSUM pedem MQO: usa-se a forma autorregressiva do C1,
+#   Δy_t em Δy_{t-1}, Δy_{t-12} e Δy_{t-13} (o produto (1 - φB)(1 - ΦB^12)).
+#   Chow: data de quebra escolhida ANTES de olhar os dados (mar/2020, a pandemia).
+#   CUSUM: soma acumulada dos resíduos recursivos; sai das bandas se os coeficientes mudam.
+#   CUSUM-Q: soma acumulada dos quadrados; sai das bandas se a variância muda.
+dyv <- as.numeric(dy); nn <- length(dyv)
+df_ols <- data.frame(dy = dyv[14:nn], l1 = dyv[13:(nn - 1)], l12 = dyv[2:(nn - 12)], l13 = dyv[1:(nn - 13)])
+TB <- which(abs(time(dy)[14:nn] - (2020 + 2 / 12)) < 1e-6)
+sctest(dy ~ ., data = df_ols, type = "Chow", point = TB - 1)
+cusum <- efp(dy ~ ., data = df_ols, type = "Rec-CUSUM")
+sctest(cusum)
+w <- recresid(lm(dy ~ ., data = df_ols))
+desvio_q <- max(abs(cumsum(w^2) / sum(w^2) - seq_along(w) / length(w)))
+cat(sprintf("CUSUM-Q: maior desvio = %.3f | crítico 5%% ≈ %.3f\n", desvio_q, 1.36 / sqrt(length(w) / 2)))
+plot(cusum, main = "CUSUM dos resíduos recursivos (bandas de 5%)")
+# LEITURA. Chow p = 0,77, CUSUM p = 0,37 e o CUSUM-Q fica dentro da banda: os parâmetros são
+# estáveis na janela de 13 anos.
 
 # (e) SOBREAJUSTE. Se o modelo está certo, um parâmetro a mais deve sair não significativo.
 sobre_ar <- Arima(y, order = c(2, 1, 0), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML")

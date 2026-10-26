@@ -13,7 +13,7 @@
 source(file.path(.d, "R", "raiz.R"))
 
 suppressPackageStartupMessages({
-  library(forecast); library(tseries); library(urca); library(lmtest); library(FinTS)
+  library(forecast); library(tseries); library(urca); library(lmtest); library(FinTS); library(strucchange)
 })
 
 dados <- read.csv(caminho_repo("lista01", "dados", "inpc_lista01.csv"))
@@ -21,9 +21,9 @@ P  <- ts(dados$indice, start = c(2013, 1), frequency = 12)
 y  <- 100 * log(P)
 dy <- diff(y)
 kmax <- floor(12 * (length(y) / 100)^(1 / 4))
+media_ano <- tapply(as.numeric(dy), floor(time(dy) + 1e-9), mean)
 registrar_varios(c(l01_T = length(y), l01_kmax = kmax,
-                   l01_lambda_g = BoxCox.lambda(P, method = "guerrero"),
-                   l01_lambda_mv = BoxCox.lambda(P, method = "loglik"),
+                   l01_media_min = unname(min(media_ano)), l01_media_max = unname(max(media_ano)),
                    l01_p_ini = P[1], l01_p_fim = P[length(P)], l01_infl_media = mean(dy)))
 
 # Q2: raiz unitária
@@ -36,21 +36,22 @@ kpss_ct <- ur.kpss(y, type = "tau", lags = "long")
 adf_d   <- ur.df(dy, type = "drift", lags = kmax, selectlags = "AIC")
 registrar_varios(c(
   l01_adf_tau3 = adf_ct@teststat[1, "tau3"],
-  l01_adf_phi3 = adf_ct@teststat[1, "phi3"],
+  l01_adf_p3   = punitroot(adf_ct@teststat[1, "tau3"], trend = "ct"),
   l01_adf_k    = sum(grepl("z.diff.lag", rownames(adf_ct@testreg$coefficients))),
   l01_adf_bic_tau3 = adf_bic@teststat[1, "tau3"],
   l01_adf_bic_k    = sum(grepl("z.diff.lag", rownames(adf_bic@testreg$coefficients))),
   l01_adf_rho  = 1 + adf_ct@testreg$coefficients["z.lag.1", 1],
   l01_adf_tau2 = adf_c@teststat[1, "tau2"],
-  l01_adf_phi1 = adf_c@teststat[1, "phi1"],
   l01_adf_tau1 = adf_n@teststat[1, "tau1"],
   l01_pp       = unname(pp_ct@teststat[1]),
   l01_kpss     = unname(kpss_ct@teststat[1]),
   l01_adf_dy   = adf_d@teststat[1, "tau2"],
-  l01_kpss_dy  = unname(ur.kpss(dy, type = "mu", lags = "long")@teststat[1]),
-  l01_ndiffs   = ndiffs(y),
-  l01_nsdiffs  = nsdiffs(y, test = "ocsb")
+  l01_kpss_dy  = unname(ur.kpss(dy, type = "mu", lags = "long")@teststat[1])
 ))
+# DF-GLS (MAT, seção 2.4), com as defasagens do ADF por BIC
+gls <- ur.ers(y, type = "DF-GLS", model = "trend",
+              lag.max = max(1, sum(grepl("z.diff.lag", rownames(adf_bic@testreg$coefficients)))))
+registrar_varios(c(l01_dfgls = unname(gls@teststat), l01_dfgls_cv = unname(gls@cval[1, "5pct"])))
 
 # Q3: FAC e FACP de dy
 fac  <- acf(dy, lag.max = 48, plot = FALSE)$acf[-1]
@@ -63,19 +64,15 @@ registrar_varios(c(l01_fac1 = fac[1], l01_fac2 = fac[2], l01_fac3 = fac[3], l01_
 C1 <- Arima(y, order = c(1, 1, 0), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML")
 C2 <- Arima(y, order = c(1, 1, 0), seasonal = c(0, 0, 1), include.drift = TRUE, method = "ML")
 C3 <- Arima(y, order = c(2, 1, 0), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML")
-pesos <- exp(-(c(C1$aic, C2$aic, C3$aic) - min(C1$aic, C2$aic, C3$aic)) / 2)
-pesos <- pesos / sum(pesos)
 registrar_varios(c(
   l01_c1_aic = C1$aic, l01_c2_aic = C2$aic, l01_c3_aic = C3$aic,
   l01_c1_bic = C1$bic, l01_c2_bic = C2$bic, l01_c3_bic = C3$bic,
-  l01_dAIC = C1$aic - C3$aic, l01_peso_c1 = pesos[1], l01_peso_c3 = pesos[3],
+  l01_dAIC = C1$aic - C3$aic, 
   l01_c1_n = C1$nobs, l01_c1_sigma2 = C1$sigma2,
   l01_c1_ar1 = coef(C1)[["ar1"]], l01_c1_sar1 = coef(C1)[["sar1"]], l01_c1_drift = coef(C1)[["drift"]],
   l01_c1_sar1_p = coeftest(C1)["sar1", 4], l01_c1_raiz_saz = coef(C1)[["sar1"]]^(1 / 12),
   l01_c3_ar2 = coef(C3)[["ar2"]], l01_c3_ar2_p = coeftest(C3)["ar2", 4]
 ))
-registrar("l01_lr", 2 * (C3$loglik - C1$loglik))
-registrar("l01_lr_p", pchisq(2 * (C3$loglik - C1$loglik), df = 1, lower.tail = FALSE))
 
 # Q5: diagnóstico do C1
 e  <- residuals(C1)
@@ -127,6 +124,22 @@ registrar_varios(c(
   l01_q7_mape_rw1 = r1[["MAPE"]], l01_q7_mape_rw2 = r2[["MAPE"]],
   l01_q7_mape_sn1 = n1[["MAPE"]], l01_q7_mape_sn2 = n2[["MAPE"]],
   l01_q7_cobertura = 100 * mean(P_teste >= li & P_teste <= ls)
+))
+# Diebold-Mariano (esquema 2, perda quadrática) e cobertura incondicional de Christoffersen
+e2 <- as.numeric(P_teste) - as.numeric(exp(prev2 / 100))
+dm_rw <- dm.test(e2, as.numeric(P_teste) - as.numeric(rw2), h = 1, power = 2)
+dm_sn <- dm.test(e2, as.numeric(P_teste) - as.numeric(sn2), h = 1, power = 2)
+lr_uc <- function(dentro, alfa = 0.05) {
+  n <- length(dentro); x <- sum(!dentro)
+  ll1 <- if (x %in% c(0, n)) 0 else (n - x) * log(1 - x / n) + x * log(x / n)
+  -2 * ((n - x) * log(1 - alfa) + x * log(alfa) - ll1)
+}
+dentro2 <- abs(as.numeric(y)[(T0 + 1):length(y)] - as.numeric(prev2)) <= qnorm(0.975) * sqrt(fit$sigma2)
+registrar_varios(c(
+  l01_dm_rw = unname(dm_rw$statistic), l01_dm_rw_p = unname(dm_rw$p.value), l01_dm_sn = unname(dm_sn$statistic),
+  l01_lruc1 = lr_uc(P_teste >= li & P_teste <= ls),
+  l01_lruc1_p = pchisq(lr_uc(P_teste >= li & P_teste <= ls), 1, lower.tail = FALSE),
+  l01_cob2 = 100 * mean(dentro2), l01_lruc2_p = pchisq(lr_uc(dentro2), 1, lower.tail = FALSE)
 ))
 
 # Comparação com a série longa (jan/2000 a set/2026), mesma bateria
@@ -181,7 +194,7 @@ registrar_varios(c(
 # ADF com dummies sazonais centradas (Dickey e Miller; MAT, seção 2.6), defasagens por BIC
 adf_saz <- function(x, opcao, pmax = 13) {
   dx <- diff(x); n <- length(dx); cyc <- cycle(dx)
-  DC <- sapply(1:11, function(s) ifelse(cyc == s, 1 - 1/12, -1/12))
+  DC <- sapply(1:11, function(s) ifelse(cyc == s, 1 - 1/12, -1/12)); colnames(DC) <- paste0("DC", 1:11)
   idx <- (pmax + 1):n
   ajuste <- function(p) {
     X <- cbind(nivel = as.numeric(x)[idx], DC[idx, , drop = FALSE])
@@ -190,10 +203,24 @@ adf_saz <- function(x, opcao, pmax = 13) {
     lm(as.numeric(dx)[idx] ~ X)
   }
   p <- which.min(sapply(0:pmax, function(k) BIC(ajuste(k)))) - 1
-  summary(ajuste(p))$coefficients["Xnivel", "t value"]
+  cf <- summary(ajuste(p))$coefficients
+  c(tau = cf["Xnivel", "t value"], n_dummies = sum(cf[grepl("^XDC", rownames(cf)), 4] < 0.05))
 }
-registrar_varios(c(l01_adfsaz_y = adf_saz(y, 3), l01_adfsaz_dy = adf_saz(dy, 2),
+saz_dy <- adf_saz(dy, 2)
+registrar_varios(c(l01_adfsaz_y = adf_saz(y, 3)[["tau"]], l01_adfsaz_dy = saz_dy[["tau"]],
+                   l01_saz_dum_dy = saz_dy[["n_dummies"]], l01_fac36 = fac[36],
                    l01_adfsaz_var = adf_saz(ts(read.csv(caminho_repo("lista01", "dupla", "inpc_13_a_26.csv"))$variacao,
-                                                start = c(2013, 1), frequency = 12), 2)))
+                                                start = c(2013, 1), frequency = 12), 2)[["tau"]]))
+
+# Estabilidade (aula 03): Chow em mar/2020 e CUSUM/CUSUM-Q na forma de MQO do C1
+dyv <- as.numeric(dy); nn <- length(dyv)
+df_ols <- data.frame(dy = dyv[14:nn], l1 = dyv[13:(nn - 1)], l12 = dyv[2:(nn - 12)], l13 = dyv[1:(nn - 13)])
+TB <- which(abs(time(dy)[14:nn] - (2020 + 2 / 12)) < 1e-6)
+chow <- sctest(dy ~ ., data = df_ols, type = "Chow", point = TB - 1)
+w <- recresid(lm(dy ~ ., data = df_ols))
+registrar_varios(c(l01_chow_F = unname(chow$statistic), l01_chow_p = unname(chow$p.value),
+                   l01_cusum_p = unname(sctest(efp(dy ~ ., data = df_ols, type = "Rec-CUSUM"))$p.value),
+                   l01_cusumq = max(abs(cumsum(w^2) / sum(w^2) - seq_along(w) / length(w))),
+                   l01_cusumq_c0 = 1.36 / sqrt(length(w) / 2)))
 
 gravar_resultados("l01")

@@ -26,8 +26,8 @@ Os números do original foram todos reproduzidos no R e **batem** (por exemplo, 
 
 | Onde | O que o original diz | O problema | Correção |
 |---|---|---|---|
-| Q1 | "não é possível identificar um padrão sazonal" | o teste $F$ de igualdade das médias mensais rejeita ($F=3{,}00$, $p=0{,}001$); fevereiro, março e dezembro são altos e agosto é baixo. O próprio texto da Q3 acha o pico em 12 | há sazonalidade, fraca |
-| Q1 | "não há evidência de mudança permanente de nível" | o próprio texto descreve 2015–16 e 2020–22 como mais altos; o Bai-Perron acha três quebras na média | há mudanças de patamar da média, temporárias |
+| Q1 | "não é possível identificar um padrão sazonal" | fevereiro, março e dezembro são altos e agosto é baixo; no ADF com 11 dummies sazonais centradas (Mattos, 2019, seção 2.6), 4 dummies são significativas a 5%. O próprio texto da Q3 acha o pico em 12 | há sazonalidade, fraca e determinística |
+| Q1 | "não há evidência de mudança permanente de nível" | o próprio texto descreve 2015–16 e 2020–22 como mais altos; a média anual vai de $0{,}17\%$ a.m. (2017) a $0{,}90\%$ a.m. (2015) | há mudanças de patamar da média, temporárias; Chow e CUSUM (aula 03) não rejeitam a estabilidade do modelo |
 | Q2(c) | a série é "estritamente estacionária" | os testes de raiz unitária falam de estacionariedade **fraca** (média, variância e autocovariâncias constantes); estacionariedade estrita é sobre a distribuição inteira e não é testada | "estacionária (no sentido fraco)" |
 | Q2(d) | o DF-GLS "pode confundir a alta persistência da inflação com uma raiz unitária" | é o contrário: o DF-GLS foi feito para ter **mais** poder contra alternativas persistentes. A não rejeição vem de `lag.max = 12`: no `urca`, isso fixa 12 defasagens, sem seleção. Com 12, dá $-1{,}213$; com 1, dá $-3{,}650$ e rejeita (crítico $-1{,}94$) | problema de especificação, não do teste. Mattos (2019, seção 2.4) lembra que o DF-GLS, como o ADF, exige escolher antes o número de defasagens |
 | Q2(d) | não responde se a série é DS ou TS | a variação não tem tendência nenhuma; é I(0) em torno da média, o "processo estacionário" da classificação de Mattos (2019). Quem é diferença estacionária (DS) é o **log do índice**: tendência determinística (o drift) mais tendência estocástica | responder explicitamente |
@@ -36,10 +36,10 @@ Os números do original foram todos reproduzidos no R e **batem** (por exemplo, 
 
 ## Respostas incompletas
 
-- **Q1:** não diz por que não se transforma a série. A razão é que a variação já é uma taxa e tem valores negativos e nulos, o que impede log e Box-Cox.
+- **Q1:** não diz por que não se transforma a série. A razão é que a variação já é uma taxa e tem valores negativos e nulos, o que impede o log.
 - **Q2(a):** o original diz $p<0{,}01$, mas o `urca` não dá p-valor. Os p-valores precisam vir de MacKinnon (`punitroot`). A defasagem máxima foi 12 sem justificativa; a regra de Schwert dá 13.
-- **Q2(b):** usa o $p$ do teste $t$ da tendência para tirá-la. Isso só vale porque a raiz unitária foi rejeitada; o texto precisa dizer isso. Sem a rejeição, a decisão viria do $\phi_3$.
-- **Q2(c):** a lista pede para **repetir os testes na série diferenciada**, e o original só roda `ndiffs`.
+- **Q2(b):** usa o $p$ do teste $t$ da tendência para tirá-la. Isso só vale porque a raiz unitária foi rejeitada; o texto precisa dizer isso. Mattos (2019, seção 2.2.5) dá o critério mais simples: a versão se escolhe pelo gráfico, e uma taxa que oscila em torno de uma média pede a versão só com constante.
+- **Q2(c):** a lista pede para **repetir os testes na série diferenciada**, e o original só roda `ndiffs`, que não é visto nas aulas. Para $D$, a versão revisada usa o ADF com dummies sazonais centradas e a FAC nos múltiplos de 12.
 - **Q3(a):** usa 24 defasagens, que é exatamente o mínimo de dois ciclos. Com 36, a leitura de $2s$ e $3s$ fica mais clara. O `ts()` foi criado sem `start`, então os gráficos não mostram as datas.
 - **Q3(b):** não responde sobre $2s$, $3s$ e $s\pm1$, que a questão pede explicitamente. A Q3(c) fala em pico "nas vizinhanças" de 12, o que a Q3(b) não sustenta.
 - **Q4(a):** a tabela foi **digitada à mão**. A lista exige que o código reproduza exatamente os números do relatório, e qualquer reestimação desatualiza a tabela. O original também não comenta que no M3 nem o SAR nem o SMA são significativos ($t$ de $0{,}74$ e $-0{,}41$): é o sintoma de parâmetros redundantes.
@@ -48,7 +48,7 @@ Os números do original foram todos reproduzidos no R e **batem** (por exemplo, 
 
 ## O que a versão revisada encontrou nas questões que faltavam
 
-- **Q5:** os resíduos do M1 são ruído branco e sem ARCH, mas não normais, por três choques (jun/2018, jul/2022, fev/2025). O sobreajuste não é significativo.
+- **Q5:** os resíduos do M1 são ruído branco e sem ARCH, mas não normais, por três choques (jun/2018, jul/2022, fev/2025). O sobreajuste não é significativo, e Chow (mar/2020) e CUSUM não rejeitam a estabilidade dos parâmetros.
 - **Q6:** com $d=1$, o MA vai para $-1$, a variância residual sobe e o AR troca de sinal: os sintomas clássicos de sobrediferenciação.
 - **Q7:** na variação, o M1 bate o passeio aleatório, mas **perde para o sazonal ingênuo**. No RMSE, são $0{,}388$ contra $0{,}317$ no esquema 1 e $0{,}410$ contra $0{,}366$ no esquema 2, sem diferença significativa no Diebold-Mariano. A cobertura do intervalo é de $95{,}8\%$. O **MAPE não serve** nesta série: ela tem meses com inflação zero (1 na validação), o que torna o MAPE infinito, e muitos meses perto de zero, que o inflam. A aula 03 (slides 46 e 49) faz o mesmo alerta e indica o MASE, que a versão revisada passou a reportar.
 
@@ -64,8 +64,7 @@ Os números do original foram todos reproduzidos no R e **batem** (por exemplo, 
 |---|---|
 | l01_dupla_tau3 | -5,202 |
 | l01_dupla_aic1 | 128,65 |
-| l01_dupla_F | 3,00 |
-| l01_dupla_pF | 0,001 |
+| l01_adfsaz_var | -4,87 |
 | l01_dupla_dfgls12 | -1,213 |
 | l01_dupla_dfgls1 | -3,650 |
 | l01_dupla_mu | 0,461 |

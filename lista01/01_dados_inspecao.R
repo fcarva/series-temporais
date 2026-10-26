@@ -6,8 +6,8 @@
 # banco efetivamente utilizado (entregue junto com o código).
 #
 # Roteiro da Q1(a): tendência, sazonalidade, mudanças de nível/inclinação, outliers
-# e dispersão. A "transformação" do título da questão é decidida aqui (log), com
-# três evidências: gráfico amplitude × média, lambda de Box-Cox e a leitura econômica.
+# e dispersão, por inspeção gráfica. A "transformação" do título da questão é decidida
+# aqui (log), pelo gráfico amplitude × média e pela leitura econômica.
 # =====================================================================================
 # localiza 00_configuracao.R ao lado deste script (funciona de qualquer diretório)
 source(file.path(local({ a <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE))
@@ -26,44 +26,32 @@ T_ <- length(y)
 # 100·Δlog(P) e a variação mensal publicada pelo IBGE são praticamente a mesma série
 cor_var <- cor(as.numeric(dy), dados$var_mensal[-1])
 
-## ---- 1.2 Dispersão: gráfico amplitude-média (Box e Jenkins) e Box-Cox -------------------
-# Se a amplitude (ou o desvio-padrão) dentro de cada ano cresce com a média do ano,
-# a variância depende do nível: o log (lambda = 0) estabiliza.
+## ---- 1.2 Dispersão: amplitude anual contra a média anual (inspeção gráfica) --------
+# Se a amplitude dentro de cada ano cresce com a média do ano, a variância depende do
+# nível. É só um gráfico de inspeção, como os da aula 01; a decisão do log vem da
+# interpretação (Δ log = taxa de inflação).
 ano <- floor(time(P) + 1e-9)
 am <- data.frame(ano = sort(unique(ano)),
                  media = tapply(P, ano, mean),
                  dp = tapply(P, ano, sd),
                  amplitude = tapply(P, ano, function(v) diff(range(v))))
 am <- am[tapply(P, ano, length) == 12, ]          # só anos completos
-reg_am <- lm(log(amplitude) ~ log(media), data = am)  # inclinação ≈ 1 - lambda
-lambda_guerrero <- BoxCox.lambda(P, method = "guerrero", lower = -1, upper = 2)
-lambda_loglik   <- BoxCox.lambda(P, method = "loglik",   lower = -1, upper = 2)
 
-## ---- 1.3 Mudanças de inclinação: quebras na média de Δy (Bai-Perron) -------------------
-# Inclinação do log do índice = inflação média. Testa-se se a média de Δy mudou.
-bp <- breakpoints(dy ~ 1, h = 0.15)                 # trecho mínimo de 15% da amostra
-n_quebras <- length(na.omit(bp$breakpoints))
-datas_quebra <- if (n_quebras) time(dy)[bp$breakpoints] else numeric(0)
-seg <- if (n_quebras) breakfactor(bp) else factor(rep(1, length(dy)))
-medias_seg <- tapply(as.numeric(dy), seg, mean)
+## ---- 1.3 Mudanças de inclinação: média da inflação por ano ----------------------------
+# A inclinação do log do índice é a inflação. A média anual de Δy mostra os patamares.
+# O teste formal de estabilidade (Chow e CUSUM, aula 03) fica na Q5.
+media_ano <- tapply(as.numeric(dy), floor(time(dy) + 1e-9), mean)
 
-## ---- 1.4 Outliers (Chen e Liu, 1993) em Δy -------------------------------------------
-# tso() procura outliers aditivos (AO), de nível (LS) e transitórios (TC) em torno de
-# um modelo ARMA; aqui o AR(1) com AR sazonal, a especificação de partida da Q3.
-out <- tryCatch(
-  tso(dy, types = c("AO", "LS", "TC"), cval = 3.5, maxit.iloop = 6,
-      tsmethod = "arima", args.tsmethod = list(order = c(1, 0, 0), seasonal = list(order = c(1, 0, 0)))),
-  error = function(e) NULL)
-tab_out <- if (!is.null(out) && nrow(out$outliers)) {
-  o <- out$outliers
-  data.frame(tipo = o$type, data = o$time, efeito_pp = o$coefhat, t = o$tstat)
-} else data.frame(tipo = character(0), data = character(0), efeito_pp = numeric(0), t = numeric(0))
+## ---- 1.4 Valores extremos de Δy (inspeção) ----------------------------------------------
+# Os maiores e o menor valor da inflação mensal; os choques que o modelo não explica
+# aparecem depois nos resíduos padronizados (Q5).
+ord <- order(as.numeric(dy), decreasing = TRUE)
+mes_txt <- function(t) sprintf("%d-%02d", floor(t + 1e-9), round((t %% 1) * 12) + 1)
+extremos <- data.frame(data = mes_txt(time(dy)[c(ord[1:4], which.min(dy))]),
+                       valor = as.numeric(dy)[c(ord[1:4], which.min(dy))])
 
 ## ---- 1.5 Sazonalidade: média por mês de Δy ---------------------------------------------
 media_mes <- tapply(as.numeric(dy), cycle(dy), mean)
-# teste F de igualdade das médias mensais (ANOVA de Δy em dummies de mês) — descritivo
-anova_mes <- anova(lm(as.numeric(dy) ~ factor(cycle(dy))))
-F_mes <- anova_mes$`F value`[1]; p_mes <- anova_mes$`Pr(>F)`[1]
 
 ## ---- 1.6 Figuras ------------------------------------------------------------------------
 figura("q1_serie_nivel", {
@@ -72,19 +60,16 @@ figura("q1_serie_nivel", {
   grade(); lines(P, col = COR[["azul"]], lwd = 1.6)
   plot(y, type = "n", xlab = "", ylab = "100 × log(índice)", main = "(b) 100 × log do INPC: a série modelada")
   grade(); lines(y, col = COR[["ciano"]], lwd = 1.6)
-  if (n_quebras) abline(v = datas_quebra, lty = 2, col = COR[["laranja"]])
   par(op)
 }, altura = 6.5)
 
 figura("q1_variacao", {
   plot(dy, type = "n", xlab = "", ylab = "% a.m. (100 × Δlog)",
-       main = "Inflação mensal: média por regime (Bai-Perron) e outliers (Chen-Liu)")
+       main = "Inflação mensal e sua média em cada ano")
   grade(); lines(dy, col = COR[["ciano"]])
-  lines(ts(medias_seg[as.integer(seg)], start = start(dy), frequency = S), col = COR[["laranja"]], lwd = 2)
-  if (nrow(tab_out)) {
-    tt <- time(dy)[out$outliers$ind]
-    points(tt, dy[out$outliers$ind], pch = 21, bg = COR[["vermelho"]], col = "white", cex = 1.3)
-  }
+  anos <- as.numeric(names(media_ano))
+  segments(anos, media_ano, anos + 11/12, media_ano, col = COR[["laranja"]], lwd = 2.5)
+  abline(h = mean(dy), lty = 2, col = COR[["eixo"]])
 })
 
 figura("q1_amplitude_media", {
@@ -92,8 +77,6 @@ figura("q1_amplitude_media", {
   plot(am$media, am$amplitude, log = "xy", pch = 19, col = COR[["azul"]],
        xlab = "média anual do índice (escala log)", ylab = "amplitude anual (escala log)",
        main = "(a) Amplitude anual × média anual")
-  xm <- seq(min(am$media), max(am$media), length.out = 50)   # reta ajustada em escala log-log
-  lines(xm, exp(predict(reg_am, newdata = data.frame(media = xm))), col = COR[["laranja"]], lwd = 2)
   # subséries sazonais (equivalente ao monthplot): cada mês com os seus anos e a média
   mes <- cycle(dy); n_anos <- max(table(mes))
   plot(NA, xlim = c(0.5, 12.5), ylim = range(dy), xaxt = "n", xlab = "", ylab = "% a.m.",
@@ -108,15 +91,11 @@ figura("q1_amplitude_media", {
 }, largura = 10, altura = 4.6)
 
 ## ---- 1.7 Saídas ------------------------------------------------------------------------
-salvar_tabela(tab_out, "q1_outliers")
+salvar_tabela(extremos, "q1_extremos")
 salvar_tabela(am, "q1_amplitude_media")
-salvar(list(P = P, y = y, dy = dy, T = T_, inicio = INICIO, cor_var = cor_var,
-            lambda_guerrero = lambda_guerrero, lambda_loglik = lambda_loglik,
-            incl_am = unname(coef(reg_am)[2]), incl_am_ep = unname(sqrt(diag(vcov(reg_am)))[2]),
-            n_quebras = n_quebras, datas_quebra = datas_quebra, medias_seg = medias_seg,
-            outliers = tab_out, outliers_raw = if (!is.null(out)) out$outliers else NULL, media_mes = media_mes, F_mes = F_mes, p_mes = p_mes,
+salvar(list(P = P, y = y, dy = dy, T = T_, inicio = INICIO, cor_var = cor_var, am = am,
+            media_ano = media_ano, extremos = extremos, media_mes = media_mes,
             resumo = c(min = min(P), max = max(P), dy_media = mean(dy), dy_dp = sd(dy),
                        dy_min = min(dy), dy_max = max(dy))),
        "q1")
-message("Q1 ok: T = ", T_, "; lambda Guerrero = ", round(lambda_guerrero, 3),
-        "; quebras = ", n_quebras, "; outliers = ", nrow(tab_out))
+message("Q1 ok: T = ", T_, "; inflação média = ", round(mean(dy), 3))

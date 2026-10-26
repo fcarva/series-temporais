@@ -10,9 +10,8 @@
 # (d)(e) RMSE, MAE e MAPE do modelo e dos benchmarks (passeio aleatório e sazonal
 #     ingênuo), nos dois esquemas, numa única tabela.
 # (f)(g) Comparação honesta e cobertura empírica do intervalo de 95% do Esquema 1.
-# Extras de pós-graduação: Diebold-Mariano (com a correção de Harvey, Leybourne e
-# Newbold, 1997), teste de cobertura de Kupiec (1995) e regressão de Mincer-Zarnowitz
-# com erros-padrão HAC de Newey-West.
+# Extras da aula 03: Diebold-Mariano e o teste de cobertura incondicional de
+# Christoffersen (LRuc, o mesmo que o de Kupiec).
 #
 # Escala: o modelo é para y = 100 log(INPC); as métricas são calculadas no ÍNDICE em
 # nível, P = exp(y/100), que é a "série em nível" da Q1. A previsão exp(ŷ/100) é a
@@ -48,10 +47,6 @@ rw1 <- rep(Pv[T0], H)                                   # ŷ_{T0+h} = y_{T0}
 sn1 <- Pv[T0 + h - S * ceiling(h / S)]                  # ŷ_{T0+h} = y_{T0+h-s·ceil(h/s)}
 rw2 <- Pv[T0:(T_ - 1)]                                  # ŷ_{t+1} = y_t
 sn2 <- Pv[(T0 + 1):T_ - S]                              # ŷ_{t+1} = y_{t+1-s}
-# Extra (fora do pedido): passeio com drift em log, o benchmark "justo" de uma série com tendência
-drift_tr <- mean(diff(as.numeric(y_tr)))
-rwd1 <- nivel(as.numeric(y_tr)[T0] + drift_tr * h)
-rwd2 <- nivel(as.numeric(y)[T0:(T_ - 1)] + drift_tr)
 
 ## ---- 7.4 (d)(e) Métricas -------------------------------------------------------------------
 metricas <- function(prev) {
@@ -61,8 +56,7 @@ metricas <- function(prev) {
 modelos <- list(
   "SARIMA selecionado" = list(prev1, prev2),
   "Passeio aleatório" = list(rw1, rw2),
-  "Sazonal ingênuo" = list(sn1, sn2),
-  "Extra: passeio com drift" = list(rwd1, rwd2))
+  "Sazonal ingênuo" = list(sn1, sn2))
 tab7 <- do.call(rbind, lapply(names(modelos), function(m) {
   a <- metricas(modelos[[m]][[1]]); b <- metricas(modelos[[m]][[2]])
   data.frame(modelo = m, E1_RMSE = a[["RMSE"]], E1_MAE = a[["MAE"]], E1_MAPE = a[["MAPE"]],
@@ -70,35 +64,31 @@ tab7 <- do.call(rbind, lapply(names(modelos), function(m) {
 }))
 # Razões (Theil-U) do modelo em relação a cada benchmark: < 1 => o modelo é melhor
 razoes <- data.frame(
-  benchmark = c("Passeio aleatório", "Sazonal ingênuo", "Extra: passeio com drift"),
-  U_E1 = tab7$E1_RMSE[1] / tab7$E1_RMSE[2:4], U_E2 = tab7$E2_RMSE[1] / tab7$E2_RMSE[2:4])
+  benchmark = c("Passeio aleatório", "Sazonal ingênuo"),
+  U_E1 = tab7$E1_RMSE[1] / tab7$E1_RMSE[2:3], U_E2 = tab7$E2_RMSE[1] / tab7$E2_RMSE[2:3])
 
-## ---- 7.5 Testes formais (extras) -------------------------------------------------------
+## ---- 7.5 Testes formais (aula 03) ------------------------------------------------------
 # Diebold-Mariano no Esquema 2 (um passo, perda quadrática); H0: mesma acurácia.
 dm <- function(a, b) {
   t <- dm.test(real - a, real - b, h = 1, power = 2, alternative = "two.sided")
   c(DM = unname(t$statistic), p = t$p.value)
 }
-tab_dm <- rbind("vs passeio aleatório" = dm(prev2, rw2), "vs sazonal ingênuo" = dm(prev2, sn2),
-                "vs passeio com drift" = dm(prev2, rwd2))
+tab_dm <- rbind("vs passeio aleatório" = dm(prev2, rw2), "vs sazonal ingênuo" = dm(prev2, sn2))
 # Cobertura (g): proporção dos 24 valores dentro do IC de 95%
 dentro1 <- real >= li1 & real <= ls1; dentro2 <- real >= li2 & real <= ls2
+# Teste de cobertura incondicional de Christoffersen (LR_uc, aula 03): a proporção de
+# violações é a nominal (5%)?
 kupiec <- function(dentro, alfa = 0.05) {
   n <- length(dentro); x <- sum(!dentro); pi_hat <- x / n
   ll0 <- (n - x) * log(1 - alfa) + x * log(alfa)
   ll1 <- if (x %in% c(0, n)) 0 else (n - x) * log(1 - pi_hat) + x * log(pi_hat)
   lr <- -2 * (ll0 - ll1)
-  c(violacoes = x, cobertura = 100 * mean(dentro), LR_uc = lr, p = pchisq(lr, 1, lower.tail = FALSE),
-    p_binomial = binom.test(x, n, alfa)$p.value)
+  c(violacoes = x, cobertura = 100 * mean(dentro), LR_uc = lr, p = pchisq(lr, 1, lower.tail = FALSE))
 }
 cob <- rbind("Esquema 1" = kupiec(dentro1), "Esquema 2" = kupiec(dentro2))
-# Mincer-Zarnowitz no Esquema 2, em inflação mensal: π_t = a + b π̂_{t|t-1} + u, H0: a = 0, b = 1
+# Inflação mensal observada e prevista (Esquema 2), para a figura
 pi_real <- diff(as.numeric(y))[T0:(T_ - 1)]                         # Δy em T0+1..T
 pi_prev <- um_passo - as.numeric(y)[T0:(T_ - 1)]
-mz <- lm(pi_real ~ pi_prev)
-V <- NeweyWest(mz, lag = 2, prewhite = FALSE)
-R <- diag(2); r <- c(0, 1); dif <- coef(mz) - r
-W_mz <- as.numeric(t(dif) %*% solve(V) %*% dif); p_mz <- pchisq(W_mz, 2, lower.tail = FALSE)
 
 ## ---- 7.6 Figuras ---------------------------------------------------------------------
 tt <- as.numeric(time(P)); janela <- (T0 - 48):T_
@@ -138,7 +128,6 @@ salvar_tabela(tab7, "q7_metricas"); salvar_tabela(tab_prev, "q7_previsoes")
 salvar(list(T0 = T0, data_T0 = sprintf("%d-%02d", floor(tt[T0] + 1e-9), round((tt[T0] %% 1) * 12) + 1),
             data_val_ini = tab_prev$data[1], data_fim = tail(tab_prev$data, 1), coef_tr = tabela_coef(fit_tr),
             modelo = nome_modelo(fit_tr), tab7 = tab7, razoes = razoes, tab_dm = tab_dm, cob = cob,
-            mz = c(a = unname(coef(mz)[1]), b = unname(coef(mz)[2]), W = W_mz, p = p_mz),
             dentro1 = dentro1, sigma2_tr = fit_tr$sigma2), "q7")
 message("Q7 ok: RMSE E1 = ", round(tab7$E1_RMSE[1], 2), " (RW ", round(tab7$E1_RMSE[2], 2), ", SN ", round(tab7$E1_RMSE[3], 2),
         "); E2 = ", round(tab7$E2_RMSE[1], 2), " (RW ", round(tab7$E2_RMSE[2], 2), "); cobertura E1 = ", round(cob[1, "cobertura"], 1), "%")
