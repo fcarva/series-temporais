@@ -22,6 +22,10 @@ Esta pasta é uma versão autossuficiente da parte empírica da Lista 01 (Quest�
 
 A série é o **INPC em nível** (número-índice), modelado como $y_t=100\ln P_t$. A diferença em relação a [trabalho_inpc/](../trabalho_inpc/README.md) é a série de partida: lá a série modelada é a variação mensal, com $d=0$; aqui é o índice, com $d=1$. Os modelos são equivalentes (um SARMA para $\Delta y$ é um SARIMA com $d=1$ para $y$). Partir do índice, porém, exercita todas as etapas que o enunciado pede: transformação, testes no nível e na diferença e sobrediferenciação para $d=2$.
 
+> [!TIP]
+> **Para estudar para a prova**
+> Comece pelo [guia de estudo](guia_estudo.md). Ele explica, questão por questão, o que cada passo está tentando descobrir, por que cada teste e não outro, como o teste funciona por dentro e o que o INPC respondeu. Termina com as armadilhas mais comuns e 20 perguntas de prova com resposta.
+
 ## O jeito mais simples: um script só, em qualquer lugar
 
 [lista01_inpc.R](lista01_inpc.R) é autossuficiente. Copie-o para qualquer pasta e rode no RStudio, bloco a bloco, ou com `Rscript lista01_inpc.R`; é preciso ter R e internet. O script:

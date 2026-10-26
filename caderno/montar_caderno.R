@@ -246,11 +246,12 @@ volume_lista01 <- function() {
   if (!file.exists(file.path(RAIZ, "lista01", "laboratorio_lista01.md")))
     stop("Rode antes: Rscript lista01/renderizar_laboratorio.R")
   partes <- list(
+    "Guia de estudo: o que estou fazendo e por quê" = c("lista01/guia_estudo.md"),
     "Lista 01: o que foi feito" = c("lista01/README.md"),
     "Laboratório Box-Jenkins" = c("lista01/laboratorio_lista01.md")
   )
   md <- file.path(BUILD, "volume4.md"); montar_md(partes, md)
-  capa("Volume 4", "Lista 01 em laboratório: o INPC passo a passo, com código e saídas", file.path(BUILD, "capa4.tex"))
+  capa("Volume 4", "Lista 01: guia de estudo e laboratório, o INPC passo a passo", file.path(BUILD, "capa4.tex"))
   compilar("caderno_volume4_lista01_laboratorio", md, file.path(BUILD, "capa4.tex"), OPC_LIVRO, passes = 3)
   # o relatório de entrega e o PDF do laboratório também vão para caderno/pdf/
   for (a in c("relatorio_lista01.pdf", "laboratorio_lista01.pdf")) {
