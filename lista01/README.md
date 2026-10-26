@@ -31,6 +31,17 @@ Rscript lista01/rodar_tudo.R --sem-pdf  # só os scripts
 
 No Windows, use `scripts\r.ps1 lista01\rodar_tudo.R`. Para o PDF é preciso LaTeX com LuaLaTeX e as fontes Libertinus (TeX Live ou MiKTeX).
 
+## Laboratório: a lista inteira num script simples
+
+[laboratorio_lista01.R](laboratorio_lista01.R) é um **script R único e linear**, com cerca de 300 linhas e nenhuma função própria. Ele lê a base, roda a bateria de testes e responde cada item da lista nos comentários `#'`. Usa as bibliotecas principais:
+- `forecast`: `Arima`, `forecast`, `accuracy`, `checkresiduals`, `ndiffs`/`nsdiffs`;
+- `urca`: `ur.df`, `ur.pp`, `ur.kpss`;
+- `tseries`: Jarque-Bera e KPSS;
+- `lmtest`: `coeftest`;
+- `FinTS`: ARCH-LM.
+
+É o arquivo para estudar rodando no RStudio. Os scripts `01_`…`07_` e o `relatorio_lista01.Rmd` são a versão completa, com os testes extras de robustez. O comando `Rscript lista01/renderizar_laboratorio.R` transforma o laboratório em PDF e na nota [laboratorio_lista01.md](laboratorio_lista01.md), que aparece no Obsidian e no volume 4 do caderno.
+
 ## Arquivos, na ordem de execução
 
 | Arquivo | Questão | O que faz e com quais ferramentas |

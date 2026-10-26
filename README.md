@@ -48,6 +48,7 @@ Para só o trabalho do INPC: `Rscript trabalho_inpc/inpc.R`. Para atualizar a s�
 | **Fazer o trabalho em dupla (Lista 01)** | [trabalho_inpc/](trabalho_inpc/README.md): roteiro, [relatório](trabalho_inpc/relatorio.md) e [código](trabalho_inpc/inpc.R) |
 | Entender a lógica e a ordem de estudo | [PLANO_ESTUDO.md](PLANO_ESTUDO.md) |
 | Revisar fórmulas | [formulario/formulario.md](formulario/formulario.md) |
+| **Lista 01 (entrega): código, relatório e laboratório** | [lista01/](lista01/README.md): scripts Q1–Q7, `relatorio_lista01.Rmd` e o [laboratório](lista01/laboratorio_lista01.md) em script único |
 | Estudar no papel | `caderno/`: três volumes em PDF (ver [caderno/README.md](caderno/README.md)) |
 | Levar tudo para o Obsidian | `Rscript scripts/exportar_obsidian.R`: espelha o repositório numa pasta do cofre `88f5c4b837449c13` |
 | Saber qual sinal usar no MA | [CONVENCOES.md](CONVENCOES.md) §2 |

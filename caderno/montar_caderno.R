@@ -241,11 +241,30 @@ volume_trabalho <- function() {
   compilar("caderno_volume3_trabalho_inpc", md, file.path(BUILD, "capa3.tex"), OPC_LIVRO, passes = 3)
 }
 
+volume_lista01 <- function() {
+  # O laboratório é um script R; a nota Markdown é gerada por lista01/renderizar_laboratorio.R
+  if (!file.exists(file.path(RAIZ, "lista01", "laboratorio_lista01.md")))
+    stop("Rode antes: Rscript lista01/renderizar_laboratorio.R")
+  partes <- list(
+    "Lista 01: o que foi feito" = c("lista01/README.md"),
+    "Laboratório Box-Jenkins" = c("lista01/laboratorio_lista01.md")
+  )
+  md <- file.path(BUILD, "volume4.md"); montar_md(partes, md)
+  capa("Volume 4", "Lista 01 em laboratório: o INPC passo a passo, com código e saídas", file.path(BUILD, "capa4.tex"))
+  compilar("caderno_volume4_lista01_laboratorio", md, file.path(BUILD, "capa4.tex"), OPC_LIVRO, passes = 3)
+  # o relatório de entrega e o PDF do laboratório também vão para caderno/pdf/
+  for (a in c("relatorio_lista01.pdf", "laboratorio_lista01.pdf")) {
+    o <- file.path(RAIZ, "lista01", a)
+    if (file.exists(o)) file.copy(o, file.path(SAIDA, paste0("lista01_", a)), overwrite = TRUE)
+  }
+}
+
 ## ---- execução ------------------------------------------------------------------------
 alvos <- commandArgs(trailingOnly = TRUE)
-if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho")
+if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01")
 cat("pandoc:  ", PANDOC, "\nlualatex:", LUALATEX, "\n")
 if ("teoria" %in% alvos) volume_teoria()
 if ("lista" %in% alvos) volume_lista()
 if ("trabalho" %in% alvos) volume_trabalho()
+if ("lista01" %in% alvos) volume_lista01()
 cat("\nPDFs em caderno/pdf/\n")
