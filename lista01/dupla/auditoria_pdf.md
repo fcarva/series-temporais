@@ -57,7 +57,7 @@ O MASE usa como escala o erro médio absoluto do sazonal ingênuo dentro do trei
 
 ### Uma discussão econômica legítima: a média mudou
 
-O viés é negativo em todos os previsores que puxam para a média do treino ($-0{,}084$ no M1). A média da validação foi $0{,}384\%$ a.m., contra $0{,}470\%$ no treino. As médias anuais da amostra vão de $0{,}17$ (2017) a $0{,}90$ (2015). Isso conversa com uma questão aberta na economia: **a inflação tem média constante ou uma "tendência" que se move?** Stock e Watson (2007) modelam a inflação dos EUA com uma tendência de passeio aleatório. No Brasil, o argumento a favor da média que se move é institucional: a meta caiu de 4,5% a.a. (até 2018) para 3% a.a. (desde 2024). Com meta crível, a média para onde a previsão converge deveria ser a da meta, não a média histórica da amostra.
+O viés (ME, observado menos previsto) é negativo em todos os previsores que puxam para a média do treino ($-0{,}084$ no M1): eles **superestimaram** a inflação. A média da validação foi $0{,}384\%$ a.m., contra $0{,}470\%$ no treino. As médias anuais da amostra vão de $0{,}17$ (2017) a $0{,}90$ (2015). Isso conversa com uma questão aberta na economia: **a inflação tem média constante ou uma "tendência" que se move?** Stock e Watson (2007) modelam a inflação dos EUA com uma tendência de passeio aleatório. No Brasil, o argumento a favor da média que se move é institucional: a meta caiu de 4,5% a.a. (até 2018) para 3% a.a. (desde 2024). Com meta crível, a média para onde a previsão converge deveria ser a da meta, não a média histórica da amostra.
 
 Isso **não** obriga a mudar o modelo, e o enunciado proíbe mudá-lo. Mas é a discussão que transforma "perdemos para o ingênuo" em uma resposta de pós-graduação. Os testes de raiz unitária rejeitam com folga e o DF-GLS bem especificado também rejeita (ver Q2d abaixo), então $d=0$ continua defensável. O ponto é que, numa janela de 24 meses, a média amostral de 2013–2024 não é a média do regime de 2025–2026.
 
@@ -72,7 +72,9 @@ Com 24 observações, o teste de Diebold e Mariano (perda quadrática) **não re
 | M1 × passeio aleatório, esquema 1 | 0,07 |
 | M1 × passeio aleatório, esquema 2 | 0,06 |
 
-A conclusão correta para a Q7(f) é então: **o M1 bate o passeio aleatório nos dois esquemas (com significância marginal, a 10%) e perde para o sazonal ingênuo nos dois, mas sem diferença estatisticamente significativa.**
+Um cuidado: o `dm.test()` usa `h = 1` por padrão. Isso está certo para o esquema 2, mas não para o esquema 1. Lá, os erros vêm todos da mesma origem e são autocorrelacionados entre horizontes, o que pede uma variância robusta (`varestimator = "bartlett"`). Refeito assim, M1 × sazonal ingênuo dá $ppprox0{,}30$ e M1 × passeio aleatório fica entre $0{,}08$ ($h=3$) e $0{,}18$ ($h=12$). Vale citar no texto qual `h` foi usado.
+
+A conclusão correta para a Q7(f) é então: **o M1 bate o passeio aleatório nos dois esquemas e perde para o sazonal ingênuo nos dois, mas nenhuma diferença é significativa a 5%.** A vantagem sobre o passeio aleatório é frágil: chega a 10% só no esquema 2.
 
 ## 2. Erros que precisam ser corrigidos (Q5 a Q7, novos nesta versão)
 
@@ -82,7 +84,7 @@ A conclusão correta para a Q7(f) é então: **o M1 bate o passeio aleatório no
 | Q5(e) | "os novos coeficientes não são estatisticamente significativos" | o PDF mostra só `coef()`, sem erro-padrão; a afirmação fica sem prova | mostrar `lmtest::coeftest()`: $\widehat\phi_2=0{,}127$ ($t=1{,}61$, $p=0{,}11$) e $\widehat\theta_1=-0{,}175$ ($t=-1{,}40$, $p=0{,}16$). A conclusão se mantém, agora com números. Vale notar que o AIC do vizinho AR(2) ($128{,}08$) é ligeiramente menor que o do M1 ($128{,}65$), mas a diferença é menor que 2 e o BIC prefere o M1 |
 | Q6(a) | "a raiz do polinômio MA resultou em $z=-1+0i$" | **erro de sinal**. No R, o MA é $1+\theta B$. Com $\widehat\theta=-1$, o polinômio é $1-z$ e a raiz é $z=+1$. O código `polyroot(c(1, -theta_est))` usa a convenção Box-Jenkins com um coeficiente impresso na convenção do R. A raiz em $+1$ é justamente o fator $(1-B)$ da diferença em excesso | `polyroot(c(1, theta_est))`, raiz $z=+1$: o MA "desfaz" a diferença. O módulo 1 (não invertível) já estava certo |
 | Q6(a) | erro-padrão de $\widehat\theta$ igual a $0{,}025$ | com $\widehat\theta$ na fronteira $-1$, a teoria assintótica usual não vale, e esse erro-padrão não tem a interpretação de sempre | uma frase dizendo isso |
-| Q6(b) | compara $0{,}1234$ (M1) com $0{,}1241$ e diz "+0,61%", sem interpretar | (i) o $0{,}1234$ não é o $0{,}1211$ da tabela da Q4: o `forecast::Arima` corrige $\widehat\sigma^2$ por graus de liberdade e o `stats::arima` não. Precisa avisar ou usar uma só função. (ii) Falta dizer **por que** a variância quase não sobe: o MA com $\widehat\theta=-1$ absorve a diferença extra | estimar também o SARIMA(1,1,0)(1,0,0) **sem** MA: $\widehat\sigma^2=0{,}144$, cerca de 19% acima do M1, e $\widehat\phi$ troca de sinal ($-0{,}35$). Esse é o custo visível da sobrediferenciação |
+| Q6(b) | compara $0{,}1234$ (M1) com $0{,}1241$ e diz "+0,61%", sem interpretar | (i) o $0{,}1234$ não é o $0{,}1211$ da tabela da Q4: o `forecast::Arima` corrige $\widehat\sigma^2$ por graus de liberdade e o `stats::arima` não. Precisa avisar ou usar uma só função. (ii) Falta dizer **por que** a variância quase não sobe: o MA com $\widehat\theta=-1$ absorve a diferença extra | estimar também o SARIMA(1,1,0)(1,0,0) **sem** MA: $\widehat\sigma^2=0{,}144$, cerca de 17% acima do M1 estimado com a mesma função ($0{,}123$), e $\widehat\phi$ troca de sinal ($-0{,}35$). Esse é o custo visível da sobrediferenciação |
 | Q6(c) | compara a FAC **dos resíduos** e diz que o pico negativo não aparece | a pergunta é se a **série sobrediferenciada** tem autocorrelação negativa no lag 1. Nos resíduos ela não aparece justamente porque o MA a absorveu | mostrar a FAC de $\Delta y_t$: $\widehat\rho_1=-0{,}34$, fora da banda de $\pm0{,}153$. Esse é o sinal clássico |
 | Q6(d) | "aumento expressivo da variância residual" | contradiz o próprio resultado (+0,6%). Também não é verdade em geral: $\operatorname{Var}(\Delta y)=2\gamma_0(1-\rho_1)$, que só supera $\gamma_0$ se $\rho_1<0{,}5$. Aqui $\widehat\rho_1=0{,}52$ e $\operatorname{Var}(\Delta y)=0{,}166<\operatorname{Var}(y)=0{,}172$ | "aumento da variância residual **quando o modelo não inclui o MA que compensa**"; citar o $0{,}144$. Corrigir também o "\*\*" que sobrou no último item |
 | Q7(a) | tabelas com `Jan … Dec` e anos 1 a 12 | o `ts()` foi criado sem `start`. O que está rotulado como "Jan" na validação é **out/2024**, e o "Apr 0.00" é jan/2025 | `ts(..., start = c(2013, 1), frequency = 12)` uma vez e `window()` depois. Isso também corrige os eixos "5, 10, 15" e "13, 14" de todos os gráficos |
@@ -92,7 +94,7 @@ A conclusão correta para a Q7(f) é então: **o M1 bate o passeio aleatório no
 | Q7(f) | "**Caso** o modelo paramétrico não tenha superado…" | a resposta fala no condicional, como se não soubesse o resultado da própria tabela | afirmar: bate o RW nos dois esquemas, perde para o SN nos dois, nenhuma diferença significativa (DM) |
 | Q7(f) | "no Esquema 2, o Passeio Aleatório impõe uma barreira competitiva elevada" | **contradiz a tabela**: no esquema 2 o RW é o **pior** previsor (0,516) | trocar pelo argumento dos choques transitórios (seção 1, item 4) |
 | Q7(f) | "o Sazonal Ingênuo aproveita a forte persistência dos padrões sazonais" | contradiz a Q1, que diz não haver sazonalidade | corrigir a Q1 (ver seção 3). A sazonalidade existe, mas é fraca |
-| Q7(g) | só imprime "23 de 24, 95,83%" | falta a resposta: corresponde à nominal? | sim, é compatível. Com 24 observações, o IC de 95% (binomial exato) da cobertura vai de 79% a quase 100%, então o teste tem pouco poder. O único mês fora é fev/2025 (Itaipu). Notar também que os intervalos são largos (cerca de $\pm0{,}8$ p.p.) porque convergem para a variância incondicional, e que o JB rejeitou a normalidade em que eles se apoiam |
+| Q7(g) | só imprime "23 de 24, 95,83%" | falta a resposta: corresponde à nominal? | sim, é compatível. Com 24 observações, o IC de 95% (binomial exato) da cobertura vai de 79% a quase 100%, então o teste tem pouco poder. O único mês fora é fev/2025 (Itaipu). Notar também que os intervalos são largos (cerca de $\pm0{,}8$ p.p.) porque convergem para a variância incondicional, e que o JB rejeitou a normalidade em que eles se apoiam. Para mostrar que isso não muda a conclusão: com `forecast(..., bootstrap = TRUE)` (e `set.seed`), a cobertura continua 23/24 e a largura média sobe pouco (1,65 contra 1,61) |
 
 ## 3. Pendências da revisão anterior que continuam no PDF
 
@@ -103,7 +105,7 @@ A conclusão correta para a Q7(f) é então: **o M1 bate o passeio aleatório no
 | Q2(a) | "($p<0{,}01$)" e nenhum p-valor | o `urca` não dá p-valor do $\tau$. Escrever "rejeita a 1% pelo valor crítico", ou tirar p-valores de MacKinnon (`tseries::adf.test` ou `fUnitRoots::punitroot`) |
 | Q2(a) | DF-I (sem constante) usado como evidência | essa especificação está errada para uma série de média $0{,}46$. Deve ser citado só como especificação descartada |
 | Q2(a) e (b) | "confirma de forma definitiva", "com total segurança" | teste não confirma $H_0$ nem dá certeza. "Os testes convergem para…" |
-| Q2(b) | as estatísticas $\phi_1,\phi_2,\phi_3$ aparecem e não são lidas | são elas que justificam os termos determinísticos: $\phi_3=13{,}54>8{,}43$, $\phi_2=9{,}03>6{,}22$, $\phi_1=13{,}30>6{,}52$ |
+| Q2(b) | as estatísticas $\phi_1,\phi_2,\phi_3$ aparecem e não são lidas | aqui o PDF está, na essência, certo: pelo procedimento sequencial de Enders (2015, cap. 4), quando o $\tau$ rejeita a raiz unitária, os termos determinísticos podem ser testados com o $t$ usual, e é isso que o texto faz. Os $\phi$ só são indispensáveis quando o $\tau$ não rejeita. Basta uma frase dizendo isso e citando os valores ($\phi_3=13{,}54>8{,}43$; $\phi_1=13{,}30>6{,}52$), em vez de deixá-los soltos |
 | Q2(c) | "estritamente estacionária" | os testes falam de estacionariedade **fraca** |
 | Q2(c) | não repete os testes na série diferenciada | o enunciado pede. Rodar ADF/PP/KPSS em $\Delta y$ (rejeitam com folga). Isso também prepara a Q6 |
 | Q2(d) | "o DF-GLS pode confundir a alta persistência… por isso divergiu" | **é o contrário**: o DF-GLS tem *mais* poder. O problema é `lag.max = 12`, que no `urca` **fixa** 12 defasagens, sem seleção. Com 1 defasagem (a que o BIC escolheu no ADF): $-3{,}65$; com 2: $-3{,}49$; com 4: $-2{,}93$. Todos rejeitam (crítico $-1{,}94$). Só com 12 dá $-1{,}21$ |
@@ -123,6 +125,30 @@ A conclusão correta para a Q7(f) é então: **o M1 bate o passeio aleatório no
 - **Mistura de `arima()` e `Arima()`**: elas dão $\widehat\sigma^2$ diferentes (0,1211 e 0,1234). Usar uma só.
 - **Entrega**: o `sessionInfo()` continua faltando.
 
+### Boas práticas que evitam boa parte dos erros acima
+
+- **Um só objeto `ts`, criado uma vez.** `y <- ts(inpc$Variação, start = c(2013, 1), frequency = 12)`, e depois `treino <- window(y, end = c(2024, 9))` e `validacao <- window(y, start = c(2024, 10))`. Sem números mágicos (`141`, `165`, `130:153`): usar `length(y)`, `H <- 24` e `T0 <- length(y) - H`. As datas certas nas tabelas e nos eixos saem de graça.
+- **Uma só função de estimação** (`Arima()`), para que $\widehat\sigma^2$, AIC e resíduos sejam comparáveis entre as questões.
+- **Números do texto vindos do código.** No Quarto, `` `r round(AIC(modelo1), 2)` `` no meio da frase em vez de digitar o valor. Isso impede que texto e tabela se contradigam, como aconteceu na Q7(f).
+- **Tabelas pelo código** (`kable()` sobre um `data.frame`), nunca com valores colados em `c("0.5065 (0.0673) [7.52]", ...)`.
+- **`set.seed()`** antes de qualquer coisa aleatória (bootstrap).
+- **Escrever qual convenção de sinal do MA se usa** antes de calcular raízes. O erro da Q6(a) vem daí.
+- **Uma pergunta, uma resposta direta.** Abrir cada item com a resposta ("Sim, a cobertura é compatível com a nominal: 23 de 24.") e só depois justificar.
+
+### Redação: cortar o tom de texto gerado
+
+Algumas frases do PDF soam genéricas e prometem mais do que os testes entregam. O corretor percebe. A regra é simples: frase sem número ou sem referência a um resultado do próprio trabalho pode sair.
+
+| No PDF | Problema | Melhor |
+|---|---|---|
+| "confirma de forma definitiva", "com total segurança", "comprova empiricamente" | teste não confirma nem comprova | "os testes rejeitam a raiz unitária a 1%" |
+| "revela nuances importantes sobre a dinâmica" | não diz nada | dizer o resultado: "bate o RW, perde para o SN" |
+| "unificando perfeitamente a parcimônia e a qualidade de ajuste" | adjetivo no lugar de número | "AIC e BIC escolhem o M1; a diferença para o M2 é 0,46 no AIC" |
+| "pela máxima parcimônia e rigor estatístico" | idem | cortar |
+| "esse resultado é teoricamente consistente com a literatura" | sem citar quem | citar (Atkeson e Ohanian, 2001; Faust e Wright, 2013) |
+
+Também ajuda padronizar a língua (o PDF mistura "parcimónia" e "parcimônia", "grelha" e "grade") e usar vírgula decimal no texto, já que as saídas do R usam ponto.
+
 ## 5. Ordem sugerida de trabalho
 
 1. **Q7(f) e Q7(g)**: reescrever com os números (seção 1). É onde está a pergunta de vocês e onde o texto atual contradiz a própria tabela.
@@ -130,12 +156,13 @@ A conclusão correta para a Q7(f) é então: **o M1 bate o passeio aleatório no
 3. **Q2(d)**: o argumento do DF-GLS está invertido, e a correção (`lag.max` menor) reforça a conclusão $d=0$.
 4. **Q1 × Q3 × Q7**: tornar a sazonalidade coerente nas três questões.
 5. **Q5(e), Q6(b), Q6(c), Q7(d), Q7(e)**: acrescentar os números que faltam.
-6. Forma: `start` no `ts()`, quebra de linha no código, legendas.
+6. Forma: `start` no `ts()`, quebra de linha no código, legendas e a revisão de redação da seção 4.
 
 ## Referências
 
 - Atkeson, A.; Ohanian, L. E. (2001). Are Phillips curves useful for forecasting inflation? *Federal Reserve Bank of Minneapolis Quarterly Review*, 25(1), 2–11.
 - Diebold, F. X.; Mariano, R. S. (1995). Comparing predictive accuracy. *Journal of Business & Economic Statistics*, 13(3), 253–263.
+- Enders, W. (2015). *Applied Econometric Time Series*. 4. ed. Wiley, cap. 4 (procedimento sequencial para os testes de raiz unitária).
 - Faust, J.; Wright, J. H. (2013). Forecasting inflation. In: Elliott, G.; Timmermann, A. (orgs.). *Handbook of Economic Forecasting*, v. 2A. Elsevier, p. 2–56.
 - Hyndman, R. J.; Koehler, A. B. (2006). Another look at measures of forecast accuracy. *International Journal of Forecasting*, 22(4), 679–688.
 - Stock, J. H.; Watson, M. W. (2007). Why has U.S. inflation become harder to forecast? *Journal of Money, Credit and Banking*, 39(s1), 3–33.
