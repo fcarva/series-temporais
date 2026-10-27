@@ -44,7 +44,7 @@ A notação de referência é a **da lista** (`LST`), porque é ela que se resol
 
 > [!CAUTION]
 > **Duas convenções convivem e mudam as fórmulas**
-> - **Box-Jenkins** (lista, exceto Q8): $\theta(B)=1-\theta_1B-\dots-\theta_qB^q$, e o pacote `forecast` imprime nessa lógica.
+> - **Box-Jenkins** (lista, exceto Q8): $\theta(B)=1-\theta_1B-\dots-\theta_qB^q$.
 > - **Sinal positivo** (aulas AU02, Q8 da lista, Hamilton, `stats::arima`): $\theta(L)=1+\theta_1L+\dots$
 >
 > Toda resposta começa dizendo qual usa. Os helpers de [R/series.R](R/series.R) recebem `sinal_ma = "bj"` ou `"r"`. Os coeficientes impressos pelo `Arima` do R estão **sempre** na convenção de sinal positivo.

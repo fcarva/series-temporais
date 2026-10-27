@@ -37,3 +37,8 @@ lista01/saidas/*.rds
 lista01/*.tex
 lista01/*.log
 lista01/relatorio_lista01_files/
+# Laboratório: sessionInfo da máquina que rodou e saídas do render (o CSV dos dados é versionado)
+lista01/lab/sessionInfo.txt
+lista01/lab/*.html
+lista01/lab/lab_inpc.Rmd
+lista01/lab/lab_inpc_files/

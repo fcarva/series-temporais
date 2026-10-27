@@ -48,6 +48,12 @@ Rscript lista01/rodar_tudo.R --sem-pdf  # só os scripts
 
 No Windows, use `scripts\r.ps1 lista01\rodar_tudo.R`. Para o PDF é preciso LaTeX com LuaLaTeX e as fontes Libertinus (TeX Live ou MiKTeX).
 
+## Laboratório com `sidrar` e auditoria (comece por aqui)
+
+[lab/lab_inpc.R](lab/lab_inpc.R) é a versão para mexer no RStudio. Ela baixa o INPC com o `sidrar` (com cache em `lab/dados/`), deixa todos os parâmetros na seção 0 (janela, candidatos, modelo escolhido, horizonte, data do Chow) e segue o ciclo de Box-Jenkins da aula 03. Responde cada item da Q1 à Q7 com tabelas no formato do enunciado, sem nenhum número digitado nos comentários. Ver [lab/README.md](lab/README.md).
+
+A [auditoria](AUDITORIA.md) cruza o enunciado, os slides e as seis versões do trabalho que existem no repositório. O principal achado é que as versões chegam a conclusões opostas na Q7. No índice, o SARIMA bate os benchmarks; na inflação mensal, não bate o sazonal ingênuo. As duas leituras estão certas, e a entrega precisa mostrar as duas.
+
 ## Laboratório: a lista inteira num script simples
 
 [laboratorio_lista01.R](laboratorio_lista01.R) é um **script R único e linear**, com cerca de 300 linhas e nenhuma função própria. Ele lê a base, roda a bateria de testes e responde cada item da lista nos comentários `#'`. Usa as bibliotecas principais:
