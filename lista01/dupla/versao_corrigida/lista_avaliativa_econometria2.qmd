@@ -1,0 +1,765 @@
+---
+title: "Lista Avaliativa Econometria II"
+author: "Patrick Beraldo Torezani e Felipe Carvalho Souza Santos"
+lang: pt
+format:
+  pdf:
+    number-sections: true
+    include-in-header:
+      text: |
+        \usepackage{fvextra}
+        \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
+knitr:
+  opts_chunk:
+    warning: false
+    message: false
+---
+
+```{r}
+# carregamento dos pacotes
+library(tidyverse)
+library(tseries)
+library(forecast)
+library(urca)
+library(lmtest)
+library(knitr)
+library(FinTS)
+
+# carregamento da base de dados (o arquivo fica na mesma pasta do .qmd)
+
+inpc <- readxl::read_excel("inpc_13_a_26.xlsx")
+
+# série temporal mensal, com a data de início, usada em todo o trabalho
+inpc_ts <- ts(inpc$Variação, start = c(2013, 1), frequency = 12)
+
+# números no texto com vírgula decimal
+vf <- function(x, d = 0) format(round(x, d), nsmall = d, decimal.mark = ",")
+```
+
+# Preparação e Inspeção Preliminar
+
+## Questão 1
+
+(a) Apresente o gráfico da série em nível. Descreva o que observa quanto a: tendência, sazonalidade, mudanças de nível ou de inclinação, outliers e comportamento da dispersão ao longo do tempo.
+
+```{r}
+inpc |>
+  ggplot() +
+  geom_line(aes(x = Mês, y = Variação),linewidth = 0.5) +
+  labs(title = "Gráfico em nível INPC",
+       x = "Mês/Ano",
+       y = "Variação",
+       subtitle = "Variação Mensal do INPC de 01/2013 à 09/2026") +
+  theme_classic()
+
+# média de cada mês do ano e de cada ano
+medias_mes <- tapply(inpc_ts, cycle(inpc_ts), mean)
+medias_ano <- tapply(inpc_ts, floor(time(inpc_ts)), mean)
+```
+
+Quanto a descrição do gráfico da série da variação mensal do INPC:
+
+Sobre a tendência: não se observa uma tendência claramente crescente ou decrescente ao longo de todo o período. A série oscila em torno de um patamar relativamente estável, com períodos de maior e menor variação.
+
+Sobre a sazonalidade: no gráfico, o padrão sazonal não é evidente, mas as médias por mês mostram uma sazonalidade fraca: fevereiro (`r vf(medias_mes[2], 2)`%), março (`r vf(medias_mes[3], 2)`%) e dezembro (`r vf(medias_mes[12], 2)`%) ficam acima da média, e agosto (`r vf(medias_mes[8], 2)`%) fica abaixo. A FAC no lag 12 (Questão 3) confirma essa leitura.
+
+Sobre mudanças de nível ou de inclinação: observam-se mudanças na intensidade das oscilações ao longo do tempo. Entre aproximadamente 2015 e 2016 e entre 2020 e 2022, ocorrem variações positivas mais elevadas. Em 2022, destaca-se uma queda acentuada, seguida de recuperação. Não há evidência visual clara de uma mudança permanente de nível ou de inclinação, mas há mudanças temporárias de patamar: a média anual vai de `r vf(min(medias_ano), 2)`% a.m. (`r names(which.min(medias_ano))`) a `r vf(max(medias_ano), 2)`% a.m. (`r names(which.max(medias_ano))`).
+
+Sobre outliers: destacam-se alguns picos positivos, especialmente por volta de 2015, 2016, 2018, 2020, 2022 e 2025, além de uma queda negativa acentuada em 2022.
+
+Sobre dispersão ao longo do tempo: a amplitude das oscilações varia durante o período. Entre 2015 e 2016 e entre 2020 e 2022, observam-se oscilações mais intensas, enquanto em alguns intervalos, como aproximadamente entre 2017 e 2019, as variações parecem menores. Portanto, a dispersão não aparenta ser completamente constante ao longo do tempo.
+
+# Ordem e Integração
+
+## Questão 2: Testes de raiz unitária e determinação de d e D.
+
+(a) Aplique os testes ADF, PP e KPSS à série em nível. Reporte, para cada um: a estatística, o valor crítico, o p-valor, o número de defasagens (e o critério usado para escolhê-lo) e os termos determinísticos incluídos.
+
+```{r}
+# DF-III: constante + tendência → tau3, phi2, phi3
+ur.df(inpc$Variação, type = "trend", lags = 12, selectlags = "BIC") |> summary()
+
+# DF-II: só constante → tau2, phi1
+ur.df(inpc$Variação, type = "drift", lags = 12, selectlags = "BIC") |> summary()
+
+# DF-I: sem termos determinísticos → tau1
+ur.df(inpc$Variação, type = "none",  lags = 12, selectlags = "BIC") |> summary()
+
+# p-valores de MacKinnon (1996) para as estatísticas tau (o summary do urca não os informa)
+n <- length(inpc$Variação)
+c(p_tau3 = punitroot(-5.202, N = n, trend = "ct", statistic = "t"),
+  p_tau2 = punitroot(-5.158, N = n, trend = "c",  statistic = "t"),
+  p_tau1 = punitroot(-3.116, N = n, trend = "nc", statistic = "t"))
+```
+
+Para testar a raiz unitária com o teste ADF, aplicamos a sequência habitual de modelos ADF, utilizando o critério BIC (com um máximo de 12 defasagens) para definir a dinâmica. Em todas as três especificações, o BIC selecionou 1 defasagem. Vale notar que o `selectlags` do `ur.df` só compara de 1 a 12 defasagens, então 1 é o menor número possível nessa função.
+
+Analisando os resultados de forma integrada, no modelo com constante e tendência (DF-III), a estatística do teste foi $\tau_3 = -5{,}202$ (frente aos valores críticos de $-3{,}99$ a 1% e $-3{,}43$ a 5%), o que rejeita a hipótese nula da raiz unitária a 1% (p-valor de MacKinnon menor que 0,001). No entanto, como a tendência linear não apresentou significância estatística ($p = 0{,}458$), este termo mostrou-se redundante. Em seguida, no modelo com somente a constante (DF-II), a estatística do teste foi $\tau_2 = -5{,}158$ (frente aos valores críticos de $-3{,}46$ a 1% e $-2{,}88$ a 5%), rejeitando a hipótese nula a 1%, com o intercepto significativo. Por fim, no modelo sem termos determinísticos (DF-I), a estatística $\tau_1 = -3{,}116$ (frente ao valor crítico de $-2{,}58$ a 1%) também rejeita a raiz unitária, mas essa especificação não é adequada para uma série com média positiva e serve apenas de comparação.
+
+Conclui-se que, independentemente da escolha dos termos determinísticos, as três especificações rejeitam a hipótese nula de raiz unitária. A especificação DF-II (contendo apenas a constante, 1 defasagem escolhida por BIC e uma estatística de teste $\tau_2 = -5{,}158$) é a mais adequada, e os testes indicam que a série é estacionária.
+
+---
+
+```{r}
+# Teste PP
+
+teste_urca <- ur.pp(inpc$Variação, type = "Z-tau", model = "trend", lags = "short")
+teste_urca
+summary(teste_urca)
+teste_urca@lag
+teste_urca@cval
+
+# p-valor de MacKinnon para a estatística Z-tau
+punitroot(teste_urca@teststat, N = n, trend = "ct", statistic = "t")
+```
+
+Como a estatística calculada ($Z_\tau = -7{,}331$) é inferior (mais negativa) aos valores críticos em todos os níveis de significância comuns ($-4{,}016$ a 1% e $-3{,}438$ a 5%), rejeita-se a hipótese nula ($H_0$) de raiz unitária, com p-valor menor que 0,001. Portanto, conclui-se que a série é estacionária. Número de defasagens: 4 defasagens. Critério de escolha: foi utilizado o critério de truncamento padrão curto de Newey-West (lags = "short"), cuja regra calcula o número de defasagens pela fórmula $l = \lfloor 4 \times (T/100)^{0,25} \rfloor$. Termos determinísticos: constante e tendência.
+
+---
+
+```{r}
+# Teste KPSS
+
+ur.kpss(inpc$Variação, type = "mu",  lags = "short") |> summary()
+```
+
+O teste KPSS com 4 defasagens e constante apresentou uma estatística de $0{,}1785$, ficando abaixo de todos os valores críticos (como $0{,}463$ a 5%), logo o p-valor é maior que 0,10 (a tabela do KPSS só vai de 10% a 1%). Como a hipótese nula do teste é a estacionariedade, não rejeitamos $H_0$. O resultado é coerente com o ADF e o PP.
+
+---
+
+b) Justifique explicitamente a inclusão ou não de constante e de tendência na regressão auxiliar do ADF. Mostre como a conclusão se altera (ou não) entre as especificações.
+
+```{r}
+# DF-III: constante + tendência → tau3, phi2, phi3
+df_trend <- ur.df(inpc$Variação, type = "trend", lags = 12, selectlags = "BIC") |> summary()
+
+# DF-II: só constante → tau2, phi1
+df_drift <- ur.df(inpc$Variação, type = "drift", lags = 12, selectlags = "BIC") |> summary()
+
+
+# Estatistica de teste e valor crítico da df_trend
+df_trend@teststat
+df_trend@cval
+
+# Estatistica de teste e valor crítico da df_drift
+df_drift@teststat
+df_drift@cval
+```
+
+A inclusão dos termos determinísticos na regressão do ADF justifica-se, primeiro, pelo gráfico: a série oscila em torno de uma média positiva e não mostra tendência, o que aponta para a versão só com constante. A análise dos coeficientes confirma: a tendência linear foi excluída por ser estatisticamente insignificante no modelo DF-III ($p = 0{,}458$), enquanto a constante foi mantida por apresentar forte significância no modelo DF-II ($p < 0{,}001$), refletindo a oscilação da inflação em torno de uma média positiva. Esses testes $t$ usuais só valem porque o $\tau$ já rejeitou a raiz unitária; caso contrário, seria preciso usar as estatísticas $\phi$, que aqui também rejeitam ($\phi_3 = 13{,}54 > 8{,}43$ e $\phi_1 = 13{,}30 > 6{,}52$, a 1%). A conclusão sobre a série não se altera entre as especificações. No modelo com constante e tendência (DF-III), rejeita-se $H_0$ a 1% ($\tau_3 = -5{,}202$ contra o valor crítico de $-3{,}99$). Ao remover a tendência e rodar o modelo apenas com constante (DF-II), rejeita-se novamente $H_0$ a 1% ($\tau_2 = -5{,}158$ contra o valor crítico de $-3{,}46$). Em ambas as especificações, rejeita-se a hipótese nula de raiz unitária a 1% de significância, indicando que a série inpc\$Variação é estacionária.
+
+---
+
+c) Repita os testes para a série diferenciada e determine d. Se a série for sazonal, avalie também a necessidade de diferença sazonal e determine D.
+
+```{r}
+# Os mesmos testes na série diferenciada
+d_inpc <- diff(inpc$Variação)
+c(ADF_tau2 = ur.df(d_inpc, type = "drift", lags = 12, selectlags = "BIC")@teststat[1, "tau2"],
+  PP_Ztau  = ur.pp(d_inpc, type = "Z-tau", model = "constant", lags = "short")@teststat,
+  KPSS     = ur.kpss(d_inpc, type = "mu", lags = "short")@teststat)
+
+# Para achar d:
+# Usa APENAS o teste KPSS para determinar d
+d <- ndiffs(inpc_ts, test = "kpss")
+d
+
+# Para achar D
+D <- nsdiffs(inpc_ts, test = "ocsb")
+D
+```
+
+Na série diferenciada, o ADF e o PP rejeitam a raiz unitária com folga e o KPSS não rejeita a estacionariedade, como esperado: a série em nível já é estacionária, e diferenciá-la não é necessário. A avaliação conjunta dos testes formais confirma que a série da variação mensal do inpc possui ordens de integração $d = 0$ e $D = 0$. Como a série é estacionária (no sentido fraco) tanto na sua dinâmica regular quanto na sazonal, ela não requer qualquer tipo de diferenciação.
+
+---
+
+d) Sua série apresenta tendência estocástica (diferença-estacionária) ou determinística (tendência-estacionária)? Caso os testes não permitam decidir com segurança, explicite a ambiguidade e justifique a escolha adotada.
+
+```{r}
+ur.ers(inpc_ts, type = "DF-GLS", model = "constant", lag.max = 12) |> summary()
+
+# No urca, lag.max FIXA o número de defasagens (não há seleção automática).
+# Sensibilidade do DF-GLS ao número de defasagens:
+sapply(c(1, 2, 4, 12), function(L)
+  ur.ers(inpc_ts, type = "DF-GLS", model = "constant", lag.max = L)@teststat)
+```
+
+Nenhuma das duas: a variação mensal do INPC é estacionária em torno de uma média constante. A tendência linear não é significativa (Questão 2(b)) e os testes rejeitam a raiz unitária, então não há tendência determinística nem estocástica. A tendência de preços está no índice, do qual a variação é a primeira diferença.
+
+O teste escolhido para verificar a ambiguidade foi o DF-GLS. Com 12 defasagens, a estatística foi de $-1{,}2131$, superior ao valor crítico de $-1{,}94$ (a 5%), e não rejeitamos a hipótese nula ($H_0$) de raiz unitária. Essa divergência não vem do teste, que tem mais poder que o ADF, e sim da especificação: no `urca`, `lag.max = 12` fixa 12 defasagens, sem seleção. Com 1 a 4 defasagens (o BIC do ADF escolheu 1), o DF-GLS rejeita a raiz unitária, como os demais testes. Assim, adota-se $d = 0$.
+
+---
+
+# Identificação
+
+## Questão 3: FAC, FACP e formulação de modelos candidatos.
+
+a) Apresente a FAC e a FACP da série já diferenciada (se necessário) conforme decidido na Questão 2, com bandas de confiança de 95%. Use um número de defasagens que cubra ao menos dois ciclos sazonais completos.
+
+```{r}
+ggtsdisplay(inpc_ts, lag.max = 24, plot.type = "partial")
+
+# valores da FAC nas defasagens sazonais e vizinhas
+fac <- acf(inpc_ts, lag.max = 36, plot = FALSE)$acf[-1]
+round(c(lag11 = fac[11], lag12 = fac[12], lag13 = fac[13], lag24 = fac[24], lag36 = fac[36],
+        banda = 1.96 / sqrt(length(inpc_ts))), 3)
+```
+
+---
+
+b) Interprete os correlogramas: há truncamento, decaimento exponencial ou decaimento amortecido? Há picos nos lags sazonais (s, 2s, 3s)? Há picos nas vizinhanças (s − 1, s + 1) que sugiram estrutura multiplicativa?
+
+A análise dos correlogramas indica que a componente regular da série segue um processo AR(1), evidenciado pelo decaimento gradual da FAC e pelo truncamento da FACP logo no primeiro lag. Além disso, o pico verificado na defasagem sazonal $s = 12$ da FAC (`r vf(fac[12], 3)`, acima da banda de `r vf(1.96 / sqrt(length(inpc_ts)), 3)`) indica uma sazonalidade anual fraca. Em $2s = 24$ e $3s = 36$, a FAC já é desprezível (`r vf(fac[24], 3)` e `r vf(fac[36], 3)`), o que não sugere raiz sazonal. Nas vizinhanças, o lag 11 (`r vf(fac[11], 3)`) também está perto da banda, e o lag 13 (`r vf(fac[13], 3)`) fica dentro dela, então não há sinal forte de termo multiplicativo.
+
+---
+
+c) Com base nessa leitura, proponha três especificações candidatas, justificando cada uma pelo padrão observado.
+
+Com base na leitura dos correlogramas, que indicam um comportamento regular do tipo AR(1) — caracterizado pelo decaimento gradual da FAC e pelo truncamento da FACP no primeiro lag — em conjunto com a presença de um pico sazonal significativo no lag 12, podemos propor três especificações candidatas de modelos SARIMA na forma $(p, d, q) \times (P, D, Q)_s$:
+
+SARIMA$(1, 0, 0) \times (1, 0, 0)_{12}$: Esta especificação é justificada pela presença de um componente autoregressivo regular de ordem 1 na parte de curto prazo e de um termo autoregressivo sazonal puro no décimo segundo lag, capturando a inércia da série e a repetição anual do ciclo sazonal.
+
+SARIMA$(1, 0, 0) \times (0, 0, 1)_{12}$: Esta alternativa substitui o componente autoregressivo sazonal por um termo de médias móveis sazonal de ordem 1. Ela é apoiada pelo comportamento da FAC no ciclo sazonal, que tem um pico em 12 e nada em 24 e 36, o que também é compatível com um truncamento sazonal.
+
+SARIMA$(1, 0, 0) \times (1, 0, 1)_{12}$: Esta terceira opção combina um termo autoregressivo regular com uma estrutura sazonal mista (contendo tanto um componente AR quanto MA sazonal). Justifica-se porque a amostra não permite distinguir com clareza entre o SAR e o SMA.
+
+---
+
+# Estimação e Seleção
+
+## Questão 4. Estimação dos candidatos e critérios de informação.
+
+a) Estime os três candidatos por máxima verossimilhança. Reporte, em tabela única: coeficientes, erros-padrão, estatísticas $t$, $\hat\sigma_a^2$, log-verossimilhança, AIC e BIC.
+
+```{r}
+# Estimação por Máxima Verossimilhança Exata (ML)
+modelo1 <- arima(inpc$Variação, order = c(1, 0, 0), seasonal = list(order = c(1, 0, 0), period = 12), method = "ML")
+modelo2 <- arima(inpc$Variação, order = c(1, 0, 0), seasonal = list(order = c(0, 0, 1), period = 12), method = "ML")
+modelo3 <- arima(inpc$Variação, order = c(1, 0, 0), seasonal = list(order = c(1, 0, 1), period = 12), method = "ML")
+
+# Função para extrair tabela de coeficientes, erro-padrão e estatística t
+extrair_resultados <- function(model) {
+  coefs <- model$coef
+  se <- sqrt(diag(model$var.coef))
+  t_stat <- coefs / se
+  res <- cbind(Coeficiente = coefs, Erro_Padrao = se, Estatistica_t = t_stat)
+  return(res)
+}
+
+# Visualizar coeficientes e testes t
+print(extrair_resultados(modelo1))
+print(extrair_resultados(modelo2))
+print(extrair_resultados(modelo3))
+
+# Tabela única montada pelo código: "coeficiente (erro-padrão) [t]"
+celula <- function(model, termo) {
+  r <- extrair_resultados(model)
+  if (!termo %in% rownames(r)) return("-")
+  sprintf("%.4f (%.4f) [%.2f]", r[termo, 1], r[termo, 2], r[termo, 3])
+}
+coluna <- function(model) c(sapply(c("ar1", "sar1", "sma1", "intercept"), celula, model = model),
+                            sprintf("%.4f", model$sigma2), sprintf("%.2f", logLik(model)),
+                            sprintf("%.2f", AIC(model)), sprintf("%.2f", BIC(model)))
+
+tabela_final <- data.frame(
+  Parametro = c("AR1 (phi1)", "SAR1 (Phi1)", "SMA1 (Theta1)", "Média (intercept)", "sigma2", "Log-Lik", "AIC", "BIC"),
+  M1 = coluna(modelo1), M2 = coluna(modelo2), M3 = coluna(modelo3)
+)
+
+# Exibindo formatado
+kable(tabela_final, col.names = c("Parâmetro", "SARIMA(1,0,0)x(1,0,0)", "SARIMA(1,0,0)x(0,0,1)", "SARIMA(1,0,0)x(1,0,1)"),
+      align = c("l", "c", "c", "c"))
+```
+
+O que o `arima()` chama de *intercept* é a média da série ($\hat\mu = 0{,}461$% a.m.), e não a constante da equação. No M3, nem o SAR nem o SMA são significativos ($t$ de 0,74 e $-0{,}41$), com erros-padrão muito maiores que nos outros modelos: os dois termos sazonais são redundantes entre si.
+
+---
+
+b) Informe o tamanho da amostra efetiva de cada estimação.
+
+```{r}
+# Tamanho da amostra efetiva para cada modelo
+c(
+  M1 = length(modelo1$residuals),
+  M2 = length(modelo2$residuals),
+  M3 = length(modelo3$residuals)
+)
+```
+
+Como as nossas especificações candidatas utilizam $d = 0$ e $D = 0$ (visto que a série original já é estacionária e não exigiu diferenciação nos testes), e a estimação é por máxima verossimilhança exata, a amostra efetiva corresponde exatamente ao número total de observações (165).
+
+---
+
+c) Verifique se a comparação por AIC/BIC é válida. Os critérios de informação só são comparáveis entre modelos estimados sobre a mesma variável dependente e a mesma amostra efetiva. Se algum candidato tiver d ou D distinto dos demais, explique por que a comparação direta é inválida e como proceder.
+
+A comparação direta por AIC e BIC é válida, pois os modelos partilham da mesma variável dependente e da mesma amostra efetiva ($d = 0$ e $D = 0$). Caso tivessem ordens de diferenciação ($d$ ou $D$) distintas, a comparação direta seria inválida — visto que a transformação altera a escala da série e da verossimilhança —, exigindo o recurso a métricas de erro fora da amostra (out-of-sample) após reverter as séries à forma original.
+
+---
+
+d) Explicite qual convenção de contagem de parâmetros seu software adota ao computar AIC e BIC, isto é, se $\hat\sigma_a^2$ é incluído em $k$. Verifique isso na documentação.
+
+```{r}
+# k implícito no AIC: k = (AIC + 2 lnL) / 2
+c(coeficientes = length(coef(modelo1)),
+  k_no_AIC = (AIC(modelo1) + 2 * modelo1$loglik) / 2,
+  df_logLik = attr(logLik(modelo1), "df"))
+```
+
+A função `arima()` do R inclui a variância dos resíduos ($\hat\sigma_a^2$) em $k$. No Modelo 1 há 3 coeficientes (AR, SAR e intercepto), mas o AIC reportado ($128{,}65$, com $\ln L = -60{,}33$) corresponde a $k = 4$. A documentação (`?arima`) não explicita o $k$, mas o código da função calcula `aic <- value + 2 * sum(mask) + 2`, em que o `+ 2` é a variância, e o `logLik()` reporta `df = 4`. Na convenção da aula 02, $k = p + q + 1$, sem a variância. Como a diferença é a mesma para todos os modelos, a escolha pelo AIC e pelo BIC não muda.
+
+---
+
+e) Sim, o AIC e o BIC selecionam o mesmo modelo, apontando ambos para o Modelo 1 (SARIMA$(1, 0, 0) \times (1, 0, 0)_{12}$), pelo que não se verifica divergência entre os critérios. Teoricamente, o AIC privilegia a eficiência ao focar-se na minimização do erro de previsão, enquanto o BIC prioriza a consistência através de uma penalização mais severa por parâmetro adicional. Vale notar que a diferença para o Modelo 2 é pequena (0,46 no AIC e 0,45 no BIC), o que indica que o SAR e o SMA são quase equivalentes nesta amostra.
+
+---
+
+f) Verifique se as raízes estimadas dos polinômios AR e MA estão fora do círculo unitário. Apresente o gráfico.
+
+```{r}
+# plot() de um modelo arima já desenha as raízes inversas do AR e do MA: um gráfico por modelo
+plot(modelo1, main = "Modelo 1")
+plot(modelo2, main = "Modelo 2")
+plot(modelo3, main = "Modelo 3")
+```
+
+Os gráficos mostram as raízes inversas, que precisam ficar dentro do círculo unitário, o que equivale a raízes fora do círculo. Nos três modelos, todas as raízes inversas estão dentro do círculo, então os modelos são estacionários e invertíveis. No Modelo 3, as raízes do SAR e do SMA ficam próximas, o que reforça a redundância vista no item (a).
+
+---
+
+# Diagnóstico
+
+## Questão 5. Verificação dos resíduos.
+
+a) Para o modelo selecionado, apresente gráfico dos resíduos contra o tempo, FAC e FACP dos resíduos, histograma e QQ plot.
+
+```{r}
+#| fig-cap: "Diagnóstico dos resíduos do Modelo 1"
+#| fig-height: 7
+# Obter os resíduos do Modelo 1 selecionado
+res <- residuals(modelo1)
+
+# Configurar uma grelha de 3 linhas e 2 colunas para os gráficos
+par(mfrow = c(3, 2), mar = c(4, 4, 3, 1))
+
+# 1. Gráfico dos resíduos contra o tempo
+plot(res, main = "Resíduos contra o Tempo", ylab = "Resíduos", xlab = "Tempo")
+abline(h = 0, col = "red", lty = 2)
+
+# 2. Função de Autocorrelação (FAC) dos resíduos
+Acf(res, main = "FAC dos Resíduos", lag.max = 24)
+
+# 3. Função de Autocorrelação Parcial (FACP) dos resíduos
+Pacf(res, main = "FACP dos Resíduos", lag.max = 24)
+
+# 4. Histograma dos resíduos comparado com a distribuição normal
+hist(res, probability = TRUE, main = "Histograma dos Resíduos", xlab = "Resíduos", border = "white")
+
+# 5. QQ-Plot para normalidade
+qqnorm(res, main = "QQ-Plot dos Resíduos", pch = 16)
+qqline(res, col = "red", lwd = 2)
+
+# Restaurar o layout padrão do R
+par(mfrow = c(1, 1))
+```
+
+---
+
+b) Aplique o teste de Ljung-Box, corrigindo os graus de liberdade. Reporte a estatística, os graus de liberdade utilizados e o p-valor.
+
+```{r}
+# Resíduos do Modelo 1
+res1 <- residuals(modelo1)
+
+# lags
+lags_m <- c(12,24)
+
+
+# Cálculo direto para cada defasagem (fitdf = 2: ar1 e sar1)
+q12 <- Box.test(res1, lag = 12, type = "Ljung-Box", fitdf = 2)
+q24 <- Box.test(res1, lag = 24, type = "Ljung-Box", fitdf = 2)
+
+resultados_lb <- data.frame(
+  Lag = lags_m,
+  Estatistica_Q = c(q12$statistic, q24$statistic),
+  Graus_Liberdade = lags_m - 2,
+  p_valor = c(q12$p.value, q24$p.value)
+)
+
+knitr::kable(
+  resultados_lb,
+  digits = 4,
+  col.names = c("Def (H)", "Estat Q*", "G.L", "p-valor")
+)
+```
+
+Os graus de liberdade são $K - p - q - P - Q = K - 2$, já que o Modelo 1 estima um AR e um SAR (a média não entra). Com $p$-valores de 0,41 e 0,56, não se rejeita a hipótese de que os resíduos não são autocorrelacionados.
+
+---
+
+c) Aplique o teste de Jarque-Bera para normalidade e o ARCH-LM para heterocedasticidade condicional.
+
+```{r}
+# Teste de Jarque-Bera para normalidade dos resíduos
+
+jb_teste <- jarque.bera.test(res1)
+
+
+# Teste ARCH para heterocedasticidade condicional dos resíduos
+
+arch_teste <- ArchTest(res1, lag = 12)
+
+jb_teste
+arch_teste
+```
+
+O Jarque-Bera rejeita a normalidade ($p < 0{,}001$), e o ARCH-LM não rejeita a ausência de heterocedasticidade condicional ($p = 0{,}905$).
+
+---
+
+d) Se algum diagnóstico falhar, retorne à Questão 3 e reformule. Documente o caminho percorrido: a lista de modelos descartados e o motivo de cada descarte fazem parte da entrega.
+
+R: Embora o teste de Jarque-Bera tenha rejeitado a normalidade — um desvio comum em índices de preços devido a choques pontuais, como jun/2018 (greve dos caminhoneiros), jul/2022 (corte de impostos sobre combustíveis) e fev/2025 (fim do bônus de Itaipu na conta de luz) —, o Modelo 1 foi mantido por ter passado nos testes de autocorrelação e de heterocedasticidade condicional. A normalidade não é exigida pela estrutura ARMA; ela importa para os intervalos de previsão, verificados na Questão 7(g). Modelos descartados: o Modelo 2, com AIC e BIC ligeiramente piores, e o Modelo 3, com AIC e BIC piores e termos sazonais redundantes (SAR e SMA não significativos).
+
+---
+
+e) Sobreajuste deliberado. Estime duas especificações vizinhas, acrescentando um parâmetro AR e um MA ao modelo escolhido. Os coeficientes adicionais são significativos? O que isso indica sobre a adequação da especificação selecionada?
+
+```{r}
+# Modelo Base (M1)
+m1 <- Arima(inpc$Variação, order = c(1,0,0), seasonal = list(order = c(1,0,0), period = 12))
+
+# Vizinho 1: +1 parâmetro AR -> SARIMA(2,0,0)x(1,0,0)[12]
+m_ar2 <- Arima(inpc$Variação, order = c(2,0,0), seasonal = list(order = c(1,0,0), period = 12))
+
+# Vizinho 2: +1 parâmetro MA -> SARIMA(1,0,1)x(1,0,0)[12]
+m_ma1 <- Arima(inpc$Variação, order = c(1,0,1), seasonal = list(order = c(1,0,0), period = 12))
+
+# coeficientes com erro-padrão e teste de significância
+coeftest(m_ar2)
+coeftest(m_ma1)
+```
+
+Ao estimar as especificações vizinhas com um parâmetro AR adicional ($ar2 = 0{,}1274$, $p = 0{,}107$) e um MA adicional ($ma1 = -0{,}1753$, $p = 0{,}163$), verificou-se que os novos coeficientes não são estatisticamente significativos a 5%. Isso indica que o Modelo 1 é adequado e que acrescentar termos não melhora a especificação.
+
+---
+
+# Sobrediferenciação
+
+## Questão 6. Experimento sobre o custo de diferenciar em excesso. Seja d\* a ordem de integração determinada na Questão 2. Reestime seu modelo aplicando uma diferença adicional ou seja, com d\* + 1.
+
+a) Reporte o coeficiente MA estimado e seu erro-padrão. O valor de $\hat\theta$ (ou da soma dos coeficientes MA) aproxima-se de 1? Calcule a raiz do polinômio MA estimado.
+
+```{r}
+# Modelo sobrediferenciado: SARIMA(1, 1, 1) x (1, 0, 0)
+modelo_sobre <- Arima(inpc$Variação, order = c(1,1,1), seasonal = list(order = c(1,0,0),
+                                                                     period = 12))
+
+
+# Extrair especificamente o coeficiente MA(1) e seu erro-padrão
+coefs_sobre <- modelo_sobre$coef
+se_sobre <- sqrt(diag(modelo_sobre$var.coef))
+
+theta_est <- coefs_sobre["ma1"]
+se_theta <- se_sobre["ma1"]
+
+cat("Coeficiente MA estimado (theta):", theta_est, "\n")
+cat("Erro padrão de theta:", se_theta, "\n")
+
+# Cálculo da Raiz do polinômio MA estimado
+# No R, o MA é escrito como (1 + theta*B), então o polinômio é 1 + theta*z
+raiz_ma <- polyroot(c(1, theta_est))
+raiz_ma
+```
+
+O modelo sobrediferenciado apresentou um coeficiente MA estimado de $\hat\theta = -0{,}9999997$ (com erro-padrão de $0{,}0251$), confirmando que o valor se aproxima de 1 em magnitude. Como o R escreve o MA como $1 + \theta B$, o polinômio estimado é $1 - 0{,}9999997\,z$, e sua raiz é $z = +1$, exatamente sobre o círculo unitário. É o fator $(1 - B)$ da diferença em excesso que reaparece no MA, violando a invertibilidade do modelo. Como $\hat\theta$ está na fronteira, o erro-padrão pequeno não tem a interpretação usual.
+
+---
+
+b) Compare $\sigma_a^2$ nas duas especificações. A variância residual aumentou? Em quanto?
+
+```{r}
+# Variância residual do Modelo Base (M1)
+var_m1 <- m1$sigma2
+
+# Variância residual do Modelo Sobrediferenciado
+var_sobre <- modelo_sobre$sigma2
+
+# Aumento absoluto e percentual
+dif_abs <- var_sobre - var_m1
+dif_perc <- (var_sobre - var_m1) / var_m1 * 100
+
+cat("Var M1:", var_m1, "\n")
+cat("Var Sobrediferenciado:", var_sobre, "\n")
+cat("Aumento percentual:", dif_perc, "%\n")
+
+# Mesmo modelo com d = 1, mas sem o MA que compensa a diferença extra
+modelo_sobre_sem_ma <- Arima(inpc$Variação, order = c(1,1,0), seasonal = list(order = c(1,0,0), period = 12))
+cat("Var Sobrediferenciado sem MA:", modelo_sobre_sem_ma$sigma2, "\n")
+cat("Aumento percentual sem MA:", (modelo_sobre_sem_ma$sigma2 - var_m1) / var_m1 * 100, "%\n")
+```
+
+A variância residual aumentou pouco, cerca de 0,6%, porque o MA com $\hat\theta \approx -1$ absorve quase toda a diferença extra. Quando o modelo sobrediferenciado não tem esse MA, a variância residual sobe cerca de `r vf((modelo_sobre_sem_ma$sigma2 - var_m1) / var_m1 * 100)`%, e o coeficiente AR muda de sinal (`r vf(coef(modelo_sobre_sem_ma)[["ar1"]], 2)`).
+
+---
+
+c) Compare a FAC dos resíduos das duas versões. A série sobrediferenciada exibe autocorrelação negativa pronunciada no primeiro lag?
+
+```{r}
+# resíduos do modelo sobrediferenciado
+res_sobre <- residuals(modelo_sobre)
+
+# FAC dos resíduos das duas versões e da série diferenciada, lado a lado
+par(mfrow = c(1, 3), mar = c(4, 4, 3, 1))
+Acf(res1, lag.max = 24, main = "Resíduos (d = 0)")
+Acf(res_sobre, lag.max = 24, main = "Resíduos (d = 1)")
+Acf(diff(inpc$Variação), lag.max = 24, main = "Série diferenciada")
+par(mfrow = c(1, 1))
+```
+
+A FAC dos resíduos das duas especificações mantém os valores dentro das bandas de confiança de 95%, porque no modelo sobrediferenciado o MA com $\hat\theta \approx -1$ absorve o efeito da diferença extra. A autocorrelação negativa aparece na série sobrediferenciada: a FAC de $\Delta y_t$ no primeiro lag é `r vf(acf(diff(inpc$Variação), plot = FALSE)$acf[2], 2)`, bem fora da banda.
+
+---
+
+d) Que sinais práticos, disponíveis em uma saída de estimação típica, permitiriam a um pesquisador suspeitar de sobrediferenciação sem conhecer a ordem verdadeira de integração?
+
+- Coeficiente MA no limite: Estimação de um parâmetro de médias móveis extremamente próximo de 1 (ou −1), indicando uma tentativa do modelo de anular uma raiz unitária artificial.
+- Raiz no círculo unitário: Cálculo das raízes do polinômio MA que se posicionam sobre o limite do círculo unitário, violando a condição de invertibilidade.
+- Aumento da variância residual: Elevação da variância dos erros ($\sigma^2$) quando o modelo não tem um MA que compense a diferença extra.
+- Autocorrelação negativa inicial: Presença de um pico negativo pronunciado no primeiro lag da função de autocorrelação (FAC) da série sobrediferenciada.
+
+---
+
+# Previsão Fora da Amostra
+
+## Questão 7. Avaliação preditiva contra benchmarks.
+
+a) Divida a amostra. Reserve as últimas 24 observações como amostra de validação. Denote por H esse horizonte e por T0 = T − H o fim da amostra de treino.
+
+```{r}
+# Dividir a série em treino (train) e validação (test)
+H <- 24
+T0 <- length(inpc_ts) - H
+inpc_treino <- window(inpc_ts, end = time(inpc_ts)[T0])
+inpc_validacao <- window(inpc_ts, start = time(inpc_ts)[T0 + 1])
+
+cat("Tamanho total (T):", length(inpc_ts), "\n")
+cat("Tamanho do treino (T0):", T0, "\n")
+cat("Tamanho da validação (H):", H, "\n")
+
+inpc_treino
+inpc_validacao
+```
+
+O treino vai de jan/2013 a set/2024, e a validação, de out/2024 a set/2026.
+
+---
+
+b) Esquema 1 (origem fixa, múltiplos passos). Estime o modelo apenas com as observações até T0 e gere as previsões $\hat y_{T_0+h \mid T_0}$ para h = 1, . . . , H, com intervalos de 95%. Apresente o gráfico com valores observados, previsões e intervalos.
+
+```{r}
+serie_completa <- inpc_ts
+treino <- inpc_treino
+validacao <- inpc_validacao
+
+# 2. Estimação do Modelo M1 apenas na amostra de treino (até T0)
+# Modelo M1: SARIMA(1,0,0) x (1,0,0)[12]
+modelo_esquema1 <- Arima(treino,
+                         order = c(1, 0, 0),
+                         seasonal = list(order = c(1, 0, 0), period = 12))
+
+# 3. Geração das previsões h = 1, ..., H com intervalo de 95%
+prev_esquema1 <- forecast(modelo_esquema1, h = 24, level = 95)
+
+# 4. Gráfico das previsões vs. Valores Observados
+autoplot(prev_esquema1) +
+  autolayer(validacao, series = "Observado", color = "black") +
+  labs(
+    title = "Esquema 1: Previsões de Múltiplos Passos (Origem Fixa em T0)",
+    x = "Tempo",
+    y = "Variação do INPC (%)",
+    color = "Legenda"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+A previsão converge rapidamente para a média estimada no treino (`r vf(coef(modelo_esquema1)[["intercept"]], 3)`% a.m.). É o comportamento esperado de uma série estacionária: com $\hat\phi =$ `r vf(coef(modelo_esquema1)[["ar1"]], 3)`, o efeito do último dado some em poucos meses, e a parte sazonal é fraca. Nos termos da aula 03, é uma previsão iterada com janela fixa.
+
+---
+
+c) Esquema 2 (origem móvel, um passo à frente). Mantendo fixos os coeficientes estimados no item (b), isto é, sem reestimar o modelo, percorra as origens t = T0, T0 + 1, . . . , T − 1 e gere, em cada uma, apenas $\hat y_{t+1 \mid t}$
+
+```{r}
+# Ajusta o modelo de treino em T0
+modelo_treino <- Arima(treino, order = c(1, 0, 0), seasonal = list(order = c(1, 0, 0), period = 12))
+
+# Geração vetorizada das previsões de 1 passo à frente com coeficientes fixos
+prev_esquema2_ts <- window(fitted(Arima(serie_completa, model = modelo_treino)),
+                           start = start(validacao))
+
+# Gráfico comparativo
+autoplot(validacao, series = "Observado", color = "black") +
+  autolayer(prev_esquema2_ts, series = "Previsão 1 passo à frente", color = "blue") +
+  labs(
+    title = "Esquema 2: Previsões de Um Passo à Frente (Origem Móvel)",
+    x = "Tempo",
+    y = "Variação do INPC (%)",
+    color = "Legenda"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+---
+
+d) Calcule RMSE, MAE e MAPE para os dois esquemas.
+
+```{r}
+# 1. Obtenção das previsões dos dois esquemas
+# Esquema 1: Múltiplos passos a partir de T0
+prev_e1 <- forecast(modelo_treino, h = 24)$mean
+# Esquema 2: Um passo à frente com origem móvel (vetorizado)
+prev_e2 <- window(fitted(Arima(serie_completa, model = modelo_treino)), start = start(validacao))
+
+# 2. Cálculo das métricas de acurácia utilizando a função accuracy() do pacote forecast
+metricas_e1 <- accuracy(prev_e1, validacao)
+metricas_e2 <- accuracy(prev_e2, validacao)
+
+# 3. Consolidação e exibição dos resultados em uma tabela formatada
+tabela_metricas <- data.frame(
+  Esquema = c("Esquema 1 ",
+              "Esquema 2 "),
+  RMSE = c(metricas_e1["Test set", "RMSE"], metricas_e2["Test set", "RMSE"]),
+  MAE  = c(metricas_e1["Test set", "MAE"],  metricas_e2["Test set", "MAE"]),
+  MAPE = c(metricas_e1["Test set", "MAPE"], metricas_e2["Test set", "MAPE"])
+)
+
+# Exibe a tabela no console
+print(round_df <- transform(tabela_metricas,
+                            RMSE = round(RMSE, 4),
+                            MAE  = round(MAE, 4),
+                            MAPE = round(MAPE, 4)))
+
+# meses da validação com variação igual a zero
+sum(validacao == 0)
+```
+
+O MAPE resulta infinito porque ele divide o erro pelo valor observado, e a validação tem um mês com variação igual a zero (jan/2025). Além disso, vários meses ficam perto de zero, o que inflaria o MAPE mesmo sem o zero. Como indicado na aula 03, nesse caso o MAPE não é informativo, e a comparação se apoia no RMSE, no MAE e no MASE (calculado no item e).
+
+---
+
+e) Compare o desempenho com dois benchmarks ingênuos, avaliados sob os mesmos dois esquemas:
+
+(i) Passeio aleatório: $\hat y_{t+h} = y_t$
+
+(ii) Sazonal ingênuo: $\hat y_{t+h} = y_{t+h-s}$
+
+Organize as métricas em uma única tabela, com os esquemas nas colunas e os modelos nas linhas.
+
+```{r}
+# MODELO M1: SARIMA(1,0,0)x(1,0,0)[12] ---
+modelo_treino <- Arima(treino, order = c(1, 0, 0),
+                       seasonal = list(order = c(1, 0, 0), period = 12))
+
+# Esquema 1 (M1)
+prev_m1_e1 <- forecast(modelo_treino, h = 24)$mean
+
+# Esquema 2 (M1 - 1 passo à frente vetorizado)
+prev_m1_e2 <- window(fitted(Arima(serie_completa, model = modelo_treino)),
+                     start = start(validacao))
+
+
+# BENCHMARK (i): PASSEIO ALEATÓRIO (Random Walk: y_hat = y_t) ---
+# Esquema 1
+prev_rw_e1 <- naive(treino, h = 24)$mean
+
+# Esquema 2 (1 passo à frente: y_{t+1|t} = y_t)
+prev_rw_e2 <- ts(serie_completa[T0:(length(serie_completa)-1)],
+                 start = start(validacao), frequency = 12)
+
+
+# BENCHMARK (ii): SAZONAL INGÊNUO
+# Esquema 1
+prev_snav_e1 <- snaive(treino, h = 24)$mean
+
+# Esquema 2 (1 passo à frente: y_{t+1|t} = y_{t+1-12})
+prev_snav_e2 <- ts(serie_completa[(T0 - 11):(length(serie_completa) - 12)],
+                   start = start(validacao), frequency = 12)
+
+
+# MÉTRICAS: RMSE, MAE e MASE (o MASE divide o erro pelo erro do sazonal ingênuo no treino)
+escala_mase <- mean(abs(diff(treino, lag = 12)))
+metricas_prev <- function(prev) {
+  erro <- validacao - prev
+  c(RMSE = sqrt(mean(erro^2)), MAE = mean(abs(erro)), MASE = mean(abs(erro)) / escala_mase)
+}
+
+# CONSOLIDAÇÃO DA TABELA COMPARATIVA
+tabela_comparativa <- rbind(
+  "SARIMA M1"               = c(metricas_prev(prev_m1_e1), metricas_prev(prev_m1_e2)),
+  "Passeio Aleatório (RW)"  = c(metricas_prev(prev_rw_e1), metricas_prev(prev_rw_e2)),
+  "Sazonal Ingênuo (SNav)"  = c(metricas_prev(prev_snav_e1), metricas_prev(prev_snav_e2))
+)
+colnames(tabela_comparativa) <- paste(rep(c("Esq. 1", "Esq. 2"), each = 3), colnames(tabela_comparativa))
+kable(tabela_comparativa, digits = 4)
+
+# Teste de Diebold-Mariano (aula 03): H0 = mesma acurácia
+# Esquema 1 usa variância robusta, porque os 24 erros vêm da mesma origem
+dm_p <- function(p1, p2, h, ...) unname(dm.test(validacao - p1, validacao - p2, h = h, ...)$p.value)
+dm_tabela <- rbind(
+  "M1 x RW"   = c("Esq. 1" = dm_p(prev_m1_e1, prev_rw_e1, 12, varestimator = "bartlett"),
+                  "Esq. 2" = dm_p(prev_m1_e2, prev_rw_e2, 1)),
+  "M1 x SNav" = c(dm_p(prev_m1_e1, prev_snav_e1, 12, varestimator = "bartlett"),
+                  dm_p(prev_m1_e2, prev_snav_e2, 1))
+)
+kable(dm_tabela, digits = 3, caption = "p-valores do teste de Diebold-Mariano")
+```
+
+---
+
+f) Seu modelo superou os benchmarks? Se não superou, não altere o modelo para forçar um resultado favorável.
+
+R: O modelo SARIMA$(1, 0, 0) \times (1, 0, 0)_{12}$ superou o passeio aleatório nos dois esquemas (RMSE de 0,388 contra 0,399 no esquema 1 e de 0,410 contra 0,516 no esquema 2), mas perdeu para o sazonal ingênuo nos dois (0,388 contra 0,317 e 0,410 contra 0,367). Pelo teste de Diebold-Mariano, nenhuma dessas diferenças é significativa a 5%: com 24 observações, os três previsores têm acurácia estatisticamente equivalente. Conforme o enunciado, o modelo não foi alterado.
+
+O resultado é consistente com a literatura de previsão de inflação, em que modelos univariados dificilmente superam regras ingênuas (Atkeson e Ohanian, 2001; Faust e Wright, 2013). No Esquema 1, o modelo converge para a média do treino, e a inflação média da validação (`r vf(mean(validacao), 2)`% a.m.) ficou abaixo da do treino (`r vf(mean(treino), 2)`% a.m.), período em que a meta de inflação caiu de 4,5% para 3% ao ano. O Sazonal Ingênuo aproveita o padrão de cada mês do ano, que o modelo estimado no treino captura pouco ($\hat\Phi =$ `r vf(coef(modelo_treino)[["sar1"]], 3)`). No Esquema 2, o modelo propaga choques transitórios: depois de fev/2025 (1,48%, fim do bônus de Itaipu), ele previu inflação alta para mar/2025, mas o choque se reverteu. Por isso o RMSE do M1 no Esquema 2 é maior que no Esquema 1.
+
+---
+
+g) Qual proporção das observações reservadas caiu dentro do intervalo de 95% do Esquema 1? A cobertura empírica corresponde à nominal?
+
+```{r}
+# Geração das previsões do Esquema 1 com intervalos de 95%
+prev_e1 <- forecast(modelo_treino, h = 24, level = 95)
+
+# Limites inferior e superior do intervalo de 95%
+limite_inferior <- prev_e1$lower[, "95%"]
+limite_superior <- prev_e1$upper[, "95%"]
+
+# Verificação de quais valores observados caíram dentro do intervalo
+cobertura_vetor <- (validacao >= limite_inferior) & (validacao <= limite_superior)
+
+# Cálculo da proporção empírica de cobertura
+proporcao_cobertura <- mean(cobertura_vetor)
+qtd_dentro <- sum(cobertura_vetor)
+
+cat("Observações dentro do intervalo:", qtd_dentro, "de", 24, "\n")
+cat("Proporção de cobertura empírica:", round(proporcao_cobertura * 100, 2), "%\n")
+
+# Teste de cobertura incondicional de Christoffersen (aula 03): H0 = taxa de violação de 5%
+x <- sum(!cobertura_vetor)
+lr_uc <- -2 * ((24 - x) * log(0.95) + x * log(0.05) - (24 - x) * log(1 - x / 24) - x * log(x / 24))
+c(LR_uc = lr_uc, p_valor = pchisq(lr_uc, 1, lower.tail = FALSE))
+```
+
+Caíram 23 das 24 observações dentro do intervalo de 95%, uma cobertura de 95,83%, que corresponde à nominal. O teste de cobertura incondicional de Christoffersen não rejeita a taxa de violação de 5% ($p =$ `r vf(pchisq(lr_uc, 1, lower.tail = FALSE), 2)`). A única observação fora do intervalo é fev/2025, o choque de Itaipu. Com apenas 24 observações, vindas de uma mesma origem, a evidência é limitada.
+
+# Referências
+
+- Atkeson, A.; Ohanian, L. E. (2001). Are Phillips curves useful for forecasting inflation? *Federal Reserve Bank of Minneapolis Quarterly Review*, 25(1), 2–11.
+- Faust, J.; Wright, J. H. (2013). Forecasting inflation. In: Elliott, G.; Timmermann, A. (orgs.). *Handbook of Economic Forecasting*, v. 2A. Elsevier, p. 2–56.
+
+# Reprodutibilidade
+
+```{r}
+sessionInfo()
+```
