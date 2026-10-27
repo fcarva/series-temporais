@@ -2,14 +2,16 @@
 #   Volume 1 — revisão, convenções e teoria (módulos 01–03, mais a teoria de 04 e 05)
 #   Volume 2 — a lista de exercícios resolvida (Q1–Q16)
 #   Volume 3 — o trabalho em dupla do INPC (roteiro e relatório)
+#   Volume 4 — Lista 01: guia de estudo, README e laboratório
+#   Guia     — só o guia de estudo da Lista 01, num PDF à parte
 #
 # Caminho: nota .md -> preparo em R (tira o frontmatter, resolve caminhos de figura,
 # troca emoji por símbolo) -> pandoc (commonmark_x + filtros.lua) -> .tex -> LuaLaTeX.
 # Requer pandoc e LuaLaTeX (TeX Live ou MiKTeX).
 #
 # Rodar: Rscript caderno/montar_caderno.R  (Windows: scripts\r.ps1 caderno\montar_caderno.R)
-#        argumentos opcionais: teoria, lista, trabalho; sem argumento, tudo
-# Saída: caderno/pdf/ (fora do git, como todo PDF)
+#        argumentos opcionais: teoria, lista, trabalho, lista01, guia; sem argumento, tudo
+# Saída: caderno/pdf/ (fora do git, exceto o volume 4 e o guia, que vão ao cofre do Obsidian)
 
 # --- bootstrap: localizar a raiz do repo e carregar helpers ---
 .d <- getwd(); while (!file.exists(file.path(.d, ".repo-root")) && dirname(.d) != .d) .d <- dirname(.d)
@@ -260,12 +262,22 @@ volume_lista01 <- function() {
   }
 }
 
+# O guia de estudo da Lista 01 sozinho, para ler e imprimir à parte (também está no volume 4)
+volume_guia <- function() {
+  partes <- list("Guia de estudo: o que estou fazendo e por quê" = c("lista01/guia_estudo.md"))
+  md <- file.path(BUILD, "guia_lista01.md"); montar_md(partes, md)
+  capa("Lista 01", "Guia de estudo: o INPC passo a passo, o que cada teste faz e por quê",
+       file.path(BUILD, "capa_guia.tex"))
+  compilar("caderno_lista01_guia_estudo", md, file.path(BUILD, "capa_guia.tex"), OPC_LIVRO, passes = 3)
+}
+
 ## ---- execução ------------------------------------------------------------------------
 alvos <- commandArgs(trailingOnly = TRUE)
-if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01")
+if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia")
 cat("pandoc:  ", PANDOC, "\nlualatex:", LUALATEX, "\n")
 if ("teoria" %in% alvos) volume_teoria()
 if ("lista" %in% alvos) volume_lista()
 if ("trabalho" %in% alvos) volume_trabalho()
 if ("lista01" %in% alvos) volume_lista01()
+if ("guia" %in% alvos) volume_guia()
 cat("\nPDFs em caderno/pdf/\n")
