@@ -12,6 +12,7 @@ format:
     fig-height: 4
     fig-align: center
     fig-pos: 'H'
+    columns: 120
     include-in-header:
       text: |
         \usepackage{fvextra}
@@ -100,7 +101,7 @@ teste_kpss <- ur.kpss(inpc$Variação, type = "mu", lags = "short")
 # e o número de defasagens usado
 estatistica <- function(teste) teste@teststat[1]
 critico_5   <- function(teste) teste@cval[1, "5pct"]
-defasagens  <- function(teste) if (.hasSlot(teste, "testreg"))
+defasagens  <- function(teste) if (inherits(teste, "ur.df"))
   sum(grepl("z.diff.lag", rownames(teste@testreg$coefficients))) else teste@lag
 
 testes <- list(adf_trend, adf_drift, adf_none, teste_pp, teste_kpss)
@@ -349,13 +350,14 @@ a) Para o modelo selecionado, apresente gráfico dos resíduos contra o tempo, F
 
 ```{r}
 #| fig-cap: "Diagnóstico dos resíduos do Modelo 1"
-#| fig-height: 6.5
-#| out-width: 90%
+#| fig-width: 10
+#| fig-height: 3.3
+#| out-width: 100%
 # Obter os resíduos do Modelo 1 selecionado
 res <- residuals(modelo1)
 
-# Configurar uma grelha de 3 linhas e 2 colunas para os gráficos
-par(mfrow = c(3, 2), mar = c(4, 4, 3, 1))
+# Configurar uma grelha de 2 linhas e 3 colunas para os gráficos
+par(mfrow = c(2, 3), mar = c(4, 4, 3, 1))
 
 # 1. Gráfico dos resíduos contra o tempo
 plot(res, main = "Resíduos contra o Tempo", ylab = "Resíduos", xlab = "Tempo")
@@ -720,8 +722,8 @@ tabela_comparativa <- rbind(
   "Passeio Aleatório (RW)"  = c(metricas_prev(prev_rw_e1), metricas_prev(prev_rw_e2)),
   "Sazonal Ingênuo (SNav)"  = c(metricas_prev(prev_snav_e1), metricas_prev(prev_snav_e2))
 )
-colnames(tabela_comparativa) <- paste(rep(c("Esq. 1", "Esq. 2"), each = 3), colnames(tabela_comparativa))
-kable(tabela_comparativa, digits = 4)
+colnames(tabela_comparativa) <- paste(colnames(tabela_comparativa), rep(c("E1", "E2"), each = 3))
+kable(tabela_comparativa, digits = 4, caption = "Métricas na validação (E1 = Esquema 1; E2 = Esquema 2)")
 
 # Teste de Diebold-Mariano (aula 03): H0 = mesma acurácia
 # Esquema 1 usa variância robusta, porque os 24 erros vêm da mesma origem

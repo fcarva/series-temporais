@@ -21,7 +21,7 @@ format:
 - Os `@` do pacote `urca` ficaram concentrados em três funções auxiliares no início da Questão 2 (`estatistica`, `critico_5` e `defasagens`).
 - Saiu a impressão da série de treino e de validação inteiras na Q7(a). No lugar, entrou uma tabela com início, fim e número de observações.
 - Raízes da Q4(f): um gráfico por modelo, lado a lado, com `autoplot()`. Antes eram dois `plot()` por modelo, com títulos trocados.
-- Resíduos da Q5(a): a grade passou de 2×2 para 3×2, para incluir a FACP.
+- Resíduos da Q5(a): a grade passou de 2×2 para 2×3, para incluir a FACP e caber na mesma página do código.
 - Pacotes: saíram `seasonal` (não usado e dependente do X-13), `flextable` (não usado) e o `forecast` duplicado; entrou `lmtest`, para o `coeftest()`.
 - O `ts()` ganhou `start = c(2013, 1)`, e os gráficos e tabelas passaram a mostrar as datas corretas.
 - O código termina com `sessionInfo()` (versões do R e dos pacotes), exigido pelas normas de entrega.
