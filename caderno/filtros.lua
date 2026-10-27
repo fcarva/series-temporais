@@ -60,6 +60,8 @@ function Math(el)
 end
 
 -- ---------------------------------------------------------------- tabelas
+local IMPRESSAO = os.getenv("CADERNO_IMPRESSAO") == "1"
+
 local function texto_celula(cell)
   return pandoc.utils.stringify(cell.contents or cell)
 end
@@ -79,6 +81,8 @@ function Table(tbl)
   -- tabela de conferência numérica: vira uma linha discreta
   local cab = tbl.head.rows[1]
   if cab and #cab.cells >= 2 and texto_celula(cab.cells[1]) == "chave_R" then
+    -- na versão impressa, a conferência numérica não aparece (fica no build e nas notas)
+    if IMPRESSAO then return {} end
     local ils = pandoc.List({ pandoc.Str("Conferido"), pandoc.Space(), pandoc.Str("em"), pandoc.Space(), pandoc.Str("R:"), pandoc.Space() })
     local primeiro = true
     for _, b in ipairs(tbl.bodies) do
@@ -96,15 +100,35 @@ function Table(tbl)
       pandoc.RawBlock("latex", "\\par}"),
     }
   end
+  -- na impressão, linha de tabela vazia vira espaço para escrever à mão
+  if IMPRESSAO then
+    for _, bd in ipairs(tbl.bodies) do
+      for _, r in ipairs(bd.body) do
+        -- cada célula vazia ganha altura e uma linha-guia cinza para escrever
+        for _, c in ipairs(r.cells) do
+          if not texto_celula(c):match("%S") then
+            c.contents = { pandoc.Plain({ pandoc.RawInline("latex",
+              "\\rule{0pt}{1.8em}\\textcolor{fxeixo!45}{\\hrulefill}") }) }
+          end
+        end
+      end
+    end
+  end
   -- larguras proporcionais ao conteúdo quando a tabela é larga
   local ncol = #tbl.colspecs
-  local maxlen = {}
-  for j = 1, ncol do maxlen[j] = 0 end
+  local maxlen, maxpal = {}, {}
+  for j = 1, ncol do maxlen[j] = 0; maxpal[j] = 0 end
   for _, r in ipairs(rows) do
     for j, c in ipairs(r.cells) do
       if j <= ncol then
-        local n = utf8.len(texto_celula(c)) or #texto_celula(c)
+        local s = texto_celula(c)
+        local n = utf8.len(s) or #s
         if n > maxlen[j] then maxlen[j] = n end
+        -- a palavra mais longa da coluna (não se quebra) define a largura mínima
+        for pal in s:gmatch("%S+") do
+          local m = utf8.len(pal) or #pal
+          if m > maxpal[j] then maxpal[j] = m end
+        end
       end
     end
   end
@@ -113,7 +137,7 @@ function Table(tbl)
   if total > 70 then
     local pesos, soma = {}, 0
     for j = 1, ncol do
-      pesos[j] = math.min(maxlen[j], 60) + 6
+      pesos[j] = math.max(math.min(maxlen[j], 60), math.min(1.6 * maxpal[j] + 3, 30)) + 6
       soma = soma + pesos[j]
     end
     local novas = {}

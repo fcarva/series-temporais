@@ -35,14 +35,14 @@ O que se sabe da prova: **5 ou 6 questões, de 1h50 a 2h, sem consulta, tiradas 
 
 ## 1. O mapa da prova
 
-| Bloco | Questões | O que pode cair | Resolução e demonstrações | Livros |
-|---|---|---|---|---|
-| 1. Processos e momentos | Q1–Q4 | momentos de passeio com drift e com tendência; soma de processos e FAC; Wold | [01_lista](../01_processos_estacionariedade/01_lista.md), D01.1–D01.4 | ENDERS cap. 4; HAMILTON cap. 3–4; MAT |
-| 2. AR, MA e ARMA | Q5–Q8 | raízes, fator comum, $\psi_j$ e $\pi_j$; $\gamma_k$ do ARMA(1,1); Yule-Walker; V ou F | [02_lista](../02_arma/02_lista.md), D02.1–D02.5 | ENDERS cap. 2; HAMILTON cap. 3; BJRL cap. 3 |
-| 3. Integrados, ARIMA e SARIMA | Q9–Q12 | sobrediferenciação; DS × TS; SAR e AR restrito; previsão de SARIMA | [03_lista](../03_arima_sarima/03_lista.md), D03.1–D03.4 | ENDERS cap. 2 e 4; BJRL cap. 4 e 9; MAT |
-| 4. Estimação e seleção | Q13–Q14 | MV condicional = MQO; AIC e BIC com $k$ incluindo $\sigma^2$ | [04_lista](../04_estimacao_selecao/04_lista.md), D04.1 | HAMILTON cap. 5; AU02 |
-| 5. Previsão | Q15 | previsor ótimo; erro MA($h-1$); intervalo; SES | [05_lista](../05_previsao/05_lista.md), D05.1 | HAMILTON cap. 4; BJRL cap. 5 |
-| 6. Aplicação | Q16 | escrever o SARIMA, contar parâmetros, FAC de $w_t$, escolher entre modelos | [06_lista](../06_aplicacao_sarima/06_lista.md) | BJRL cap. 9; AU03 |
+| Bloco (questões da lista) | O que pode cair | Resolução e demonstrações | Livros |
+|---|---|---|---|
+| 1. Processos e momentos (Q1–Q4) | momentos de passeio com drift e com tendência; soma de processos e FAC; Wold | [01_lista](../01_processos_estacionariedade/01_lista.md), D01.1–D01.4 | ENDERS cap. 4; HAMILTON cap. 3–4; MAT |
+| 2. AR, MA e ARMA (Q5–Q8) | raízes, fator comum, $\psi_j$ e $\pi_j$; $\gamma_k$ do ARMA(1,1); Yule-Walker; V ou F | [02_lista](../02_arma/02_lista.md), D02.1–D02.5 | ENDERS cap. 2; HAMILTON cap. 3; BJRL cap. 3 |
+| 3. Integrados, ARIMA e SARIMA (Q9–Q12) | sobrediferenciação; DS × TS; SAR e AR restrito; previsão de SARIMA | [03_lista](../03_arima_sarima/03_lista.md), D03.1–D03.4 | ENDERS cap. 2 e 4; BJRL cap. 4 e 9; MAT |
+| 4. Estimação e seleção (Q13–Q14) | MV condicional = MQO; AIC e BIC com $k$ incluindo $\sigma^2$ | [04_lista](../04_estimacao_selecao/04_lista.md), D04.1 | HAMILTON cap. 5; AU02 |
+| 5. Previsão (Q15) | previsor ótimo; erro MA($h-1$); intervalo; SES | [05_lista](../05_previsao/05_lista.md), D05.1 | HAMILTON cap. 4; BJRL cap. 5 |
+| 6. Aplicação (Q16) | escrever o SARIMA, contar parâmetros, FAC de $w_t$, escolher entre modelos | [06_lista](../06_aplicacao_sarima/06_lista.md) | BJRL cap. 9; AU03 |
 
 > [!IMPORTANT]
 > **Notação: a do professor, que é a da lista**
@@ -137,8 +137,11 @@ Hoje é 27/10. Um simulado a cada dois dias, com correção no mesmo dia e revis
 
 Cada simulado tem 6 questões (uma por bloco), soma 10,0 pontos e cabe em 1h50 com 10 minutos de revisão. Os números não se repetem entre simulados nem com o banco.
 
-| | Bloco 1 | Bloco 2 | Bloco 3 | Bloco 4 | Bloco 5 | Bloco 6 |
-|---|---|---|---|---|---|---|
-| **S1** | passeio sem drift e soma de processos | ARMA(1,1), BJ | AR(1) sobrediferenciado | AIC/BIC com $T=200$; MV condicional | AR(1) com média e o previsor ótimo | modelo das companhias aéreas |
-| **S2** | processo harmônico; MA(1) com par não invertível | AR(2) completo | SAR(1)$_4$, AR(5) restrito, ARIMA(1,1,1) | AIC/BIC da AU02, LR, MV exata | ARMA(1,1) com sinal positivo; SES | SARIMA$(1,0,0)(0,1,1)_{12}$ e Ljung-Box |
-| **S3** | TS × DS | V ou F do ARMA(1,1) com sinal positivo | previsão numérica do SARIMA$(1,1,0)(0,1,1)_4$ | AIC, BIC e LR entre SARIMA | MA(2): previsão e memória | identificação pela FAC amostral |
+| Bloco | Simulado 01 | Simulado 02 | Simulado 03 |
+|---|---|---|---|
+| 1. Processos | passeio sem drift e soma de processos | processo harmônico; MA(1) com par não invertível | TS × DS |
+| 2. ARMA | ARMA(1,1), BJ | AR(2) completo | V ou F do ARMA(1,1) com sinal positivo |
+| 3. ARIMA e SARIMA | AR(1) sobrediferenciado | SAR(1)$_4$, AR(5) restrito, ARIMA(1,1,1) | previsão numérica do SARIMA$(1,1,0)(0,1,1)_4$ |
+| 4. Estimação | AIC/BIC com $T=200$; MV condicional | AIC/BIC da AU02, LR, MV exata | AIC, BIC e LR entre SARIMA |
+| 5. Previsão | AR(1) com média e o previsor ótimo | ARMA(1,1) com sinal positivo; SES | MA(2): previsão e memória |
+| 6. Aplicação | modelo das companhias aéreas | SARIMA$(1,0,0)(0,1,1)_{12}$ e Ljung-Box | identificação pela FAC amostral |

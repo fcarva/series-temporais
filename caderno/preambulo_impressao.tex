@@ -1,0 +1,38 @@
+% Ajustes só para os volumes impressos (frente e verso, preto e branco).
+% Incluído depois de preambulo.tex pelo montar_caderno.R (compilar(..., impressao = TRUE)).
+
+% ---- cores: a paleta vira tons de cinza distintos (o tipo do callout fica no título) ----
+\definecolor{fxazul}{gray}{0.30}
+\definecolor{fxteal}{gray}{0.35}
+\definecolor{fxverde}{gray}{0.40}
+\definecolor{fxroxo}{gray}{0.25}
+\definecolor{fxlaranja}{gray}{0.32}
+\definecolor{fxvermelho}{gray}{0.12}
+\definecolor{fxamarelo}{gray}{0.45}
+
+% ---- cabeçalho e rodapé espelhados: número sempre na borda externa ----
+\fancyhf{}
+\fancyhead[LE]{\sffamily\footnotesize\color{fxeixo}Econometria II · séries temporais}
+\fancyhead[RO]{\sffamily\footnotesize\color{fxeixo}\nouppercase{\leftmark}}
+\fancyfoot[LE,RO]{\sffamily\footnotesize\color{fxeixo}\thepage}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[LE,RO]{\sffamily\footnotesize\color{fxeixo}\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+% ---- leitura: sem linha órfã/viúva, título nunca sozinho no pé da página ----
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+\usepackage{needspace}
+\usepackage{etoolbox}
+\pretocmd{\section}{\needspace{6\baselineskip}}{}{}
+\pretocmd{\subsection}{\needspace{5\baselineskip}}{}{}
+\pretocmd{\subsubsection}{\needspace{4\baselineskip}}{}{}
+\linespread{1.05}
+\raggedbottom
+
+% ---- cada bloco (\part) começa em página ímpar ----
+\pretocmd{\part}{\cleardoublepage}{}{}
+
+% ---- tabelas em corpo menor; equações com respiro ----
+\AtBeginEnvironment{longtable}{\small}
+\setlength{\abovedisplayskip}{8pt plus 2pt minus 3pt}
+\setlength{\belowdisplayskip}{8pt plus 2pt minus 3pt}

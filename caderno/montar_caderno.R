@@ -178,15 +178,23 @@ rodar <- function(prog, args, wd, rotulo) {
   invisible(saida)
 }
 
-compilar <- function(nome, md, capa_tex, opcoes_extra = character(), passes = 2) {
+compilar <- function(nome, md, capa_tex, opcoes_extra = character(), passes = 2, impressao = FALSE) {
+  # impressão: frente e verso (margem interna maior), preto e branco, sem conferência numérica
+  geometria <- if (impressao) "geometry:top=2.3cm,bottom=2.5cm,inner=2.8cm,outer=2.0cm" else
+    "geometry:top=2.3cm,bottom=2.3cm,left=2.3cm,right=2.3cm"
+  cor_link <- if (impressao) c("-V", "linkcolor=fxtexto", "-V", "urlcolor=fxtexto") else
+    c("-V", "linkcolor=fxteal", "-V", "urlcolor=fxazul")
+  extra_header <- if (impressao) c("--include-in-header", shQuote(file.path(CAD, "preambulo_impressao.tex")))
+  Sys.setenv(CADERNO_IMPRESSAO = if (impressao) "1" else "0")
+  on.exit(Sys.setenv(CADERNO_IMPRESSAO = "0"), add = TRUE)
   tex <- file.path(BUILD, paste0(nome, ".tex"))
   args <- c(shQuote(md), "-f", FORMATO_ENTRADA,
             "-t", "latex", "--standalone", "-o", shQuote(tex),
             "--lua-filter", shQuote(file.path(CAD, "filtros.lua")),
             "--include-in-header", shQuote(file.path(CAD, "preambulo.tex")),
-            "-V", "papersize=a4", "-V", "geometry:top=2.3cm,bottom=2.3cm,left=2.3cm,right=2.3cm",
-            "-V", "lang=pt-BR", "-V", "colorlinks=true", "-V", "linkcolor=fxteal",
-            "-V", "urlcolor=fxazul", "-V", "toccolor=fxtexto",
+            extra_header,
+            "-V", "papersize=a4", "-V", geometria,
+            "-V", "lang=pt-BR", "-V", "colorlinks=true", cor_link, "-V", "toccolor=fxtexto",
             "-M", shQuote(paste0("title-meta=Séries temporais — ", nome)),
             opcoes_extra)
   if (!is.null(capa_tex)) args <- c(args, "--include-before-body", shQuote(capa_tex))
@@ -212,6 +220,10 @@ compilar <- function(nome, md, capa_tex, opcoes_extra = character(), passes = 2)
 OPC_LIVRO <- c("--top-level-division=chapter", "--toc", "--toc-depth=1", "--number-sections",
                "-V", "secnumdepth=0", "-V", "documentclass=book",
                "-V", "classoption=oneside", "-V", "classoption=openany", "-V", "fontsize=11pt")
+# para imprimir frente e verso: capítulos em página nova (qualquer), blocos (\part) em página ímpar
+OPC_IMPRESSAO <- sub("oneside", "twoside", OPC_LIVRO)
+# simulados: cada simulado começa em página ímpar, para destacar a folha
+OPC_SIMULADOS <- sub("openany", "openright", OPC_IMPRESSAO)
 
 volume_teoria <- function() {
   partes <- list(
@@ -287,7 +299,7 @@ volume_prova <- function() {
   )
   md <- file.path(BUILD, "volume5.md"); montar_md(partes, md)
   capa("Volume 5", "Prova de 05/11: guia, banco de variações, simulados e gabaritos", file.path(BUILD, "capa5.tex"))
-  compilar("caderno_volume5_prova", md, file.path(BUILD, "capa5.tex"), OPC_LIVRO, passes = 3)
+  compilar("caderno_volume5_prova", md, file.path(BUILD, "capa5.tex"), OPC_IMPRESSAO, passes = 3, impressao = TRUE)
 }
 
 # Só os enunciados, para imprimir e resolver sem ver o gabarito
@@ -295,7 +307,7 @@ volume_simulados <- function() {
   partes <- list("Simulados" = c("prova/simulado_01.md", "prova/simulado_02.md", "prova/simulado_03.md"))
   md <- file.path(BUILD, "simulados.md"); montar_md(partes, md)
   capa("Simulados", "Três provas de 1h50 no formato da lista (sem gabarito)", file.path(BUILD, "capa_sim.tex"))
-  compilar("caderno_prova_simulados", md, file.path(BUILD, "capa_sim.tex"), OPC_LIVRO, passes = 3)
+  compilar("caderno_prova_simulados", md, file.path(BUILD, "capa_sim.tex"), OPC_SIMULADOS, passes = 3, impressao = TRUE)
 }
 
 # A lista comentada: todas as questões, passo a passo, na notação dos slides
@@ -310,7 +322,7 @@ volume_comentada <- function() {
   )
   md <- file.path(BUILD, "volume6.md"); montar_md(partes, md)
   capa("Volume 6", "Lista comentada: Q1–Q16 passo a passo na notação dos slides", file.path(BUILD, "capa6.tex"))
-  compilar("caderno_volume6_lista_comentada", md, file.path(BUILD, "capa6.tex"), OPC_LIVRO, passes = 3)
+  compilar("caderno_volume6_lista_comentada", md, file.path(BUILD, "capa6.tex"), OPC_IMPRESSAO, passes = 3, impressao = TRUE)
 }
 
 ## ---- execução ------------------------------------------------------------------------

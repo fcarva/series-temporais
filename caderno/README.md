@@ -35,6 +35,18 @@ Para gerar só um volume, passe `teoria`, `lista`, `trabalho`, `lista01`, `guia`
 
 **Requisitos:** pandoc e LuaLaTeX (TeX Live ou MiKTeX), com as fontes Libertinus, que vêm no TeX Live (`texlive-fonts-extra`) e no MiKTeX. O preâmbulo usa Consolas e Segoe UI Symbol quando existem, como no Windows, e DejaVu nos outros sistemas.
 
+## Versão para imprimir (volumes 5, 6 e simulados)
+
+Os três PDFs da prova saem no **modo de impressão** (`compilar(..., impressao = TRUE)` em [montar_caderno.R](montar_caderno.R), com o preâmbulo extra [preambulo_impressao.tex](preambulo_impressao.tex)):
+
+- **frente e verso:** margem interna de 2,8 cm para encadernar, cabeçalho e número de página espelhados, blocos começando em página ímpar e, no PDF dos simulados, cada simulado em página ímpar para destacar;
+- **preto e branco:** a paleta vira tons de cinza, links em preto, e o tipo de cada caixa ("Atenção", "Cuidado"…) vem escrito no título;
+- **leitura:** sem linha órfã ou viúva, título nunca sozinho no pé da página, tabelas em corpo menor com largura mínima pela palavra mais longa de cada coluna;
+- **formulários:** célula vazia de tabela ganha altura e linha-guia para escrever à mão (log de erros, placar);
+- **sem ruído:** a linha "Conferido em R" fica só nas notas e no build.
+
+A meta de diagramação é **zero `Overfull \hbox`** nos logs de `caderno/_build/`: nenhuma linha sai da mancha.
+
 ## Como funciona
 
 | Etapa | Arquivo | O que faz |

@@ -27,15 +27,15 @@ Os mesmos do log de Econometria I, para comparar as duas disciplinas.
 
 | Coluna | Valores |
 |---|---|
-| tipo | **D** derivação · **C** cálculo · **T** conceitual · **V/F** julgamento |
-| causa | **H** hipótese não citada · **A** álgebra ou sinal · **N** notação ou convenção do MA · **L** leitura do enunciado ($s$, $T$, convenção) · **R** regra de decisão invertida · **V** conclusão sem interpretação · **E** esquecimento do resultado · **T** tempo |
+| tipo (T) | **D** derivação · **C** cálculo · **T** conceitual · **V/F** julgamento |
+| causa (C) | **H** hipótese não citada · **A** álgebra ou sinal · **N** notação ou convenção do MA · **L** leitura do enunciado ($s$, $T$, convenção) · **R** regra de decisão invertida · **V** conclusão sem interpretação · **E** esquecimento do resultado · **T** tempo |
 | revisão | data da revisão; `ok` quando acertou sem consulta; `x` quando errou de novo (volta para +1) |
 
 ## Herança da P1 de Econometria I (09/10/2026)
 
 Os seis erros da P1 de Econometria I, com a ação traduzida para séries temporais. Eles **não** se refazem como questões de Econometria I: a coluna "treino aqui" diz qual item desta prova exercita o mesmo músculo.
 
-| questão (Econ. I) | erro | causa | treino aqui | ação |
+| questão (Econ. I) | erro | C | treino aqui | ação |
 |---|---|---|---|---|
 | P1, Q1 | $\mathbf X'\mathbf X$, inversa e $\widehat\beta$ em branco | T | S1 Q4b; banco Q14 | fazer os itens de conta antes das demonstrações; cronometrar 5 min |
 | P1, Q2d | efeito marginal sem o termo $2\beta_3EXP$ | A | S1 Q1c ($4\gamma_x$); S2 Q5a ($\psi_1=\phi+\theta$) | escrever a fórmula geral e a convenção antes dos números |
@@ -46,17 +46,17 @@ Os seis erros da P1 de Econometria I, com a ação traduzida para séries tempor
 
 ## Registro
 
-| data | questão | tipo | erro | causa | ação | +1 | +3 | +7 |
-|---|---|---|---|---|---|---|---|---|
-| 2026-10-27 | exemplo: S1 Q2b | C | $\gamma_0$ do ARMA(1,1) sem o termo $-2\phi\theta$ | E | rederivar pelos momentos auxiliares, não pela memória | 2026-10-28 | 2026-10-30 | 2026-11-03 |
-|  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |
+| data | questão | T/C | erro | ação | revisões (+1 · +3 · +7) |
+|---|---|---|---|---|---|
+| 27/10 | S1 Q2b (exemplo) | C/E | $\gamma_0$ do ARMA(1,1) sem o termo $-2\phi\theta$ | rederivar pelos momentos auxiliares, não pela memória | 28/10 · 30/10 · 03/11 |
+|  |  |  |  |  |  |
+|  |  |  |  |  |  |
+|  |  |  |  |  |  |
+|  |  |  |  |  |  |
+|  |  |  |  |  |  |
+|  |  |  |  |  |  |
+|  |  |  |  |  |  |
+|  |  |  |  |  |  |
 
 ## Placar por causa
 
