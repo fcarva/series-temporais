@@ -11,6 +11,7 @@ format:
     fig-width: 7
     fig-height: 4
     fig-align: center
+    fig-pos: 'H'
     include-in-header:
       text: |
         \usepackage{fvextra}
@@ -41,6 +42,8 @@ inpc_ts <- ts(inpc$Variação, start = c(2013, 1), frequency = 12)
 # números no texto com vírgula decimal
 vf <- function(x, d = 0) format(round(x, d), nsmall = d, decimal.mark = ",")
 ```
+
+\newpage
 
 # Preparação e Inspeção Preliminar
 
@@ -74,6 +77,8 @@ Sobre mudanças de nível ou de inclinação: observam-se mudanças na intensida
 Sobre outliers: destacam-se alguns picos positivos, especialmente por volta de 2015, 2016, 2018, 2020, 2022 e 2025, além de uma queda negativa acentuada em 2022.
 
 Sobre dispersão ao longo do tempo: a amplitude das oscilações varia durante o período. Entre 2015 e 2016 e entre 2020 e 2022, observam-se oscilações mais intensas, enquanto em alguns intervalos, como aproximadamente entre 2017 e 2019, as variações parecem menores. Portanto, a dispersão não aparenta ser completamente constante ao longo do tempo.
+
+\newpage
 
 # Ordem e Integração
 
@@ -196,6 +201,8 @@ O teste escolhido para verificar a ambiguidade foi o DF-GLS. Com 12 defasagens, 
 
 ---
 
+\newpage
+
 # Identificação
 
 ## Questão 3: FAC, FACP e formulação de modelos candidatos.
@@ -230,6 +237,8 @@ SARIMA$(1, 0, 0) \times (0, 0, 1)_{12}$: Esta alternativa substitui o componente
 SARIMA$(1, 0, 0) \times (1, 0, 1)_{12}$: Esta terceira opção combina um termo autoregressivo regular com uma estrutura sazonal mista (contendo tanto um componente AR quanto MA sazonal). Justifica-se porque a amostra não permite distinguir com clareza entre o SAR e o SMA.
 
 ---
+
+\newpage
 
 # Estimação e Seleção
 
@@ -330,6 +339,8 @@ Os gráficos mostram as raízes inversas, que precisam ficar dentro do círculo 
 
 ---
 
+\newpage
+
 # Diagnóstico
 
 ## Questão 5. Verificação dos resíduos.
@@ -338,7 +349,8 @@ a) Para o modelo selecionado, apresente gráfico dos resíduos contra o tempo, F
 
 ```{r}
 #| fig-cap: "Diagnóstico dos resíduos do Modelo 1"
-#| fig-height: 7
+#| fig-height: 6.5
+#| out-width: 90%
 # Obter os resíduos do Modelo 1 selecionado
 res <- residuals(modelo1)
 
@@ -453,6 +465,8 @@ Ao estimar as especificações vizinhas com um parâmetro AR adicional ($ar2 = 0
 
 ---
 
+\newpage
+
 # Sobrediferenciação
 
 ## Questão 6. Experimento sobre o custo de diferenciar em excesso. Seja d\* a ordem de integração determinada na Questão 2. Reestime seu modelo aplicando uma diferença adicional ou seja, com d\* + 1.
@@ -540,6 +554,8 @@ d) Que sinais práticos, disponíveis em uma saída de estimação típica, perm
 - Autocorrelação negativa inicial: Presença de um pico negativo pronunciado no primeiro lag da função de autocorrelação (FAC) da série sobrediferenciada.
 
 ---
+
+\newpage
 
 # Previsão Fora da Amostra
 
@@ -725,7 +741,7 @@ f) Seu modelo superou os benchmarks? Se não superou, não altere o modelo para 
 
 R: O modelo SARIMA$(1, 0, 0) \times (1, 0, 0)_{12}$ superou o passeio aleatório nos dois esquemas (RMSE de 0,388 contra 0,399 no esquema 1 e de 0,410 contra 0,516 no esquema 2), mas perdeu para o sazonal ingênuo nos dois (0,388 contra 0,317 e 0,410 contra 0,367). Pelo teste de Diebold-Mariano, nenhuma dessas diferenças é significativa a 5%: com 24 observações, os três previsores têm acurácia estatisticamente equivalente. Conforme o enunciado, o modelo não foi alterado.
 
-O resultado é consistente com a literatura de previsão de inflação, em que modelos univariados dificilmente superam regras ingênuas (Atkeson e Ohanian, 2001; Faust e Wright, 2013). No Esquema 1, o modelo converge para a média do treino, e a inflação média da validação (`r vf(mean(validacao), 2)`% a.m.) ficou abaixo da do treino (`r vf(mean(treino), 2)`% a.m.), período em que a meta de inflação caiu de 4,5% para 3% ao ano. O Sazonal Ingênuo aproveita o padrão de cada mês do ano, que o modelo estimado no treino captura pouco ($\hat\Phi =$ `r vf(coef(modelo_treino)[["sar1"]], 3)`). No Esquema 2, o modelo propaga choques transitórios: depois de fev/2025 (1,48%, fim do bônus de Itaipu), ele previu inflação alta para mar/2025, mas o choque se reverteu. Por isso o RMSE do M1 no Esquema 2 é maior que no Esquema 1.
+Esse resultado é comum na previsão de inflação, em que modelos univariados dificilmente superam regras ingênuas. No Esquema 1, o modelo converge para a média do treino, e a inflação média da validação (`r vf(mean(validacao), 2)`% a.m.) ficou abaixo da do treino (`r vf(mean(treino), 2)`% a.m.), período em que a meta de inflação caiu de 4,5% para 3% ao ano. O Sazonal Ingênuo aproveita o padrão de cada mês do ano, que o modelo estimado no treino captura pouco ($\hat\Phi =$ `r vf(coef(modelo_treino)[["sar1"]], 3)`). No Esquema 2, o modelo propaga choques transitórios: depois de fev/2025 (1,48%, fim do bônus de Itaipu), ele previu inflação alta para mar/2025, mas o choque se reverteu. Por isso o RMSE do M1 no Esquema 2 é maior que no Esquema 1.
 
 ---
 
@@ -758,13 +774,11 @@ kable(data.frame(`Dentro do intervalo` = qtd_dentro, Total = 24,
 
 Caíram 23 das 24 observações dentro do intervalo de 95%, uma cobertura de 95,83%, que corresponde à nominal. O teste de cobertura incondicional de Christoffersen não rejeita a taxa de violação de 5% ($p =$ `r vf(pchisq(lr_uc, 1, lower.tail = FALSE), 2)`). A única observação fora do intervalo é fev/2025, o choque de Itaipu. Com apenas 24 observações, vindas de uma mesma origem, a evidência é limitada.
 
-# Referências
+---
 
-- Atkeson, A.; Ohanian, L. E. (2001). Are Phillips curves useful for forecasting inflation? *Federal Reserve Bank of Minneapolis Quarterly Review*, 25(1), 2–11.
-- Faust, J.; Wright, J. H. (2013). Forecasting inflation. In: Elliott, G.; Timmermann, A. (orgs.). *Handbook of Economic Forecasting*, v. 2A. Elsevier, p. 2–56.
-
-# Reprodutibilidade
+Para garantir a reprodutibilidade, o código termina registrando as versões do R e dos pacotes utilizados:
 
 ```{r}
+# Versões do R e dos pacotes utilizados (fim do código)
 sessionInfo()
 ```
