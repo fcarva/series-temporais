@@ -81,6 +81,7 @@ A conclusão correta para a Q7(f) é então: **o M1 bate o passeio aleatório no
 | Onde | O que o PDF diz | O problema | Correção |
 |---|---|---|---|
 | Q5(a) | legenda "Verificação da estabilidade e invertibilidade dos modelos candidatos" | a figura é dos **resíduos** do M1, e a legenda é de outra figura | "Diagnóstico dos resíduos do M1" |
+| Q5(a) | mostra a FAC dos resíduos, mas **não a FACP** | o enunciado pede as duas | acrescentar `Pacf(res, lag.max = 24)`. Só o lag 20 sai da banda, o que é esperado por acaso em 24 lags |
 | Q5(e) | "os novos coeficientes não são estatisticamente significativos" | o PDF mostra só `coef()`, sem erro-padrão; a afirmação fica sem prova | mostrar `lmtest::coeftest()`: $\widehat\phi_2=0{,}127$ ($t=1{,}61$, $p=0{,}11$) e $\widehat\theta_1=-0{,}175$ ($t=-1{,}40$, $p=0{,}16$). A conclusão se mantém, agora com números. Vale notar que o AIC do vizinho AR(2) ($128{,}08$) é ligeiramente menor que o do M1 ($128{,}65$), mas a diferença é menor que 2 e o BIC prefere o M1 |
 | Q6(a) | "a raiz do polinômio MA resultou em $z=-1+0i$" | **erro de sinal**. No R, o MA é $1+\theta B$. Com $\widehat\theta=-1$, o polinômio é $1-z$ e a raiz é $z=+1$. O código `polyroot(c(1, -theta_est))` usa a convenção Box-Jenkins com um coeficiente impresso na convenção do R. A raiz em $+1$ é justamente o fator $(1-B)$ da diferença em excesso | `polyroot(c(1, theta_est))`, raiz $z=+1$: o MA "desfaz" a diferença. O módulo 1 (não invertível) já estava certo |
 | Q6(a) | erro-padrão de $\widehat\theta$ igual a $0{,}025$ | com $\widehat\theta$ na fronteira $-1$, a teoria assintótica usual não vale, e esse erro-padrão não tem a interpretação de sempre | uma frase dizendo isso |
@@ -113,7 +114,7 @@ A conclusão correta para a Q7(f) é então: **o M1 bate o passeio aleatório no
 | Q3(b) | não responde sobre $2s$, $3s$ e $s\pm1$ | FAC: lag 11 $=0{,}190$, lag 12 $=0{,}217$, lag 13 $=0{,}095$, lag 24 $=-0{,}015$, lag 36 $=0{,}035$. Pico em 11–12, nada em 24 e 36: o padrão é de **SMA(1) ou SAR(1) fraco**, não de raiz sazonal |
 | Q4(a) | "Intercepto" | no `arima()`, é a **média** $\mu=0{,}461$. A constante é $c=\mu(1-\phi)(1-\Phi)=0{,}187$ |
 | Q4(a) | tabela digitada à mão | gerar a tabela no código (como já é feito com `metricas`) |
-| Q4(d) | "a variância dos resíduos não é contada" | **errado**: $k=(AIC+2\ln L)/2=(128{,}65-120{,}66)/2=4$, ou seja, 3 coeficientes mais $\widehat\sigma^2$. O `logLik(modelo1)` mostra `df = 4`. O texto do PDF, aliás, parece ser o enunciado colado no lugar da resposta |
+| Q4(d) | "a variância dos resíduos não é contada" | **errado**: $k=(AIC+2\ln L)/2=(128{,}65-120{,}66)/2=4$, ou seja, 3 coeficientes mais $\widehat\sigma^2$. O `logLik(modelo1)` mostra `df = 4`. O enunciado pede para "verificar na documentação". O `?arima` só diz que o AIC corresponde à log-verossimilhança e não explicita o $k$. A verificação está no código-fonte (`stats::arima` calcula `aic <- value + 2 * sum(mask) + 2`, com `value` $=-2\ln L$ e o `+ 2` sendo a variância) e no `logLik()`, que reporta `df = 4`. Vale contrastar com a aula 02 (slides 98–99), que define $AIC=(-2\ln L+2k)/T$ e $BIC=(-2\ln L+k\ln T)/T$ com $k=p+q+1$, **sem** a variância. A ordenação dos modelos não muda, porque o termo extra é igual para todos |
 | Q4(e) | "não se verifica qualquer divergência" | certo, mas $\Delta\text{AIC}=0{,}46$ entre M1 e M2: são praticamente equivalentes. E o M3 tem SAR e SMA não significativos com erros-padrão enormes (0,57 e 0,61), sintoma de **fatores quase comuns** |
 | Q4(f) | títulos "AR Roots" repetidos, gráfico do M1 chamado de "MA Roots", e **nenhuma conclusão** | cada `plot()` do `forecast` já desenha AR e MA. São **raízes inversas**: dentro do círculo significa raiz fora, logo estacionário e invertível. Uma chamada por modelo e uma frase de conclusão |
 
@@ -149,7 +150,44 @@ Algumas frases do PDF soam genéricas e prometem mais do que os testes entregam.
 
 Também ajuda padronizar a língua (o PDF mistura "parcimónia" e "parcimônia", "grelha" e "grade") e usar vírgula decimal no texto, já que as saídas do R usam ponto.
 
-## 5. Ordem sugerida de trabalho
+## 5. Confronto com o material do professor
+
+Esta seção compara o PDF com o enunciado da Lista 01, com a aula 03 (diagnóstico e previsão, lida inteira) e com o texto de Mattos (2019), que o curso usa para raiz unitária (seções 2.2.5, 2.4 e 2.6). A aula 02 só foi consultada nos slides de AIC e BIC. As aulas 04 e 05 não estavam no Drive.
+
+O PDF responde as questões, mas quase nunca usa o vocabulário e as ferramentas que o professor apresentou. Esse é o ganho mais barato: as ferramentas já estão nos slides e mudam pouco o código.
+
+### Raiz unitária (Mattos, seção 2.2.5)
+
+- **Escolha da versão pelo gráfico.** O passo 1 de Mattos é olhar o gráfico: série que oscila em torno de uma constante pede a opção 2 (só intercepto). O PDF chega à opção 2 pela significância do $t$ da tendência. Basta abrir a Q2(b) com o argumento do gráfico e usar o $t$ como confirmação.
+- **Defasagens a partir de zero.** No procedimento de Mattos, o Schwarz é comparado a partir de **zero** defasagens. O `ur.df(..., selectlags = "BIC")` só testa de 1 a `lags`, então o "BIC escolheu 1" é o piso da função. Na mesma amostra, o BIC mínimo é com **0** defasagens (138,7 contra 140,4 com uma), e aí $\tau_2=-7{,}19$. A conclusão não muda, mas o texto deve dizer como as defasagens foram escolhidas.
+- **Valor crítico de MacKinnon (1996).** Mattos indica essa tabela, e ela é a base dos p-valores que o enunciado pede na Q2(a).
+- **Sazonalidade (Mattos, seção 2.6).** Para o $D$ da Q2(c), o material do curso não usa o OCSB (`nsdiffs`), e sim o ADF com dummies sazonais **centradas**, que não altera a distribuição do $\tau$ (Dickey e Miller, 1986). A [revisão anterior](revisao.md) já fez isso: $\tau=-4{,}87$, e 4 das 11 dummies são significativas. Isso responde ao mesmo tempo o $D=0$ e a sazonalidade "fraca e determinística" da Q1.
+
+### Diagnóstico (aula 03, slides 9 a 31)
+
+- **Graus de liberdade do Ljung-Box.** A aula usa $\nu=k-p-q$. No M1, os coeficientes ARMA são $\phi_1$ e $\Phi_1$, então `fitdf = 2` está certo. Vale escrever a conta no texto ("$\nu=12-2=10$").
+- **Normalidade.** O slide 11 diz exatamente o argumento que falta na Q5(d): a normalidade não é necessária para a estrutura ARMA, mas importa para a inferência e para os intervalos. Os três resíduos padronizados acima de 3 em módulo são jun/2018, jul/2022 e fev/2025, os choques já citados na seção 1.
+- **Heterocedasticidade.** Além do ARCH-LM, os slides 21 e 22 mostram a FAC dos **resíduos ao quadrado**. Nenhum lag sai da banda, e o Ljung-Box dos quadrados com 12 lags dá $p=0{,}88$.
+- **Estabilidade** (slides 24 a 31). O PDF não testa, e o slide 24 explica por que importa aqui: "um modelo pode passar em todos os testes de resíduos e ainda assim descrever mal cada subperíodo". É o complemento natural da discussão sobre a média (seção 1). Rodando o CUSUM e o CUSUM-OLS (`strucchange::efp`) numa regressão com $y_{t-1}$ e $y_{t-12}$, nenhum rejeita a estabilidade ($p=0{,}46$ e $0{,}50$). Isso reforça o texto: dentro da amostra o modelo é estável, e o que mudou foi o período de validação. Cuidado com o Chow: o slide 26 lembra que a data da quebra precisa ser escolhida *a priori* (por exemplo, mar/2020 ou a mudança de meta), e não olhando o gráfico.
+
+### Previsão (aula 03, slides 33 a 60)
+
+- **Vocabulário.** Nos termos da aula, o esquema 1 é **janela fixa com previsão iterada** de 1 a 24 passos, e o esquema 2 é **janela fixa com previsão de um passo** (slides 36 e 40). O slide 40 alerta para a confusão comum: as 24 previsões de um passo do esquema 2 não são previsões de 24 passos. Usar esses termos na Q7(b) e (c) mostra que a dupla entendeu a diferença.
+- **MAPE e MASE.** O slide 46 diz que o MAPE "exige $y_t\neq0$ e fica instável quando $y_t$ se aproxima de zero". É a frase para citar na Q7(d). O slide 49 define o MASE com $m=12$ para séries sazonais e escala calculada no treino, exatamente como na tabela da seção 1. Pela definição da aula, MASE < 1 significa melhor que o ingênuo **dentro do treino**.
+- **MAE e MAD.** A aula chama o MAE de MAD. O enunciado usa MAE. Basta uma nota dizendo que são a mesma medida.
+- **Diebold-Mariano** (slides 50 e 51). A aula apresenta o teste exatamente para a pergunta da Q7(f) ("RMSE de 3,1 contra 3,4: isso é uma diferença?"). Sem ele, a Q7(f) fica abaixo do nível da aula. O slide 51 cita Giacomini e White (2006) como alternativa. Com coeficientes fixos estimados no treino, que é o caso dos dois esquemas, essa alternativa é inclusive a mais adequada. Basta citá-la.
+- **Previsão intervalar** (slides 52 a 60). É aqui que o trabalho mais ganha, porque o resultado **muda de sinal**:
+
+| Previsor, esquema 1 | Cobertura de 95% | Largura média | Winkler | CRPS |
+|---|---|---|---|---|
+| M1 | 23/24 | 1,61 | **1,87** | 0,217 |
+| Sazonal ingênuo | 24/24 | 2,58 | 2,58 | **0,213** |
+| Passeio aleatório | 24/24 | 5,06 | 5,06 | 0,353 |
+
+  Os intervalos dos benchmarks vêm de `naive()` e `snaive()`, e o CRPS supõe distribuição preditiva normal. O sazonal ingênuo ganha na previsão pontual, mas **o M1 dá o melhor intervalo**: cobre o que precisa com um intervalo bem mais estreito. No CRPS, M1 e sazonal ingênuo empatam. Isso responde melhor à queixa "o modelo não previu nada": o M1 não acerta o ponto melhor que a média, mas descreve bem a **incerteza**, e isso também é previsão.
+- **Calibração** (slide 59). A Q7(g) pede "a cobertura empírica corresponde à nominal?". A aula responde com o teste de cobertura incondicional de Christoffersen (1998): com 1 violação em 24, $LR_{uc}=0{,}04$, $p=0{,}85$, e não se rejeita a cobertura nominal. O teste de independência não se aplica com uma violação só, e o texto deve dizer isso.
+
+## 6. Ordem sugerida de trabalho
 
 1. **Q7(f) e Q7(g)**: reescrever com os números (seção 1). É onde está a pergunta de vocês e onde o texto atual contradiz a própria tabela.
 2. **Q4(d) e Q6(a)**: são erros factuais, um de conceito e um de sinal. A correção é de uma linha cada.
@@ -157,13 +195,18 @@ Também ajuda padronizar a língua (o PDF mistura "parcimónia" e "parcimônia",
 4. **Q1 × Q3 × Q7**: tornar a sazonalidade coerente nas três questões.
 5. **Q5(e), Q6(b), Q6(c), Q7(d), Q7(e)**: acrescentar os números que faltam.
 6. Forma: `start` no `ts()`, quebra de linha no código, legendas e a revisão de redação da seção 4.
+7. Material do professor (seção 5): vocabulário da aula 03, FACP dos resíduos, Winkler, CRPS e Christoffersen na Q7(g), CUSUM como complemento da Q5.
 
 ## Referências
 
 - Atkeson, A.; Ohanian, L. E. (2001). Are Phillips curves useful for forecasting inflation? *Federal Reserve Bank of Minneapolis Quarterly Review*, 25(1), 2–11.
+- Christoffersen, P. F. (1998). Evaluating interval forecasts. *International Economic Review*, 39(4), 841–862.
+- Dickey, D. A.; Miller, R. J. (1986). Unit root tests in seasonal time series. Citado por Mattos (2019, seção 2.6).
 - Diebold, F. X.; Mariano, R. S. (1995). Comparing predictive accuracy. *Journal of Business & Economic Statistics*, 13(3), 253–263.
 - Enders, W. (2015). *Applied Econometric Time Series*. 4. ed. Wiley, cap. 4 (procedimento sequencial para os testes de raiz unitária).
 - Faust, J.; Wright, J. H. (2013). Forecasting inflation. In: Elliott, G.; Timmermann, A. (orgs.). *Handbook of Economic Forecasting*, v. 2A. Elsevier, p. 2–56.
+- Giacomini, R.; White, H. (2006). Tests of conditional predictive ability. *Econometrica*, 74(6), 1545–1578.
 - Hyndman, R. J.; Koehler, A. B. (2006). Another look at measures of forecast accuracy. *International Journal of Forecasting*, 22(4), 679–688.
+- Mattos, R. S. (2019). *Tendências e raízes unitárias*. UFJF. Texto do curso, seções 2.2.5, 2.4 e 2.6.
 - Stock, J. H.; Watson, M. W. (2007). Why has U.S. inflation become harder to forecast? *Journal of Money, Credit and Banking*, 39(s1), 3–33.
 - Para a discussão de $d$ (inflação I(0) ou I(1)), ver [referencias_inpc.md](../referencias_inpc.md).
