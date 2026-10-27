@@ -128,7 +128,9 @@ if (dir.exists(file.path(RAIZ, ".git"))) {
   # (as mesmas do .gitignore); nenhum PDF de terceiros entra aqui
   pdfs_proprios <- c("lista01/relatorio_lista01.pdf", "lista01/laboratorio_lista01.pdf",
                      "caderno/pdf/caderno_volume4_lista01_laboratorio.pdf",
-                     "caderno/pdf/caderno_lista01_guia_estudo.pdf")
+                     "caderno/pdf/caderno_lista01_guia_estudo.pdf",
+                     "caderno/pdf/caderno_volume5_prova.pdf", "caderno/pdf/caderno_prova_simulados.pdf",
+                     "caderno/pdf/caderno_volume6_lista_comentada.pdf")
   for (p in setdiff(grep("\\.(pdf|jpe?g)$|^materiais/", rastreados, value = TRUE), pdfs_proprios))
     E("arquivo proibido versionado: %s", p)
 }

@@ -18,6 +18,8 @@ Esta pasta transforma as notas do repositório em livros para imprimir, no mesmo
 | `caderno_volume1_teoria.pdf` | formulário, convenções (o sinal do MA) e a teoria dos módulos 01–03 e o módulo 07 (AU06), com os exercícios | estudar e anotar à mão |
 | `caderno_volume2_lista.pdf` | a lista ARMA, ARIMA e SARIMA resolvida (Q1–Q16), com a teoria de estimação e previsão | conferir depois de resolver |
 | `caderno_volume3_trabalho_inpc.pdf` | roteiro e relatório do trabalho em dupla do INPC, com as figuras | revisar o texto da dupla no papel |
+| `caderno_volume5_prova.pdf` | guia da prova de 05/11, banco de variações, três simulados, gabaritos com rubrica, log de erros e formulário | treinar para a prova (versionado, vai ao cofre) |
+| `caderno_prova_simulados.pdf` | só os enunciados dos três simulados | imprimir e resolver sem ver o gabarito (versionado) |
 
 ## Gerar
 
@@ -29,7 +31,7 @@ Rscript caderno/montar_caderno.R                 # Linux/macOS
 powershell -ExecutionPolicy Bypass -File scripts\r.ps1 caderno\montar_caderno.R
 ```
 
-Para gerar só um volume, passe `teoria`, `lista` ou `trabalho` como argumento.
+Para gerar só um volume, passe `teoria`, `lista`, `trabalho`, `lista01`, `guia`, `prova` ou `simulados` como argumento.
 
 **Requisitos:** pandoc e LuaLaTeX (TeX Live ou MiKTeX), com as fontes Libertinus, que vêm no TeX Live (`texlive-fonts-extra`) e no MiKTeX. O preâmbulo usa Consolas e Segoe UI Symbol quando existem, como no Windows, e DejaVu nos outros sistemas.
 

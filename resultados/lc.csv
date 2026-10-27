@@ -1,0 +1,166 @@
+chave,valor
+lc_q1_media_t30, 40.014803774
+lc_q1_var_t30,29.9485992922
+lc_q1_cov_t30_k10,19.9897627119
+lc_q2_media_t30,123.014803774
+lc_q2_media_t30_formula,          123
+lc_q2_soma_gauss_t10,           55
+lc_q3_g0,          9.7
+lc_q3_g1,        -5.52
+lc_q3_g2,          1.2
+lc_q3_g3,            0
+lc_q3_rho1,-0.569072164948
+lc_q3_rho2,0.123711340206
+lc_q3_4x230,          9.2
+lc_q3_4x143,         5.72
+lc_q3_4x030,          1.2
+lc_q4_soma_psi2,1.33333333333
+lc_q4_soma_psi2_formula,1.33333333333
+lc_q4_psi3,        0.125
+lc_q5_m1_psi1,          0.5
+lc_q5_m1_psi2,         0.25
+lc_q5_m1_psi3,        0.125
+lc_q5_m1_psi4,       0.0625
+lc_q5_m1_raiz,            2
+lc_q5_m2_delta,         0.09
+lc_q5_m2_raizdelta,          0.3
+lc_q5_m2_z1,            2
+lc_q5_m2_z2,         1.25
+lc_q5_m2_z1_polyroot,            2
+lc_q5_m2_z2_polyroot,         1.25
+lc_q5_m2_pi1,         -1.3
+lc_q5_m2_pi2,        -1.29
+lc_q5_m2_pi3,       -1.157
+lc_q5_m2_pi4,      -0.9881
+lc_q5_m2_dif_recursao,            0
+lc_q5_m2_13x13,         1.69
+lc_q5_m2_13x129,        1.677
+lc_q5_m2_04x13,         0.52
+lc_q5_m2_13x1157,       1.5041
+lc_q5_m2_04x129,        0.516
+lc_q5_m3_pi1,         -0.8
+lc_q5_m3_pi2,        -0.64
+lc_q5_m3_pi3,       -0.512
+lc_q5_m3_pi4,      -0.4096
+lc_q5_m3_raiz,         1.25
+lc_q5_m3_dif_cancelamento,            0
+lc_q6_g0,1.17647058824
+lc_q6_g0_formula,1.17647058824
+lc_q6_g1,0.423529411765
+lc_q6_g1_formula,0.423529411765
+lc_q6_rho1,         0.36
+lc_q6_rho2,        0.252
+lc_q6_rho3,       0.1764
+lc_q6_rho1_formula,         0.36
+lc_q6_psi1,          0.3
+lc_q6_psi2,         0.21
+lc_q6_psi3,        0.147
+lc_q6_pi1,          0.3
+lc_q6_pi2,         0.12
+lc_q6_pi3,        0.048
+lc_q6_n_psi_lento,           80
+lc_q6_n_psi_rapido,            3
+lc_q7_rho1,         0.75
+lc_q7_rho2,         0.65
+lc_q7_g0,2.38095238095
+lc_q7_g0_formula,2.38095238095
+lc_q7_g0_via_rho,2.38095238095
+lc_q7_delta,         1.16
+lc_q7_z1,-4.19258240357
+lc_q7_z2,1.19258240357
+lc_q8_g0,     2.265625
+lc_q8_g1,     1.659375
+lc_q8_g2,     0.995625
+lc_q8_item1_lado_dir,     2.265625
+lc_q8_item2_lado_dir,     2.259375
+lc_q8_rho1,0.732413793103
+lc_q8_rho2,0.439448275862
+lc_q8_item3_formula,0.732413793103
+lc_q8_e_z4_certo,            9
+lc_q8_e_z4_lista,            8
+lc_q9_var_w,         1.25
+lc_q9_var_w_formula,         1.25
+lc_q9_rho1_w,         -0.2
+lc_q9_rho1_w_formula,         -0.2
+lc_q9_var_y,       1.5625
+lc_q9_pi5,         -0.4
+lc_q10_c1,          1.4
+lc_q10_c2,         -0.4
+lc_q10_rho1_ts,         -0.5
+lc_q11_g0,1.96078431373
+lc_q11_rho4,          0.7
+lc_q11_rho8,         0.49
+lc_q11_rho1,            0
+lc_q11_rho2,            0
+lc_q11_rho3,            0
+lc_q11_phi44,          0.7
+lc_q11_phi88,            0
+lc_q11_ar5_c1,          0.4
+lc_q11_ar5_c2,7.40148683083e-17
+lc_q11_ar5_c3,1.48029736617e-16
+lc_q11_ar5_c4,          0.7
+lc_q11_ar5_c5,        -0.28
+lc_q12_c1,          1.4
+lc_q12_c2,         -0.4
+lc_q12_c3,1.26882631386e-16
+lc_q12_c4,            1
+lc_q12_c5,         -1.4
+lc_q12_c6,          0.4
+lc_q12_dif_predict,7.1054273576e-15
+lc_q12_perda,            5
+lc_q13_dif_mqo_mv,1.68154934421e-11
+lc_q13_dif_lm,1.11022302463e-16
+lc_q14_m2ll_arma11,        420.6
+lc_q14_aic_arma11,        426.6
+lc_q14_bic_arma11,435.631905882
+lc_q14_aict_arma11,        2.844
+lc_q14_bict_arma11,2.90421270588
+lc_q14_m2ll_ar2,        425.6
+lc_q14_aic_ar2,        431.6
+lc_q14_bic_ar2,440.631905882
+lc_q14_aict_ar2,2.87733333333
+lc_q14_bict_ar2,2.93754603922
+lc_q14_m2ll_ma2,        428.2
+lc_q14_aic_ma2,        434.2
+lc_q14_bic_ma2,443.231905882
+lc_q14_aict_ma2,2.89466666667
+lc_q14_bict_ma2,2.95487937255
+lc_q14_ln150, 5.0106352941
+lc_q14_3ln150,15.0319058823
+lc_q15_psi1,          0.3
+lc_q15_psi2,         0.21
+lc_q15_v1,            1
+lc_q15_v2,         1.09
+lc_q15_v3,       1.1341
+lc_q15_vinf,1.17647058824
+lc_q15_v12,1.17640159139
+lc_q15_dif_f1,            0
+lc_q15_dif_f2,            0
+lc_q15_dif_var,1.11022302463e-16
+lc_q15_alfa,          0.4
+lc_q15_dif_ses,4.4408920985e-16
+lc_q16_npar,            4
+lc_q16_perda,           13
+lc_q16_efetivas,          227
+lc_q16_rho1,0.105211240351
+lc_q16_rho2,0.0525375902908
+lc_q16_rho11,-0.0463389450292
+lc_q16_rho12,-0.441145084557
+lc_q16_rho13,-0.0464160372608
+lc_q16_ma13,         0.24
+lc_cad_delta,        -0.15
+lc_cad_raiz_abs_delta,0.387298334621
+lc_cad_lambda_re,         0.75
+lc_cad_lambda_im,0.19364916731
+lc_cad_lambda_mod,0.774596669241
+lc_cad_lambda_mod2,          0.6
+lc_cad_lambda2_mod,0.774596669241
+lc_cad_z_mod,1.29099444874
+lc_cad_omega,0.252680255142
+lc_cad_periodo,24.8661507154
+lc_cad_auto_F,0.774596669241
+lc_cad_errado_lambda2,0.844926032266
+lc_cad_075q,       0.5625
+lc_cad_im_q,       0.0375
+lc_cad_g0_certo,1.17647058824
+lc_cad_g0_caderno,0.078431372549

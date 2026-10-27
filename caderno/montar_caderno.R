@@ -4,14 +4,18 @@
 #   Volume 3 — o trabalho em dupla do INPC (roteiro e relatório)
 #   Volume 4 — Lista 01: guia de estudo, referências do INPC, README e laboratório
 #   Guia     — só o guia de estudo da Lista 01, num PDF à parte
+#   Volume 5 — prova de 05/11: guia, banco de variações, três simulados e gabaritos
+#   Simulados — só os enunciados dos três simulados, para resolver no papel
+#   Volume 6 — lista comentada: Q1–Q16 passo a passo na notação dos slides, com o caderno
 #
 # Caminho: nota .md -> preparo em R (tira o frontmatter, resolve caminhos de figura,
 # troca emoji por símbolo) -> pandoc (commonmark_x + filtros.lua) -> .tex -> LuaLaTeX.
 # Requer pandoc e LuaLaTeX (TeX Live ou MiKTeX).
 #
 # Rodar: Rscript caderno/montar_caderno.R  (Windows: scripts\r.ps1 caderno\montar_caderno.R)
-#        argumentos opcionais: teoria, lista, trabalho, lista01, guia; sem argumento, tudo
-# Saída: caderno/pdf/ (fora do git, exceto o volume 4 e o guia, que vão ao cofre do Obsidian)
+#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada; sem argumento, tudo
+# Saída: caderno/pdf/ (fora do git, exceto o volume 4, o guia, o volume 5 e os simulados,
+#        que vão ao cofre do Obsidian)
 
 # --- bootstrap: localizar a raiz do repo e carregar helpers ---
 .d <- getwd(); while (!file.exists(file.path(.d, ".repo-root")) && dirname(.d) != .d) .d <- dirname(.d)
@@ -271,13 +275,54 @@ volume_guia <- function() {
   compilar("caderno_lista01_guia_estudo", md, file.path(BUILD, "capa_guia.tex"), OPC_LIVRO, passes = 3)
 }
 
+# A prova de 05/11: guia, banco e simulados; os gabaritos e o log ficam no fim do volume
+volume_prova <- function() {
+  partes <- list(
+    "Guia da prova" = c("prova/README.md"),
+    "Banco de variações da lista" = c("prova/banco.md"),
+    "Simulados" = c("prova/simulado_01.md", "prova/simulado_02.md", "prova/simulado_03.md"),
+    "Gabaritos e log de erros" = c("prova/simulado_01_gabarito.md", "prova/simulado_02_gabarito.md",
+                                   "prova/simulado_03_gabarito.md", "prova/log_erros.md"),
+    "Formulário" = c("formulario/formulario.md")
+  )
+  md <- file.path(BUILD, "volume5.md"); montar_md(partes, md)
+  capa("Volume 5", "Prova de 05/11: guia, banco de variações, simulados e gabaritos", file.path(BUILD, "capa5.tex"))
+  compilar("caderno_volume5_prova", md, file.path(BUILD, "capa5.tex"), OPC_LIVRO, passes = 3)
+}
+
+# Só os enunciados, para imprimir e resolver sem ver o gabarito
+volume_simulados <- function() {
+  partes <- list("Simulados" = c("prova/simulado_01.md", "prova/simulado_02.md", "prova/simulado_03.md"))
+  md <- file.path(BUILD, "simulados.md"); montar_md(partes, md)
+  capa("Simulados", "Três provas de 1h50 no formato da lista (sem gabarito)", file.path(BUILD, "capa_sim.tex"))
+  compilar("caderno_prova_simulados", md, file.path(BUILD, "capa_sim.tex"), OPC_LIVRO, passes = 3)
+}
+
+# A lista comentada: todas as questões, passo a passo, na notação dos slides
+volume_comentada <- function() {
+  q <- sprintf("lista_comentada/q%02d.md", 1:16)
+  partes <- list(
+    "Como usar, notação e caixa de ferramentas" = c("lista_comentada/README.md"),
+    "Bloco 1 — Processos e momentos" = q[1:4],
+    "Bloco 2 — AR, MA e ARMA" = q[5:8],
+    "Bloco 3 — Integrados, ARIMA e SARIMA" = q[9:12],
+    "Blocos 4 a 6 — Estimação, previsão e aplicação" = q[13:16]
+  )
+  md <- file.path(BUILD, "volume6.md"); montar_md(partes, md)
+  capa("Volume 6", "Lista comentada: Q1–Q16 passo a passo na notação dos slides", file.path(BUILD, "capa6.tex"))
+  compilar("caderno_volume6_lista_comentada", md, file.path(BUILD, "capa6.tex"), OPC_LIVRO, passes = 3)
+}
+
 ## ---- execução ------------------------------------------------------------------------
 alvos <- commandArgs(trailingOnly = TRUE)
-if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia")
+if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada")
 cat("pandoc:  ", PANDOC, "\nlualatex:", LUALATEX, "\n")
 if ("teoria" %in% alvos) volume_teoria()
 if ("lista" %in% alvos) volume_lista()
 if ("trabalho" %in% alvos) volume_trabalho()
 if ("lista01" %in% alvos) volume_lista01()
 if ("guia" %in% alvos) volume_guia()
+if ("prova" %in% alvos) volume_prova()
+if ("simulados" %in% alvos) volume_simulados()
+if ("comentada" %in% alvos) volume_comentada()
 cat("\nPDFs em caderno/pdf/\n")
