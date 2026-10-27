@@ -16,6 +16,8 @@ aliases:
 
 Esta auditoria cobre o PDF `lista_avaliativa_econometria2.pdf`, de 33 páginas, de Patrick e Felipe. Ele modela a **variação mensal do INPC** de jan/2013 a set/2026 (165 meses), com $d=D=0$ e o modelo **M1 = SARIMA(1,0,0)(1,0,0)$_{12}$**. A [revisão anterior](revisao.md) tratava de uma versão sem as Q5 a Q7. Esta versão já traz as três.
 
+As correções estão aplicadas em [inpc_lista_1_revisado.qmd](inpc_lista_1_revisado.qmd), a versão em Quarto da dupla que está no repositório. O `.qmd` que gerou o PDF não está no repositório.
+
 Duas restrições valem para tudo o que segue: **o modelo não muda** (o próprio enunciado proíbe, Q7f), e **a análise do índice não entra**. Todos os números abaixo foram reproduzidos em R com `dados/inpc.csv`, e os do PDF batem até a quarta casa ($\tau_3=-5{,}202$, AIC do M1 $=128{,}65$, RMSE do M1 no esquema 1 $=0{,}3877$).
 
 ## 1. A pergunta central: "o modelo não previu nada" é um erro?

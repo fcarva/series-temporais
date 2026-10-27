@@ -7,6 +7,10 @@ format:
     toc: true
     number-sections: true
     colorlinks: true
+    include-in-header:
+      text: |
+        \usepackage{fvextra}
+        \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
 lang: pt
 knitr:
   opts_chunk:
@@ -122,13 +126,25 @@ tab_q2 <- tibble(
   Critério = c(rep(paste0("BIC, máx. ", kmax, " (Schwert)"), 3), "Newey-West (short)", "Newey-West (short)"),
   `H0` = c(rep("raiz unitária", 4), "estacionária"))
 kable(tab_q2, digits = 3, caption = "Testes de raiz unitária na variação mensal do INPC.")
+
+# O selectlags do ur.df só compara de 1 a kmax defasagens. Mattos (2019, seção 2.2.5)
+# começa de zero. BIC da regressão do DF-II na mesma amostra, para 0 a kmax defasagens:
+dz <- diff(as.numeric(inpc_ts)); idx <- (kmax + 1):length(dz)
+bic_adf <- sapply(0:kmax, function(k) {
+  X <- cbind(nivel = as.numeric(inpc_ts)[idx])
+  if (k > 0) X <- cbind(X, sapply(1:k, function(j) dz[idx - j]))
+  BIC(lm(dz[idx] ~ X))
+})
+p_bic <- which.min(bic_adf) - 1
+tau2_0 <- ur.df(inpc_ts, type = "drift", lags = p_bic)@teststat[1, "tau2"]
+c(defasagens_BIC = p_bic, tau2 = tau2_0)
 ```
 
 O KPSS não tem p-valor exato: a tabela de Kwiatkowski et al. (1992) só tem críticos de 10% a 1%. A estatística, `r f(kpss@teststat, 3)`, fica abaixo do crítico de 10% (`r f(kpss@cval[1, "10pct"], 3)`), então $p > 0{,}10$.
 
 **Leitura.** Os três testes concordam:
 
-- **ADF:** rejeita a raiz unitária nas três especificações. O BIC escolhe `r n_lags(df_drift)` defasagem; a defasagem máxima segue a regra de Schwert.
+- **ADF:** rejeita a raiz unitária nas três especificações. A defasagem máxima segue a regra de Schwert, e o `ur.df` escolhe `r n_lags(df_drift)` defasagem pelo BIC. Esse é o piso da função, que só compara de 1 a `r kmax`. Seguindo Mattos (2019, seção 2.2.5), que começa de zero, o BIC fica com `r p_bic` defasagens, e então $\tau_2 = `r fm(tau2_0, 3)`$. A conclusão é a mesma.
 - **PP:** rejeita, com $Z_\tau = `r fm(pp@teststat, 3)`$. Ele não depende da escolha de defasagens, porque corrige a autocorrelação com a variância de longo prazo de Newey-West (janela de `r pp@lag` defasagens).
 - **KPSS:** não rejeita a estacionariedade, e as hipóteses dele são invertidas em relação às do ADF e do PP. Pela análise confirmatória, ADF e PP rejeitando e KPSS não rejeitando é a combinação que indica estacionariedade.
 
@@ -147,6 +163,7 @@ A regressão auxiliar do ADF é $\Delta \pi_t = \alpha + \beta t + \gamma\,\pi_{
 
 - **Tendência ($\beta t$).** Uma taxa de inflação não tem razão econômica para crescer ou cair indefinidamente, e o gráfico não mostra tendência. Ainda assim, começa-se pelo modelo com tendência (DF-III), para não depender do olho. Como $\tau_3 = `r fm(df_trend@teststat[1, "tau3"], 3)`$ rejeita a raiz unitária, a regressão é estacionária, e o teste $t$ usual da tendência passa a valer. Ele não é significativo ($p = `r fm(summary(df_trend)@testreg$coefficients["tt", 4], 3)`$): a tendência é dispensável. Atenção: esse $t$ só pode ser usado porque $H_0$ foi rejeitada; sob raiz unitária, ele não tem a distribuição usual. Mattos (2019, seção 2.2.5) recomenda escolher a versão pelo gráfico, e o gráfico de uma taxa que oscila em torno de uma média aponta a versão só com constante.
 - **Constante ($\alpha$).** A inflação oscila em torno de uma média positiva, de `r f(mean(inpc_ts), 2)`% a.m. Sem constante, a hipótese alternativa seria "estacionária em torno de zero", uma descrição errada da série. Por isso a especificação adequada é a DF-II.
+- **As estatísticas $\phi$.** Elas só são indispensáveis quando o $\tau$ não rejeita, porque aí o $t$ dos termos determinísticos não tem distribuição usual. Aqui servem de confirmação: $\phi_3 = `r fm(df_trend@teststat[1, "phi3"], 2)`$ e $\phi_1 = `r fm(df_drift@teststat[1, "phi1"], 2)`$ superam os críticos de 1% (`r f(df_trend@cval["phi3", "1pct"], 2)` e `r f(df_drift@cval["phi1", "1pct"], 2)`).
 - **A conclusão não muda** entre as especificações: $\tau_3 = `r fm(df_trend@teststat[1, "tau3"], 3)`$, $\tau_2 = `r fm(df_drift@teststat[1, "tau2"], 3)`$ e $\tau_1 = `r fm(df_none@teststat[1, "tau1"], 3)`$ rejeitam a raiz unitária a 5%. A especificação sem constante (DF-I) rejeita com menos folga: omitir a média tira poder do teste.
 
 (c) Repita os testes para a série diferenciada e determine d. Se a série for sazonal, avalie também a necessidade de diferença sazonal e determine D.
@@ -300,7 +317,7 @@ tibble(Modelo = names(modelos),
        gl_logLik = sapply(modelos, function(m) attr(logLik(m), "df")))
 ```
 
-**O R inclui $\hat\sigma_a^2$ em $k$.** O código mostra: no M1 há `r length(coef(modelo1))` coeficientes (AR, SAR e média), mas o AIC reportado corresponde a $k = `r (AIC(modelo1) + 2 * modelo1$loglik) / 2`$. A diferença de 1 é a variância. A documentação confirma: em `?arima`, o AIC é "$-2\log L + 2k$" com o número de parâmetros incluindo a variância, e o código da função soma 1 ao número de coeficientes livres (`2 * sum(mask) + 2`). O `logLik()` reporta `df` = `r attr(logLik(modelo1), "df")`. Como todos os modelos ganham o mesmo +1, a ordenação pelo AIC não muda, mas o valor do critério sim.
+**O R inclui $\hat\sigma_a^2$ em $k$.** O código mostra: no M1 há `r length(coef(modelo1))` coeficientes (AR, SAR e média), mas o AIC reportado corresponde a $k = `r (AIC(modelo1) + 2 * modelo1$loglik) / 2`$. A diferença de 1 é a variância. O `?arima` só diz que o AIC corresponde à log-verossimilhança, sem explicitar o $k$. A confirmação está no código da função, `aic <- value + 2 * sum(mask) + 2`, em que `value` $= -2\ln L$, `sum(mask)` é o número de coeficientes livres e o `+ 2` é a variância. O `logLik()` reporta `df` = `r attr(logLik(modelo1), "df")`. Como todos os modelos ganham o mesmo +1, a ordenação pelo AIC não muda, mas o valor do critério sim.
 
 **A convenção da aula é outra.** A aula 02 (slides 98–99) conta $k = p + q + 1$ num ARMA com média, sem a variância, e divide os critérios por $T$. A diferença para o R é a mesma em todos os modelos: muda o valor do critério, não a escolha.
 
@@ -362,6 +379,8 @@ $Q(K) = T(T+2)\sum_{j=1}^K \hat\rho_j^2/(T - j)$. Sob $H_0$ (resíduos sem autoc
 
 ```{r}
 jb <- jarque.bera.test(e); arch <- ArchTest(e, lags = 12)
+# Complemento do ARCH-LM (aula 03, slides 21-22): Ljung-Box dos resíduos ao quadrado
+lb_e2 <- Box.test(e^2, lag = 12, type = "Ljung-Box")
 ec <- e - mean(e)
 c(JB = unname(jb$statistic), p_JB = jb$p.value, assimetria = mean(ec^3) / mean(ec^2)^1.5,
   curtose = mean(ec^4) / mean(ec^2)^2, ARCH_LM = unname(arch$statistic), p_ARCH = arch$p.value)
@@ -371,7 +390,12 @@ format(as.Date(paste(floor(time(z)[abs(z) > 3]), round(time(z)[abs(z) > 3] %% 1 
 ```
 
 - **Jarque-Bera:** $JB = `r fm(jb$statistic, 1)`$, $p = `r fm(jb$p.value, 4)`$. Rejeita a normalidade. A causa são as caudas (curtose de `r f(mean(ec^4) / mean(ec^2)^2, 1)`, contra 3 na normal), produzidas por três choques: jun/2018, jul/2022 e fev/2025. A falta de normalidade não torna os estimadores inconsistentes (a MV gaussiana é quase-MV), mas deixa os intervalos de previsão estreitos demais nos meses de choque.
-- **ARCH-LM:** regressão de $\hat a_t^2$ em 12 defasagens de $\hat a_t^2$, com $TR^2 \sim \chi^2(12)$. Dá `r f(arch$statistic, 2)`, com $p = `r fm(arch$p.value, 3)`$. Não há heterocedasticidade condicional. A dispersão maior em 2015–2016 e 2020–2022 (Questão 1) acompanha o nível da inflação, mas não é um efeito ARCH nos choques.
+- **ARCH-LM:** regressão de $\hat a_t^2$ em 12 defasagens de $\hat a_t^2$, com $TR^2 \sim \chi^2(12)$. Dá `r f(arch$statistic, 2)`, com $p = `r fm(arch$p.value, 3)`$. Não há heterocedasticidade condicional. O Ljung-Box dos resíduos ao quadrado, que a aula 03 apresenta como complemento, também não rejeita ($p = `r fm(lb_e2$p.value, 3)`$; a FAC de $\hat a_t^2$ está no gráfico abaixo). A dispersão maior em 2015–2016 e 2020–2022 (Questão 1) acompanha o nível da inflação, mas não é um efeito ARCH nos choques.
+
+```{r}
+#| fig-height: 3
+Acf(e^2, lag.max = 24, main = "FAC dos resíduos ao quadrado do M1")
+```
 
 (d) Se algum diagnóstico falhar, retorne à Questão 3 e reformule. Documente o caminho percorrido.
 
@@ -392,7 +416,7 @@ kable(tibble(Modelo = names(caminho),
       digits = 3, caption = "Caminho percorrido.")
 ```
 
-O diagnóstico de autocorrelação não falhou no M1, então não é preciso reformular. A única falha é a normalidade, que vem de choques pontuais e não se corrige mudando a estrutura ARMA. A tabela documenta os descartes: o modelo sem AR regular deixa autocorrelação nos resíduos; o AR(1) sem termo sazonal tem resíduos aceitáveis, mas critérios piores; e M2 e M3 perdem para o M1 nos dois critérios.
+O diagnóstico de autocorrelação não falhou no M1, então não é preciso reformular. A única falha é a normalidade, que vem de choques pontuais e não se corrige mudando a estrutura ARMA. Como lembra a aula 03 (slide 11), a normalidade não é exigida pela estrutura ARMA. Ela importa para a inferência e para os intervalos, e a Questão 7(g) verifica se os intervalos sofreram. A tabela documenta os descartes: o modelo sem AR regular deixa autocorrelação nos resíduos; o AR(1) sem termo sazonal tem resíduos aceitáveis, mas critérios piores; e M2 e M3 perdem para o M1 nos dois critérios.
 
 (e) Sobreajuste deliberado. Estime duas especificações vizinhas, acrescentando um parâmetro AR e um MA ao modelo escolhido.
 
@@ -459,7 +483,7 @@ A **série diferenciada** tem autocorrelação negativa pronunciada no primeiro 
 1. Um coeficiente MA estimado perto de $-1$ (ou a soma dos MA perto de $-1$), com raiz no círculo unitário e erro-padrão suspeitamente pequeno, ou falta de convergência.
 2. Um AR que **troca de sinal** em relação ao modelo com uma diferença a menos.
 3. $\hat\rho_1$ da série diferenciada negativo e grande, perto de $-0{,}5$.
-4. Uma variância residual que **aumenta** com a diferença extra, em vez de diminuir.
+4. Uma variância residual que **aumenta** com a diferença extra, em vez de diminuir, quando o modelo não tem um MA que compense. Com o MA perto de $-1$, o aumento é pequeno, e o sinal passa a ser o item 1.
 5. Intervalos de previsão que se abrem sem limite para uma série que, no gráfico, volta sempre à média.
 
 # Previsão Fora da Amostra
@@ -477,7 +501,7 @@ c(T = length(inpc_ts), T0 = T0, H = H)
 
 O treino vai de 01/2013 a `r format(as.Date(paste(floor(time(inpc_ts)[T0]), round(time(inpc_ts)[T0] %% 1 * 12) + 1, 1, sep = "-")), "%m/%Y")` ($T_0 = `r T0`$), e a validação cobre os 24 meses seguintes.
 
-(b) Esquema 1: origem fixa, múltiplos passos.
+(b) Esquema 1: origem fixa, múltiplos passos. Na terminologia da aula 03, é uma **janela fixa com previsão iterada** de 1 a 24 passos.
 
 ```{r}
 fit_treino <- Arima(treino, order = c(1, 0, 0), seasonal = c(1, 0, 0), method = "ML")
@@ -490,9 +514,9 @@ autoplot(prev1, include = 48) +
   theme_classic()
 ```
 
-O modelo é o M1, reestimado só com o treino. A previsão converge rapidamente para a média, e o intervalo se estabiliza. É o comportamento de uma série estacionária: a variância do erro, $\sigma^2\sum_{j<h}\psi_j^2$, converge para a variância da série.
+O modelo é o M1, reestimado só com o treino. A previsão converge rapidamente para a média ($\hat\mu = `r fm(coef(fit_treino)[["intercept"]], 3)`$), e o intervalo se estabiliza. É o comportamento de uma série estacionária: a parte AR decai como $\hat\phi^h$, com $\hat\phi = `r fm(coef(fit_treino)[["ar1"]], 3)`$, e some em poucos meses. A parte sazonal é fraca. A variância do erro, $\sigma^2\sum_{j<h}\psi_j^2$, converge para a variância da série. Como o último dado do treino (`r f(tail(treino, 1), 2)`%) já estava perto da média, a previsão é quase plana desde o primeiro mês.
 
-(c) Esquema 2: origem móvel, um passo à frente, sem reestimar.
+(c) Esquema 2: origem móvel, um passo à frente, sem reestimar. Na terminologia da aula 03, é uma **janela fixa com previsão de um passo**. As 24 previsões têm horizonte $h = 1$; não são previsões de 24 passos.
 
 ```{r}
 # Arima(serie, model = ajuste) mantém os coeficientes do treino e só atualiza o
@@ -517,25 +541,46 @@ metricas <- function(p) {
     MAPE = 100 * mean(abs(e / y)[y != 0]),   # MAPE sem os meses de inflação zero
     MASE = mean(abs(e)) / Q_mase)
 }
+media1 <- ts(rep(mean(treino), H), start = start(teste), frequency = 12)          # extra
 tab7 <- rbind("SARIMA M1"         = c(metricas(prev1$mean), metricas(prev2)),
               "Passeio aleatório" = c(metricas(rw1), metricas(rw2)),
-              "Sazonal ingênuo"   = c(metricas(sn1), metricas(sn2)))
+              "Sazonal ingênuo"   = c(metricas(sn1), metricas(sn2)),
+              "Média do treino (extra)" = c(metricas(media1), rep(NA, 4)))
 colnames(tab7) <- paste(rep(c("Esquema 1", "Esquema 2"), each = 4), colnames(tab7))
 kable(tab7, digits = 3, caption = "Métricas na validação (p.p. de inflação; MAPE em %).")
 sum(teste == 0)   # meses com inflação exatamente zero
 ```
 
-**O MAPE precisa de cuidado nesta série.** Ele divide o erro pelo valor observado, e a inflação mensal fica perto de zero em vários meses. Na validação há meses com variação exatamente zero (`r sum(teste == 0)` no total), o que tornaria o MAPE infinito, e outros próximos de zero, o que o infla. Os meses com zero foram excluídos do cálculo. Mesmo assim, os valores acima de 100% mostram que o MAPE não é informativo aqui. A aula 03 faz o mesmo alerta (o MAPE exige $y_t \neq 0$ e fica instável perto de zero) e indica, para séries que cruzam o zero, o **MASE**: o erro absoluto dividido pelo erro médio do ingênuo sazonal no treino ($m = 12$). MASE menor que 1 significa bater o ingênuo. A comparação deve se apoiar no RMSE, no MAE e no MASE.
+**O MAPE precisa de cuidado nesta série.** Ele divide o erro pelo valor observado, e a inflação mensal fica perto de zero em vários meses. Na validação há meses com variação exatamente zero (`r sum(teste == 0)` no total), o que tornaria o MAPE infinito, e outros próximos de zero, o que o infla. Os meses com zero foram excluídos do cálculo. Mesmo assim, os valores acima de 100% mostram que o MAPE não é informativo aqui. A aula 03 faz o mesmo alerta (o MAPE exige $y_t \neq 0$ e fica instável perto de zero) e indica, para séries que cruzam o zero, o **MASE**: o erro absoluto dividido pelo erro médio do ingênuo sazonal no treino ($m = 12$). MASE menor que 1 significa bater o ingênuo. A comparação deve se apoiar no RMSE, no MAE e no MASE. O MAE é a medida que a aula 03 chama de MAD.
+
+A última linha da tabela não é pedida pelo enunciado: é a previsão constante igual à média do treino. Ela mostra quanto o M1 acrescenta à média histórica no esquema 1. O RMSE do M1 (`r f(tab7[1, 1], 3)`) fica muito perto do da média (`r f(tab7[4, 1], 3)`).
 
 (f) Seu modelo superou os benchmarks?
 
 ```{r}
-c(DM_vs_passeio = dm.test(teste - prev2, teste - rw2, h = 1)$p.value,
-  DM_vs_sazonal = dm.test(teste - prev2, teste - sn2, h = 1)$p.value)
+# Diebold-Mariano (aula 03, slides 50-51), perda quadrática.
+# Esquema 2: previsões de um passo, h = 1.
+# Esquema 1: os 24 erros vêm da mesma origem e são autocorrelacionados entre
+# horizontes; usa-se a variância de Bartlett (HAC) com h = 12.
+dm <- function(p1, p2, h, ...) unname(dm.test(teste - p1, teste - p2, h = h, ...)$p.value)
+dm_tab <- rbind(
+  "M1 x passeio aleatório" = c("Esquema 1" = dm(prev1$mean, rw1, 12, varestimator = "bartlett"),
+                               "Esquema 2" = dm(prev2, rw2, 1)),
+  "M1 x sazonal ingênuo"   = c(dm(prev1$mean, sn1, 12, varestimator = "bartlett"),
+                               dm(prev2, sn2, 1)))
+kable(dm_tab, digits = 3, caption = "p-valores do teste de Diebold-Mariano.")
+# Viés (observado - previsto) e médias de treino e validação
+c(vies_M1_esq1 = mean(teste - prev1$mean), media_treino = mean(treino), media_validacao = mean(teste))
 ```
 
-- **Contra o passeio aleatório:** o modelo vence nos dois esquemas, por pouco no esquema 1.
-- **Contra o sazonal ingênuo:** o modelo **perde** nos dois esquemas, em RMSE e MAE. O teste de Diebold-Mariano (esquema 2) não encontra diferença significativa ($p = `r fm(dm.test(teste - prev2, teste - sn2, h = 1)$p.value, 2)`$): com 24 observações, os dois são estatisticamente equivalentes.
+- **Contra o passeio aleatório:** o modelo vence nos dois esquemas, por pouco no esquema 1. A diferença não é significativa a 5% (p-valores de `r f(dm_tab[1, 1], 2)` e `r f(dm_tab[1, 2], 2)`).
+- **Contra o sazonal ingênuo:** o modelo **perde** nos dois esquemas, em RMSE e MAE, mas também sem diferença significativa (p-valores de `r f(dm_tab[2, 1], 2)` e `r f(dm_tab[2, 2], 2)`). Com 24 observações, os três previsores são estatisticamente equivalentes.
+
+**Por que o modelo não vai além da média.** Isso não é um defeito da estimação: num processo estacionário, a melhor previsão de muitos passos é a média incondicional. É também um resultado conhecido para a inflação. Atkeson e Ohanian (2001) e Faust e Wright (2013) mostram que modelos univariados dificilmente batem regras ingênuas. Três fatos da amostra explicam o resto:
+
+1. **Choques transitórios de preços administrados.** O maior erro é fev/2025 (`r f(teste[5], 2)`%), a volta da conta de luz depois do bônus de Itaipu creditado em jan/2025 (`r f(teste[4], 2)`%). Um AR com $\hat\phi > 0$ propaga o choque no esquema 2 e prevê inflação alta em mar/2025, mas o choque se reverteu. Por isso, no M1, o RMSE do esquema 2 é maior que o do esquema 1.
+2. **A média mudou.** A inflação média da validação (`r f(mean(teste), 2)`% a.m.) ficou abaixo da do treino (`r f(mean(treino), 2)`% a.m.), e todo previsor que puxa para a média do treino superestima a inflação. A meta de inflação caiu de 4,5% a.a. (até 2018) para 3% a.a. (desde 2024). O CUSUM da Questão 5 não acusa instabilidade dentro da amostra, então a mudança está no período de validação.
+3. **Sazonalidade.** O padrão de cada mês do ano é informação útil, e o sazonal ingênuo usa exatamente isso. O M1 estimado no treino tem uma parte sazonal fraca ($\hat\Phi = `r fm(coef(fit_treino)[["sar1"]], 3)`$).
 
 A explicação é que, nesta série, o padrão de cada mês do ano é a informação mais útil para prever o mês, e o sazonal ingênuo usa exatamente isso. O M1 estimado no treino tem uma parte sazonal fraca ($\hat\Phi = `r fm(coef(fit_treino)[["sar1"]], 3)`$). Conforme o enunciado, **o modelo não foi alterado** para melhorar o resultado. Fica registrado como limitação, e como pista para um modelo alternativo com sazonalidade determinística (dummies mensais).
 
@@ -549,9 +594,40 @@ x <- sum(!dentro)
 lr_uc <- -2 * ((H - x) * log(0.95) + x * log(0.05) -
                (if (x %in% c(0, H)) 0 else (H - x) * log(1 - x / H) + x * log(x / H)))
 c(LR_uc = lr_uc, p = pchisq(lr_uc, 1, lower.tail = FALSE))
+
+# Qualidade do intervalo (aula 03, slides 52-58): Winkler e CRPS (distribuição normal)
+winkler <- function(l, u, y, a = 0.05)
+  mean((u - l) + 2 / a * (l - y) * (y < l) + 2 / a * (y - u) * (y > u))
+crps_normal <- function(y, m, s) { z <- (y - m) / s; mean(s * (z * (2 * pnorm(z) - 1) + 2 * dnorm(z) - 1 / sqrt(pi))) }
+intervalo <- function(f) {
+  l <- as.numeric(f$lower); u <- as.numeric(f$upper); y <- as.numeric(teste)
+  c(cobertura = mean(y >= l & y <= u), largura = mean(u - l), Winkler = winkler(l, u, y),
+    CRPS = crps_normal(y, as.numeric(f$mean), (u - as.numeric(f$mean)) / qnorm(0.975)))
+}
+tab7g <- rbind("SARIMA M1"         = intervalo(prev1),
+               "Passeio aleatório" = intervalo(naive(treino, h = H, level = 95)),
+               "Sazonal ingênuo"   = intervalo(snaive(treino, h = H, level = 95)))
+kable(tab7g, digits = 3, caption = "Previsão intervalar no esquema 1 (menor Winkler e menor CRPS é melhor).")
+
+# Intervalo por bootstrap dos resíduos, que não supõe normalidade (o JB rejeitou)
+set.seed(2026)
+prev1_boot <- forecast(fit_treino, h = H, level = 95, bootstrap = TRUE, npaths = 5000)
+intervalo(prev1_boot)[c("cobertura", "largura")]
 ```
 
-Caíram `r sum(dentro)` das `r H` observações dentro do intervalo de 95%, uma cobertura de `r f(100 * mean(dentro), 1)`%, muito perto da nominal. O teste de cobertura incondicional de Christoffersen ($LR_{uc}$) não rejeita a taxa de violação de 5%. Uma ressalva: as 24 observações vêm de uma única origem, e os erros de previsão são correlacionados entre si, o que torna a evidência mais fraca do que 24 testes independentes.
+Caíram `r sum(dentro)` das `r H` observações dentro do intervalo de 95%, uma cobertura de `r f(100 * mean(dentro), 1)`%, muito perto da nominal. O teste de cobertura incondicional de Christoffersen ($LR_{uc}$) não rejeita a taxa de violação de 5%. O teste de independência de Christoffersen não se aplica com uma violação só. O único mês fora do intervalo é fev/2025, o choque de Itaipu. Uma ressalva: as 24 observações vêm de uma única origem, e os erros de previsão são correlacionados entre si, o que torna a evidência mais fraca do que 24 testes independentes.
+
+**Na previsão intervalar, o M1 é o melhor dos três.** O sazonal ingênuo ganha na previsão pontual, mas os intervalos do M1 cobrem o que precisam com uma largura bem menor. O score de Winkler do M1 (`r f(tab7g[1, "Winkler"], 2)`) é o menor da tabela, e no CRPS o M1 e o sazonal ingênuo praticamente empatam (`r f(tab7g[1, "CRPS"], 3)` e `r f(tab7g[3, "CRPS"], 3)`). O modelo não acerta o ponto melhor que a média, mas descreve bem a incerteza da inflação mensal. Como o JB rejeitou a normalidade, o intervalo foi refeito por bootstrap dos resíduos: a cobertura fica em `r sum(teste >= prev1_boot$lower & teste <= prev1_boot$upper)` de `r H` e a largura média muda pouco (`r f(intervalo(prev1_boot)[["largura"]], 2)`, contra `r f(tab7g[1, "largura"], 2)`). A falta de normalidade não compromete os intervalos nesta amostra.
+
+# Referências
+
+- Atkeson, A.; Ohanian, L. E. (2001). Are Phillips curves useful for forecasting inflation? *Federal Reserve Bank of Minneapolis Quarterly Review*, 25(1), 2–11.
+- Christoffersen, P. F. (1998). Evaluating interval forecasts. *International Economic Review*, 39(4), 841–862.
+- Diebold, F. X.; Mariano, R. S. (1995). Comparing predictive accuracy. *Journal of Business & Economic Statistics*, 13(3), 253–263.
+- Faust, J.; Wright, J. H. (2013). Forecasting inflation. In: Elliott, G.; Timmermann, A. (orgs.). *Handbook of Economic Forecasting*, v. 2A. Elsevier, p. 2–56.
+- Hyndman, R. J.; Koehler, A. B. (2006). Another look at measures of forecast accuracy. *International Journal of Forecasting*, 22(4), 679–688.
+- Mattos, R. S. (2019). *Tendências e raízes unitárias*. Juiz de Fora: UFJF.
+- Pereira, G. (2026). Aulas 02 e 03 de Econometria II. PPGEco/UFES.
 
 # Reprodutibilidade
 
