@@ -6,12 +6,28 @@ lang: pt
 format:
   pdf:
     documentclass: article
-    geometry: margin=2.2cm
+    papersize: a4
+    geometry: [top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]
     fontsize: 11pt
-    fig-width: 7
-    fig-height: 3.6
+    linestretch: 1.1
+    fig-width: 6.5
+    fig-height: 3.4
     fig-pos: "H"
     highlight-style: github
+    include-in-header:
+      text: |
+        % Diagramação: cada questão em página nova; código, saída e letra
+        % nunca partidos entre páginas.
+        \usepackage{needspace}
+        \usepackage{etoolbox}
+        \pretocmd{\section}{\clearpage}{}{}
+        \pretocmd{\subsection}{\needspace{0.5\textheight}}{}{}
+        \BeforeBeginEnvironment{Shaded}{\par\noindent\begin{minipage}{\linewidth}}
+        \AfterEndEnvironment{Shaded}{\end{minipage}\par}
+        \BeforeBeginEnvironment{verbatim}{\par\noindent\begin{minipage}{\linewidth}}
+        \AfterEndEnvironment{verbatim}{\end{minipage}\par}
+        \widowpenalty=10000
+        \clubpenalty=10000
 execute:
   warning: false
   message: false
@@ -29,11 +45,22 @@ library(FinTS)     # ArchTest
 library(lmtest)    # coeftest
 options(OutDec = ",", digits = 4)
 
+# Diagramação: código e saída num bloco só, que só começa se couber na página
+knitr::knit_hooks$set(junto = \(before, options) {
+  if (before && knitr::is_latex_output()) {
+    alto <- grepl("^(fig|tbl)-", options$label)
+    sprintf("\\needspace{%s\\textheight}", if (alto) "0.5" else "0.2")
+  }
+})
+knitr::opts_chunk$set(junto = TRUE, collapse = TRUE)
+
 # Estatística e crítico de 5% de qualquer teste do urca, numa linha de tabela
 resumo_ur <- \(t) c(estatística = t@teststat[1], crítico_5 = t@cval[1, "5pct"])
 # O modelo é para y = 100 log(P); as métricas de previsão são no índice P
 para_log <- \(p) 100 * log(p)
 para_indice <- \(x) exp(x / 100)
+# Tabela de coeficientes enxuta (estimativa, erro-padrão, z, p)
+coefs <- \(m) round(coeftest(m)[, , drop = FALSE], 3)
 ```
 
 ```{r}
@@ -66,7 +93,7 @@ ini_teste <- time(y)[length(y) - h + 1]
 
 # Questão 1
 
-**(a) Gráfico da série; (b) transformação.**
+## (a) Gráfico da série e (b) transformação
 
 ```{r}
 #| label: fig-serie
@@ -84,7 +111,7 @@ O índice cresce sem voltar e, em log, vira quase uma reta. A inflação mensal 
 
 # Questão 2
 
-**(a) ADF, PP e KPSS no nível.**
+## (a) ADF, PP e KPSS no nível
 
 ```{r}
 #| label: tbl-nivel
@@ -99,7 +126,7 @@ knitr::kable(sapply(nivel, resumo_ur), digits = 3)
 
 ADF e PP não rejeitam a raiz unitária, e o KPSS não rejeita a estacionariedade (@tbl-nivel): no nível, os testes são pouco informativos.
 
-**(b) Constante e tendência no ADF.**
+## (b) Constante e tendência no ADF
 
 ```{r}
 #| label: tbl-versoes
@@ -111,7 +138,7 @@ knitr::kable(sapply(versoes, \(v) resumo_ur(adf_versao(v))), digits = 3)
 
 O gráfico mostra a série crescendo, então a versão certa tem constante e tendência (Mattos, 2019). Ela não rejeita $H_0$ (@tbl-versoes): a série é diferença estacionária, com tendência determinística e estocástica. Sem constante, a estatística sai positiva.
 
-**(c) Série diferenciada: d e D.**
+## (c) Série diferenciada: d e D
 
 ```{r}
 #| label: tbl-diferenca
@@ -131,7 +158,7 @@ Acf(diff(y), lag.max = 3 * s, main = "")
 
 Na diferença, o ADF rejeita e o KPSS não (@tbl-diferenca): **d = 1**. A FAC em 12, 24 e 36 cai logo, sem o decaimento lento de uma raiz sazonal (@fig-acf-sazonal): **D = 0**.
 
-**(d) Tendência estocástica ou determinística?**
+## (d) Tendência estocástica ou determinística?
 
 ```{r}
 #| label: dfgls
@@ -142,7 +169,7 @@ O DF-GLS também não rejeita. Adotamos tendência estocástica com drift: d = 1
 
 # Questão 3
 
-**(a) FAC e FACP da série diferenciada.**
+## (a) FAC e FACP da série diferenciada
 
 ```{r}
 #| label: fig-fac-facp
@@ -151,13 +178,17 @@ O DF-GLS também não rejeita. Adotamos tendência estocástica com drift: d = 1
 ggtsdisplay(diff(y), lag.max = 4 * s)
 ```
 
-**(b)** A FACP corta em 1 e a FAC decai: parte regular AR(1). O pico em 12, sem nada em 24 e 36, pede um termo sazonal de ordem 1 (@fig-fac-facp).
+## (b) Leitura dos correlogramas
 
-**(c) Candidatos:** M0 = ARIMA(1,1,0); M1 = SARIMA(1,1,0)(1,0,0)$_{12}$; M2 = SARIMA(1,1,0)(0,0,1)$_{12}$, todos com drift.
+A FACP corta em 1 e a FAC decai: parte regular AR(1). O pico em 12, sem nada em 24 e 36, pede um termo sazonal de ordem 1 (@fig-fac-facp).
+
+## (c) Candidatos
+
+M0 = ARIMA(1,1,0); M1 = SARIMA(1,1,0)(1,0,0)$_{12}$; M2 = SARIMA(1,1,0)(0,0,1)$_{12}$, todos com drift.
 
 # Questão 4
 
-**(a) Estimação por máxima verossimilhança.**
+## (a) Estimação por máxima verossimilhança
 
 ```{r}
 #| label: modelos
@@ -168,10 +199,10 @@ modelos <- list(
   M1 = m1,
   M2 = update(m1, seasonal = c(0, 0, 1))
 )
-lapply(modelos, coeftest)
+lapply(modelos, coefs)
 ```
 
-**(b)–(e) Amostra efetiva, critérios e escolha.**
+## (b)–(e) Amostra efetiva, critérios e escolha
 
 ```{r}
 #| label: tbl-criterios
@@ -184,7 +215,7 @@ knitr::kable(t(sapply(modelos, criterios)), digits = 2)
 
 Os três usam as mesmas `r m1$nobs` observações e o mesmo d, então AIC e BIC são comparáveis; o R conta $\sigma^2$ em k. O M1 tem o menor AIC e o menor BIC (@tbl-criterios), e o termo sazonal é significativo: **escolhemos o M1**.
 
-**(f) Raízes.**
+## (f) Raízes
 
 ```{r}
 #| label: fig-raizes
@@ -195,7 +226,7 @@ autoplot(m1)
 
 # Questão 5
 
-**(a)–(b) Resíduos e Ljung-Box.**
+## (a)–(b) Resíduos e Ljung-Box
 
 ```{r}
 #| label: fig-residuos
@@ -204,7 +235,7 @@ autoplot(m1)
 checkresiduals(m1, lag = 2 * s)
 ```
 
-**(c) Jarque-Bera e ARCH-LM.**
+## (c) Jarque-Bera e ARCH-LM
 
 ```{r}
 #| label: normalidade-arch
@@ -214,7 +245,7 @@ c(JB_p = jarque.bera.test(e)$p.value, ARCH_p = ArchTest(e, lags = s)$p.value)
 
 Os resíduos são ruído branco e sem ARCH; a normalidade falha por três choques (2018, 2022 e 2025).
 
-**(d) Por que não o ARIMA sem sazonal.**
+## (d) Por que não o ARIMA sem sazonal
 
 ```{r}
 #| label: fig-acf-m0
@@ -223,7 +254,7 @@ Os resíduos são ruído branco e sem ARCH; a normalidade falha por três choque
 Acf(residuals(modelos$M0), lag.max = 2 * s, main = "")
 ```
 
-**(e) Sobreajuste.**
+## (e) Sobreajuste
 
 ```{r}
 #| label: sobreajuste
@@ -231,29 +262,31 @@ sobreajuste <- list(
   ar2 = update(m1, order = c(2, 1, 0)),
   ma1 = update(m1, order = c(1, 1, 1))
 )
-lapply(sobreajuste, coeftest)
+lapply(sobreajuste, coefs)
 ```
 
 O AR e o MA acrescentados não são significativos: o M1 está bem especificado.
 
 # Questão 6
 
-**(a)–(c) O modelo com d = 2.**
+## (a)–(c) O modelo com d = 2
 
 ```{r}
 #| label: sobrediferenciacao
 d2 <- update(m1, order = c(1, 2, 1), include.drift = FALSE)
-coeftest(d2)
+coefs(d2)
 c(sigma2_d1 = m1$sigma2, sigma2_d2 = update(d2, order = c(1, 2, 0))$sigma2)
 ```
 
 Com uma diferença a mais, o MA vai para `r round(coef(d2)[["ma1"]], 3)`: raiz sobre o círculo unitário (não invertível), e a variância residual sobe.
 
-**(d)** Sinais de sobrediferenciação: MA perto de −1, $\rho_1 \approx -0{,}5$ na série diferenciada e variância residual maior.
+## (d) Sinais de sobrediferenciação
+
+MA perto de −1, $\rho_1 \approx -0{,}5$ na série diferenciada e variância residual maior.
 
 # Questão 7
 
-**(a)–(c) Treino e os dois esquemas de previsão.**
+## (a)–(c) Treino e os dois esquemas de previsão
 
 ```{r}
 #| label: fig-previsao
@@ -270,7 +303,7 @@ um_passo <- \(f) {
 stopifnot(identical(coef(Arima(y, model = fit)), coef(fit)))
 ```
 
-**(d)–(f) Métricas no índice, contra os benchmarks.**
+## (d)–(f) Métricas no índice, contra os benchmarks
 
 ```{r}
 #| label: tbl-metricas
@@ -292,7 +325,7 @@ knitr::kable(t(sapply(prev, erros)), digits = 2)
 
 O SARIMA erra menos que o passeio aleatório e que o sazonal ingênuo nos dois esquemas (@tbl-metricas).
 
-**Inflação acumulada em 12 meses (out/2024 a set/2025).**
+## Inflação acumulada em 12 meses (out/2024 a set/2025)
 
 ```{r}
 #| label: acumulada
@@ -300,7 +333,7 @@ c(prevista  = 100 * (para_indice(fc$mean[12] - tail(fit$x, 1)) - 1),
   observada = 100 * (p_teste[12] / tail(p_treino, 1) - 1))
 ```
 
-**O modelo da Q16 da lista teórica, com diferença sazonal.**
+## O modelo da Q16 da lista teórica, com diferença sazonal
 
 ```{r}
 #| label: tbl-q16
@@ -316,7 +349,7 @@ coef(update(q16, y = y))
 
 O modelo com D = 1 erra menos um mês à frente e bem mais a 24 meses (@tbl-q16). Seu MA sazonal perto de −1 indica diferença sazonal em excesso: D = 0 se mantém.
 
-**(g) Cobertura do intervalo de 95% (esquema 1).**
+## (g) Cobertura do intervalo de 95% (esquema 1)
 
 ```{r}
 #| label: cobertura
