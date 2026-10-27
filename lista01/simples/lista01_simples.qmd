@@ -100,6 +100,7 @@ ini_teste <- time(y)[length(y) - h + 1]
 #| fig-cap: "A série do INPC."
 #| fig-subcap: ["Em nível", "Em log", "Inflação mensal por mês do ano"]
 #| layout-ncol: 3
+#| out-width: "32%"
 #| fig-width: 4
 #| fig-height: 3.4
 autoplot(p, ylab = "INPC", xlab = "")
@@ -108,6 +109,17 @@ ggsubseriesplot(diff(y), ylab = "inflação mensal (%)", xlab = "")
 ```
 
 O índice cresce sem voltar e, em log, vira quase uma reta. A inflação mensal tem média de `r round(mean(diff(y)), 2)`% e sazonalidade fraca (fevereiro, março e dezembro altos; agosto baixo). Modelamos $y_t = 100\ln P_t$: $\Delta y_t$ é a inflação em %, e o drift, a inflação média.
+
+```{r}
+#| label: fig-amplitude
+#| fig-cap: "Amplitude contra média do índice em cada ano."
+#| fig-height: 3
+ano <- floor(time(p))
+plot(tapply(p, ano, mean), tapply(p, ano, \(x) diff(range(x))), pch = 19,
+     xlab = "média anual do INPC", ylab = "amplitude anual")
+```
+
+Nesta janela a amplitude quase não cresce com o nível (@fig-amplitude), então o gráfico não decide sozinho a transformação; o log é escolhido porque sua diferença é a inflação.
 
 # Questão 2
 
@@ -230,16 +242,29 @@ autoplot(m1)
 
 ```{r}
 #| label: fig-residuos
-#| fig-cap: "Resíduos do M1: no tempo, FAC e histograma."
-#| fig-height: 4
-checkresiduals(m1, lag = 2 * s)
+#| fig-cap: "Resíduos do M1."
+#| fig-subcap: ["No tempo, FAC e FACP", "QQ-plot contra a normal"]
+#| layout-ncol: 2
+#| out-width: "49%"
+#| fig-width: 4.5
+#| fig-height: 3.8
+e <- residuals(m1)
+ggtsdisplay(e, lag.max = 2 * s)
+qqnorm(e, main = "")
+qqline(e)
 ```
+
+```{r}
+#| label: ljung-box
+Box.test(e, lag = 2 * s, type = "Ljung-Box", fitdf = sum(m1$arma[1:4]))
+```
+
+A FAC e a FACP ficam dentro das bandas, e o Ljung-Box com 24 − 2 graus de liberdade não rejeita: os resíduos são ruído branco. O QQ-plot mostra as caudas que fazem a normalidade falhar (@fig-residuos).
 
 ## (c) Jarque-Bera e ARCH-LM
 
 ```{r}
 #| label: normalidade-arch
-e <- residuals(m1)
 c(JB_p = jarque.bera.test(e)$p.value, ARCH_p = ArchTest(e, lags = s)$p.value)
 ```
 
@@ -269,16 +294,33 @@ O AR e o MA acrescentados não são significativos: o M1 está bem especificado.
 
 # Questão 6
 
-## (a)–(c) O modelo com d = 2
+## (a)–(b) O modelo com d = 2
 
 ```{r}
 #| label: sobrediferenciacao
 d2 <- update(m1, order = c(1, 2, 1), include.drift = FALSE)
+d2_sem_ma <- update(d2, order = c(1, 2, 0))  # mesmas ordens do M1, d = 2
 coefs(d2)
-c(sigma2_d1 = m1$sigma2, sigma2_d2 = update(d2, order = c(1, 2, 0))$sigma2)
+c(sigma2_d1 = m1$sigma2, sigma2_d2 = d2_sem_ma$sigma2)
 ```
 
 Com uma diferença a mais, o MA vai para `r round(coef(d2)[["ma1"]], 3)`: raiz sobre o círculo unitário (não invertível), e a variância residual sobe.
+
+## (c) FAC dos resíduos das duas versões
+
+```{r}
+#| label: fig-acf-d2
+#| fig-cap: "FAC dos resíduos com uma e com duas diferenças."
+#| fig-subcap: ["d = 1 (M1)", "d = 2"]
+#| layout-ncol: 2
+#| out-width: "49%"
+#| fig-width: 4.5
+#| fig-height: 3
+Acf(residuals(m1), lag.max = 2 * s, main = "")
+Acf(residuals(d2_sem_ma), lag.max = 2 * s, main = "")
+```
+
+Com d = 2 aparecem autocorrelações negativas nas primeiras defasagens, que não existiam com d = 1 (@fig-acf-d2): é a diferença a mais deixando sua marca.
 
 ## (d) Sinais de sobrediferenciação
 
@@ -292,6 +334,8 @@ MA perto de −1, $\rho_1 \approx -0{,}5$ na série diferenciada e variância re
 #| label: fig-previsao
 #| fig-cap: "Esquema 1: previsão de 24 meses desde set/2024, IC de 95%."
 fit <- update(m1, y = window(y, end = fim_treino))
+p_treino <- window(p, end = fim_treino)
+p_teste <- window(p, start = ini_teste)
 fc <- forecast(fit, h = h, level = 95)
 autoplot(fc, ylab = "100 × log(INPC)", xlab = "") +
   autolayer(y, series = "observado")
@@ -301,16 +345,24 @@ um_passo <- \(f) {
   para_indice(window(fitted(Arima(y, model = f)), start = ini_teste))
 }
 stopifnot(identical(coef(Arima(y, model = fit)), coef(fit)))
+benchmark <- \(f) window(fitted(f(p)), start = ini_teste)  # versão de um passo
 ```
+
+```{r}
+#| label: fig-um-passo
+#| fig-cap: "Esquema 2: previsão de um passo no índice."
+autoplot(p_teste, series = "observado", ylab = "INPC", xlab = "") +
+  autolayer(um_passo(fit), series = "SARIMA") +
+  autolayer(benchmark(naive), series = "passeio aleatório")
+```
+
+Um passo à frente, o SARIMA acompanha o índice de perto, e o passeio aleatório fica sempre um mês atrasado (@fig-um-passo). O sazonal ingênuo, um ano atrasado, ficaria fora da escala.
 
 ## (d)–(f) Métricas no índice, contra os benchmarks
 
 ```{r}
 #| label: tbl-metricas
 #| tbl-cap: "Erros de previsão no índice (MAPE em %), esquemas 1 e 2."
-p_treino <- window(p, end = fim_treino)
-p_teste <- window(p, start = ini_teste)
-benchmark <- \(f) window(fitted(f(p)), start = ini_teste)  # versão de um passo
 prev <- list(
   SARIMA_1  = para_indice(fc$mean),
   passeio_1 = naive(p_treino, h = h)$mean,
@@ -352,9 +404,17 @@ O modelo com D = 1 erra menos um mês à frente e bem mais a 24 meses (@tbl-q16)
 ## (g) Cobertura do intervalo de 95% (esquema 1)
 
 ```{r}
-#| label: cobertura
-mean(p_teste >= para_indice(fc$lower) & p_teste <= para_indice(fc$upper))
+#| label: fig-cobertura
+#| fig-cap: "Esquema 1 no índice: previsão, IC de 95% e valores observados."
+#| fig-height: 3
+ic <- para_indice(cbind(previsão = fc$mean, inferior = fc$lower,
+                        superior = fc$upper))
+autoplot(ic, ylab = "INPC", xlab = "") +
+  autolayer(p_teste, series = "observado")
+mean(p_teste >= ic[, "inferior"] & p_teste <= ic[, "superior"])
 ```
+
+Todos os 24 meses caem dentro do intervalo, que se abre com o horizonte porque o modelo é integrado (@fig-cobertura).
 
 # Questão 8
 
