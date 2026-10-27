@@ -45,6 +45,7 @@ Para só o trabalho do INPC: `Rscript trabalho_inpc/inpc.R`. Para atualizar a s�
 
 | Para… | Abra |
 |---|---|
+| **Treinar para a prova de 05/11** | [prova/](prova/README.md): guia com estratégia de tempo e as lições da P1 de Econometria I, [banco de variações](prova/banco.md) das 16 questões, três simulados com gabarito e rubrica e o [log de erros](prova/log_erros.md); no papel, `caderno/pdf/caderno_volume5_prova.pdf` e `caderno_prova_simulados.pdf` |
 | **Fazer o trabalho em dupla (Lista 01)** | [trabalho_inpc/](trabalho_inpc/README.md): roteiro, [relatório](trabalho_inpc/relatorio.md) e [código](trabalho_inpc/inpc.R) |
 | Entender a lógica e a ordem de estudo | [PLANO_ESTUDO.md](PLANO_ESTUDO.md) |
 | Revisar fórmulas | [formulario/formulario.md](formulario/formulario.md) |
@@ -100,6 +101,7 @@ Os detalhes estão em [trabalho_inpc/relatorio.md](trabalho_inpc/relatorio.md).
 ```text
 series-temporais/
 ├── NN_tema/          módulo: NN_teoria.md, NN_lista.md, NN_tema.R, figuras/ (01–06: parte 1; 07: regressão dinâmica)
+├── prova/           prova de 05/11: guia, banco de variações, 3 simulados + gabaritos, log de erros, prova.R
 ├── trabalho_inpc/    Lista 01: inpc.R, relatorio.md, figuras/, dados usados, sessionInfo, grade e previsões em CSV
 ├── dados/            inpc.csv (IBGE/SIDRA, público)
 ├── formulario/       todas as fórmulas
@@ -113,4 +115,4 @@ series-temporais/
 
 ## Estado atual
 
-Build completo passando em 20/10/2026 (dados até set/2026): **229 testes** do testthat, **8 scripts** executados, **648 números** das notas conferidos contra o R e lint sem erros. O trabalho do INPC segue o enunciado da Lista 01, questão por questão.
+Build completo passando em 27/10/2026 (dados até set/2026): **229 testes** do testthat, **17 scripts** executados (inclusive `prova/prova.R`), **984 números** das notas conferidos contra o R e lint sem erros. O trabalho do INPC segue o enunciado da Lista 01, questão por questão.
