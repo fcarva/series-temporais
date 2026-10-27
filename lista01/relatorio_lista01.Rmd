@@ -379,19 +379,36 @@ O modelo prevê $y = 100\ln P$, e as previsões são levadas ao índice por $\ex
 include_graphics(fig("q7_esquema1"))
 ```
 
+```{r}
+cfq7 <- setNames(q7$coef_tr$coef, q7$coef_tr$termo)
+```
+
+**A equação de previsão** (lista teórica, Q12 e Q15). Com $w_t = \Delta y_t - \mu$, o modelo é $(1 - \phi B)(1 - \Phi B^{12}) w_t = a_t$. A previsão é o valor esperado condicional: os choques futuros têm esperança zero, e os passados são conhecidos. Assim,
+
+$$
+\hat w_{T_0+h} = \phi\, \hat w_{T_0+h-1} + \Phi\, \hat w_{T_0+h-12} - \phi\Phi\, \hat w_{T_0+h-13}, \qquad \hat y_{T_0+h} = \hat y_{T_0+h-1} + \mu + \hat w_{T_0+h},
+$$
+
+com $\hat\phi = `r f(cfq7[["ar1"]], 3)`$, $\hat\Phi = `r f(cfq7[["sar1"]], 3)`$ e $\hat\mu = `r f(cfq7[["drift"]], 3)`$ % a.m. no treino. Quando o índice já é observado, $\hat w$ é o próprio $w$.
+
+- **A parte sazonal se propaga** pelo termo $\Phi\, \hat w_{T_0+h-12}$: o desvio de cada mês em relação à média se repete no ano seguinte, multiplicado por $\Phi$, e some como $\Phi^k$ depois de $k$ anos.
+- **No longo prazo**, $\hat w \to 0$, e a previsão de $y$ converge para uma reta de inclinação $\mu$, a inflação média (lista teórica, Q15e, com drift no lugar da constante de suavização).
+
+O erro de previsão tem representação MA($h-1$): $e_{T_0+h} = \sum_{j<h} \psi_j a_{T_0+h-j}$. Os pesos $\psi_j$ saem do polinômio AR completo em $y$, $(1-\phi B)(1-\Phi B^{12})(1-B)$. Como esse polinômio tem a raiz unitária de $d = 1$, os $\psi_j$ não vão a zero: $\psi_1 = `r f(q7$psi[2], 3)`$, $\psi_{12} = `r f(q7$psi[13], 3)`$, $\psi_{23} = `r f(q7$psi[24], 3)`$. A variância $\hat\sigma^2 \sum_{j<h}\psi_j^2$ reproduz o intervalo do `forecast()` até a quarta casa (conferido no código). O erro-padrão vai de `r f(q7$ep_h[1], 3)` em $h = 1$ a `r f(q7$ep_h[24], 3)` em $h = 24$ (painel b da figura de inflação, adiante).
+
 **(c) Esquema 2: origem móvel, um passo, sem reestimar.** Os coeficientes da tabela acima ficam fixos (`Arima(y, model = ajuste_treino)`). Em cada $t = T_0, \dots, T - 1$, o filtro de Kalman atualiza o estado com o dado observado em $t$ e gera $\hat y_{t+1\mid t}$.
 
 ```{r, fig.cap = "Esquema 2: previsões de um passo com coeficientes fixos, no índice (a) e em inflação mensal implícita (b)."}
 include_graphics(fig("q7_esquema2"))
 ```
 
-**(d) e (e) Métricas.** Os dois benchmarks pedidos são o passeio aleatório, $\hat y_{t+h} = y_t$, e o sazonal ingênuo, $\hat y_{t+h} = y_{t+h-s}$; no Esquema 1, este último é $y_{T_0+h-s\lceil h/s\rceil}$.
+**(d) e (e) Métricas.** Os dois benchmarks pedidos são o passeio aleatório, $\hat y_{t+h} = y_t$, e o sazonal ingênuo, $\hat y_{t+h} = y_{t+h-s}$; no Esquema 1, este último é $y_{T_0+h-s\lceil h/s\rceil}$. O MASE (aula 03; Hyndman e Koehler, 2006) divide o MAE pelo MAE do sazonal ingênuo dentro do treino (`r f(q7$escala_mase, 1)` pontos). Ele não depende da escala do índice, e valores abaixo de 1 indicam erro menor que o da regra ingênua.
 
 ```{r}
 t7 <- q7$tab7
-names(t7) <- c("Modelo", "RMSE", "MAE", "MAPE (%)", "RMSE", "MAE", "MAPE (%)")
+names(t7) <- c("Modelo", "RMSE", "MAE", "MAPE (%)", "MASE", "RMSE", "MAE", "MAPE (%)", "MASE")
 tab(t7, "Métricas no INPC em nível (pontos de índice; MAPE em %). Esquema 1: origem fixa, $h = 1, \\dots, 24$. Esquema 2: um passo, coeficientes fixos.", digits = 2) |>
-  add_header_above(c(" " = 1, "Esquema 1" = 3, "Esquema 2" = 3))
+  add_header_above(c(" " = 1, "Esquema 1" = 4, "Esquema 2" = 4))
 ```
 
 **(f) O modelo superou os benchmarks?** Sim, contra os dois pedidos, nos dois esquemas e nas três métricas.
@@ -408,6 +425,39 @@ tab(dmt, "Diebold-Mariano, Esquema 2. DM negativo favorece o modelo.", digits = 
 
 O ganho sobre os dois benchmarks é **significativo** a 5%. Contra o passeio aleatório, porém, ele é bem menor no Esquema 2 do que no Esquema 1: a um passo, o passeio aleatório erra só a inflação de um mês, enquanto a 24 passos acumula 24 meses de inflação esquecida. Quase toda a vantagem do modelo vem de prever a *tendência* (a inflação média, o drift). Conforme o enunciado, o modelo **não** foi alterado para melhorar o resultado.
 
+**A inflação prevista.** Para um índice de preços, a grandeza de interesse é a inflação, e não o nível. A inflação mensal prevista no Esquema 1 é $\Delta \hat y_{T_0+h} = \hat y_{T_0+h} - \hat y_{T_0+h-1}$. A acumulada em 12 meses usa só $y_{T_0}$, então o seu intervalo sai direto do intervalo de $\hat y_{T_0+12}$.
+
+```{r}
+a12 <- q7$acum12; names(a12) <- c("Janela", "Prevista (%)", "IC 95%, inf.", "IC 95%, sup.", "Observada (%)")
+tab(a12, "Inflação acumulada em 12 meses: prevista no Esquema 1 (origem em $T_0$) e observada. O IC só existe para a primeira janela, que parte de um valor conhecido.", digits = 2)
+```
+
+```{r, fig.cap = "(a) Inflação mensal na validação: observada (barras), prevista no Esquema 1 (linha) e no Esquema 2 (pontos). (b) Erro-padrão da previsão de $y$ por horizonte, a partir dos pesos $\\psi_j$.", out.width = "95%"}
+include_graphics(fig("q7_inflacao"))
+```
+
+A previsão do Esquema 1 para a inflação mensal reproduz o perfil sazonal (painel a), mas suaviza os choques. A acumulada em 12 meses, de `r f(q7$acum12$prevista[1], 2)`%, fica perto da observada (`r f(q7$acum12$observada[1], 2)`%), com um intervalo largo, de `r f(q7$acum12$li[1], 1)`% a `r f(q7$acum12$ls[1], 1)`%.
+
+**O modelo da lista teórica (Q16).** Para uma variável macro mensal, a lista teórica sugere um SARIMA(1,1,1)(0,1,1)$_{12}$, com diferença sazonal. Ele não pode ser comparado ao selecionado por AIC, porque $D$ é diferente (Q4c), mas pode fora da amostra: lá a comparação vale para qualquer diferenciação (Hyndman e Athanasopoulos, 2021, seção 9.9). Ele foi estimado sem drift, porque com $d + D = 2$ a constante viraria tendência quadrática.
+
+```{r}
+cq <- rbind("Selecionado (Esquema 1)" = unlist(q7$tab7[1, 2:5]), "Q16 (Esquema 1)" = q7$q16$E1,
+            "Selecionado (Esquema 2)" = unlist(q7$tab7[1, 6:9]), "Q16 (Esquema 2)" = q7$q16$E2)
+cq <- data.frame(Modelo = rownames(cq), cq, check.names = FALSE)
+names(cq) <- c("Modelo", "RMSE", "MAE", "MAPE (%)", "MASE")
+tab(cq, "O selecionado contra o SARIMA(1,1,1)(0,1,1)$_{12}$ da Q16 da lista teórica, na mesma validação.", digits = 2)
+```
+
+```{r}
+sma <- q7$q16$coef[q7$q16$coef$termo == "sma1", ]
+```
+
+- **A um passo, o modelo da Q16 ganha**: o Diebold-Mariano dá $DM = `r f(q7$q16$dm[[1]], 2)`$, com $p = `r f(q7$q16$dm[[2]], 3)`$ (DM positivo favorece o competidor). Com $D = 1$, o padrão sazonal se reajusta a cada ano com o último dado.
+- **A 24 passos, ele perde por larga margem.** Sem drift, a tendência dele é a variação do último ano, que é projetada para a frente; a do selecionado é a inflação média da amostra.
+- **O MA sazonal estimado** na amostra toda é $\hat\Theta = `r f(sma$coef, 3)`$ (erro-padrão `r f(sma$ep, 3)`), a `r f((sma$coef + 1) / sma$ep, 2)` erros-padrão de $-1$. Um $\Theta$ perto de $-1$ quase cancela o $(1 - B^{12})$, o sinal de diferença sazonal em excesso das Q9 e Q10 da lista teórica e da nossa Q6. É coerente com a sazonalidade determinística da Q2(c).
+
+A regra de seleção foi fixada antes da validação e não muda. A comparação mostra o que se ganha e o que se perde: para prever o mês seguinte, o modelo com $D = 1$ é melhor; para prever um ou dois anos, que é o horizonte de interesse para a inflação, o selecionado é melhor.
+
 **(g) Cobertura.** No Esquema 1, `r sum(q7$dentro1)` das `r H` observações (`r f(q7$cob[1, "cobertura"], 1)`%) caíram dentro do intervalo de 95%. O teste de cobertura incondicional de Christoffersen da aula 03 ($LR_{uc}$, que compara a proporção de violações com 5%) não rejeita a cobertura nominal ($LR_{uc} = `r f(q7$cob[1, "LR_uc"], 2)`$, $p = `r f(q7$cob[1, "p"], 2)`$). A cobertura empírica é **maior** que a nominal, e há dois motivos para isso:
 
 - os intervalos de $h$ passos se abrem com $\sum_{j < h}\psi_j^2$, e num modelo integrado essa soma cresce sem limite: em $h = 24$ o intervalo é largo;
@@ -417,6 +467,6 @@ No Esquema 2, de um passo, a cobertura é `r f(q7$cob[2, "cobertura"], 1)`%, com
 
 # Síntese
 
-O log do INPC, de jan/2013 a set/2026, foi tratado como diferença estacionária (tendência determinística mais tendência estocástica, I(1) na definição ampla), com $D = 0$: nenhum teste de raiz unitária rejeita no nível, com ou sem dummies sazonais, e todos rejeitam na diferença. A inflação mensal segue um AR(1) com um componente sazonal fraco; o selecionado foi o `r nome_modelo(fsel)` com drift. Os resíduos são ruído branco sem ARCH, e os parâmetros são estáveis (Chow, CUSUM e CUSUM-Q); a falta de normalidade vem de três choques. A sobrediferenciação produz a raiz MA unitária que a teoria prevê. Fora da amostra, o modelo bate o passeio aleatório e o sazonal ingênuo, com ganho significativo no Diebold-Mariano.
+O log do INPC, de jan/2013 a set/2026, foi tratado como diferença estacionária (tendência determinística mais tendência estocástica, I(1) na definição ampla), com $D = 0$: nenhum teste de raiz unitária rejeita no nível, com ou sem dummies sazonais, e todos rejeitam na diferença. A inflação mensal segue um AR(1) com um componente sazonal fraco; o selecionado foi o `r nome_modelo(fsel)` com drift. Os resíduos são ruído branco sem ARCH, e os parâmetros são estáveis (Chow, CUSUM e CUSUM-Q); a falta de normalidade vem de três choques. A sobrediferenciação produz a raiz MA unitária que a teoria prevê. Fora da amostra, o modelo bate o passeio aleatório e o sazonal ingênuo, com ganho significativo no Diebold-Mariano, e prevê a inflação acumulada em 12 meses com erro de `r f(abs(q7$acum12$prevista[1] - q7$acum12$observada[1]), 2)` ponto percentual. O SARIMA(1,1,1)(0,1,1)$_{12}$ da lista teórica prevê melhor um passo à frente, mas pior a 24 meses, e seu MA sazonal perto de $-1$ confirma que a diferença sazonal é desnecessária.
 
-**Referências.** Box, Jenkins, Reinsel e Ljung (2015); Brown, Durbin e Evans (1975); Chow (1960); Christoffersen (1998); Culver e Papell (1997); Dickey e Fuller (1981); Diebold e Mariano (1995); Elliott, Rothenberg e Stock (1996); Kwiatkowski, Phillips, Schmidt e Shin (1992); MacKinnon (1996); Maia e Cribari-Neto (2006); Mattos (2019); Phillips e Perron (1988); Shibata (1980). Slides das aulas 01 a 03 da disciplina.
+**Referências.** Box, Jenkins, Reinsel e Ljung (2015); Brown, Durbin e Evans (1975); Chow (1960); Christoffersen (1998); Culver e Papell (1997); Dickey e Fuller (1981); Diebold e Mariano (1995); Elliott, Rothenberg e Stock (1996); Hyndman e Athanasopoulos (2021); Hyndman e Koehler (2006); Kwiatkowski, Phillips, Schmidt e Shin (1992); MacKinnon (1996); Maia e Cribari-Neto (2006); Mattos (2019); Phillips e Perron (1988); Shibata (1980). Slides das aulas 01 a 03 da disciplina.

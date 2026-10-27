@@ -125,6 +125,22 @@ registrar_varios(c(
   l01_q7_mape_sn1 = n1[["MAPE"]], l01_q7_mape_sn2 = n2[["MAPE"]],
   l01_q7_cobertura = 100 * mean(P_teste >= li & P_teste <= ls)
 ))
+# Lista teórica (Q15, Q16): inflação acumulada em 12 meses e o competidor com D = 1
+y_T0 <- as.numeric(y)[T0]
+fit16 <- Arima(y_treino, order = c(1, 1, 1), seasonal = c(0, 1, 1), method = "ML")
+prev16_2 <- window(fitted(Arima(y, model = fit16)), start = time(y)[T0 + 1])
+dm16 <- dm.test(as.numeric(P_teste) - as.numeric(exp(prev2 / 100)),
+                as.numeric(P_teste) - as.numeric(exp(prev16_2 / 100)), h = 1, power = 2)
+fit16_full <- Arima(y, order = c(1, 1, 1), seasonal = c(0, 1, 1), method = "ML")
+registrar_varios(c(
+  l01_acum12_prev = 100 * (exp((as.numeric(prev1$mean)[12] - y_T0) / 100) - 1),
+  l01_acum12_obs = 100 * (as.numeric(P_teste)[12] / exp(y_T0 / 100) - 1),
+  l01_q16_rmse1 = ac(exp(forecast(fit16, h = 24)$mean / 100))[["RMSE"]],
+  l01_q16_rmse2 = ac(exp(prev16_2 / 100))[["RMSE"]],
+  l01_q16_dm = unname(dm16$statistic), l01_q16_dm_p = unname(dm16$p.value),
+  l01_q16_sma = unname(coef(fit16_full)[["sma1"]])
+))
+
 # Diebold-Mariano (esquema 2, perda quadrática) e cobertura incondicional de Christoffersen
 e2 <- as.numeric(P_teste) - as.numeric(exp(prev2 / 100))
 dm_rw <- dm.test(e2, as.numeric(P_teste) - as.numeric(rw2), h = 1, power = 2)

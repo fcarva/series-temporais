@@ -10,8 +10,11 @@
 # (d)(e) RMSE, MAE e MAPE do modelo e dos benchmarks (passeio aleatório e sazonal
 #     ingênuo), nos dois esquemas, numa única tabela.
 # (f)(g) Comparação honesta e cobertura empírica do intervalo de 95% do Esquema 1.
-# Extras da aula 03: Diebold-Mariano e o teste de cobertura incondicional de
-# Christoffersen (LRuc, o mesmo que o de Kupiec).
+# Aula 03: MASE, Diebold-Mariano e o teste de cobertura incondicional de Christoffersen
+# (LRuc, o mesmo que o de Kupiec).
+# Lista teórica: a equação de previsão e os pesos psi (Q12c, Q15), a inflação prevista
+# e o competidor com diferença sazonal sugerido na Q16, SARIMA(1,1,1)(0,1,1)12, que só
+# pode ser comparado ao selecionado fora da amostra (o AIC exige o mesmo d e D).
 #
 # Escala: o modelo é para y = 100 log(INPC); as métricas são calculadas no ÍNDICE em
 # nível, P = exp(y/100), que é a "série em nível" da Q1. A previsão exp(ŷ/100) é a
@@ -49,9 +52,12 @@ rw2 <- Pv[T0:(T_ - 1)]                                  # ŷ_{t+1} = y_t
 sn2 <- Pv[(T0 + 1):T_ - S]                              # ŷ_{t+1} = y_{t+1-s}
 
 ## ---- 7.4 (d)(e) Métricas -------------------------------------------------------------------
+# MASE (aula 03; Hyndman e Koehler): MAE dividido pelo MAE do sazonal ingênuo NO TREINO
+escala_mase <- mean(abs(diff(Pv[1:T0], lag = S)))
 metricas <- function(prev) {
   e <- real - prev
-  c(RMSE = sqrt(mean(e^2)), MAE = mean(abs(e)), MAPE = 100 * mean(abs(e / real)))
+  c(RMSE = sqrt(mean(e^2)), MAE = mean(abs(e)), MAPE = 100 * mean(abs(e / real)),
+    MASE = mean(abs(e)) / escala_mase)
 }
 modelos <- list(
   "SARIMA selecionado" = list(prev1, prev2),
@@ -59,8 +65,8 @@ modelos <- list(
   "Sazonal ingênuo" = list(sn1, sn2))
 tab7 <- do.call(rbind, lapply(names(modelos), function(m) {
   a <- metricas(modelos[[m]][[1]]); b <- metricas(modelos[[m]][[2]])
-  data.frame(modelo = m, E1_RMSE = a[["RMSE"]], E1_MAE = a[["MAE"]], E1_MAPE = a[["MAPE"]],
-             E2_RMSE = b[["RMSE"]], E2_MAE = b[["MAE"]], E2_MAPE = b[["MAPE"]])
+  data.frame(modelo = m, E1_RMSE = a[["RMSE"]], E1_MAE = a[["MAE"]], E1_MAPE = a[["MAPE"]], E1_MASE = a[["MASE"]],
+             E2_RMSE = b[["RMSE"]], E2_MAE = b[["MAE"]], E2_MAPE = b[["MAPE"]], E2_MASE = b[["MASE"]])
 }))
 # Razões (Theil-U) do modelo em relação a cada benchmark: < 1 => o modelo é melhor
 razoes <- data.frame(
@@ -90,7 +96,43 @@ cob <- rbind("Esquema 1" = kupiec(dentro1), "Esquema 2" = kupiec(dentro2))
 pi_real <- diff(as.numeric(y))[T0:(T_ - 1)]                         # Δy em T0+1..T
 pi_prev <- um_passo - as.numeric(y)[T0:(T_ - 1)]
 
-## ---- 7.6 Figuras ---------------------------------------------------------------------
+## ---- 7.6 Equação de previsão e pesos psi (lista teórica, Q12c e Q15) --------------------
+# Em y, o modelo é phi(B) Phi(B^12) (1 - B) (y_t - mu t) = a_t. Os pesos psi saem do
+# polinômio AR completo, com o fator (1 - B) incluído; Var(e_h) = sigma2 * soma_{j<h} psi_j^2.
+pol <- polinomios(fit_tr)
+psi <- c(1, ARMAtoMA(ar = -mult_pol(pol$ar, c(1, -1))[-1], ma = pol$ma[-1], lag.max = H - 1))
+ep_h <- sqrt(fit_tr$sigma2 * cumsum(psi^2))                 # erro-padrão em h = 1..H
+ep_forecast <- (as.numeric(fc1$upper[, 1]) - as.numeric(fc1$mean)) / qnorm(0.975)
+stopifnot(isTRUE(all.equal(ep_h, ep_forecast, tolerance = 1e-4)))
+tab_psi <- data.frame(h = 1:H, psi = psi, ep = ep_h)
+
+## ---- 7.7 A inflação prevista: mensal e acumulada em 12 meses ---------------------------
+# Esquema 1: Δŷ_{T0+h} = ŷ_{T0+h} - ŷ_{T0+h-1}; a acumulada em 12 meses usa só y_{T0},
+# então o IC sai direto do IC de ŷ_{T0+12} e de ŷ_{T0+24}.
+y_T0 <- as.numeric(y)[T0]; ym <- as.numeric(fc1$mean)
+pi1_prev <- diff(c(y_T0, ym))                                # inflação mensal prevista
+acum <- function(a, b) 100 * (exp((a - b) / 100) - 1)
+acum12 <- data.frame(
+  janela = c(NA_character_, NA_character_),
+  prevista = c(acum(ym[12], y_T0), acum(ym[24], ym[12])),
+  li = c(acum(fc1$lower[12, 1], y_T0), NA), ls = c(acum(fc1$upper[12, 1], y_T0), NA),
+  observada = c(acum(as.numeric(y)[T0 + 12], y_T0), acum(as.numeric(y)[T0 + 24], as.numeric(y)[T0 + 12])))
+
+## ---- 7.8 O competidor da Q16: SARIMA(1,1,1)(0,1,1)12, com diferença sazonal -------------
+# Sem drift: com d + D = 2, a constante viraria tendência quadrática (Hyndman, FPP 8.7).
+fit_q16_tr <- Arima(y_tr, order = c(1, 1, 1), seasonal = list(order = c(0, 1, 1), period = S), method = "ML")
+fc_q16 <- forecast(fit_q16_tr, h = H, level = NIVEL_IC)
+prev1_q16 <- nivel(fc_q16$mean)
+prev2_q16 <- nivel(as.numeric(fitted(Arima(y, model = fit_q16_tr)))[(T0 + 1):T_])
+fit_q16 <- Arima(y, order = c(1, 1, 1), seasonal = list(order = c(0, 1, 1), period = S), method = "ML")
+q16 <- list(
+  E1 = metricas(prev1_q16), E2 = metricas(prev2_q16),
+  dm = dm(prev2, prev2_q16),                                 # DM < 0 favorece o selecionado
+  coef = tabela_coef(fit_q16),
+  lb_p = Box.test(residuals(fit_q16), lag = 24, type = "Ljung-Box", fitdf = sum(fit_q16$arma[1:4]))$p.value,
+  cobertura = 100 * mean(real >= nivel(fc_q16$lower[, 1]) & real <= nivel(fc_q16$upper[, 1])))
+
+## ---- 7.9 Figuras ---------------------------------------------------------------------
 tt <- as.numeric(time(P)); janela <- (T0 - 48):T_
 figura("q7_esquema1", {
   plot(tt[janela], Pv[janela], type = "n", ylim = range(c(Pv[janela], li1, ls1, sn1)), xlab = "",
@@ -120,14 +162,34 @@ figura("q7_esquema2", {
   par(op)
 }, largura = 10, altura = 4.4)
 
-## ---- 7.7 Saídas -----------------------------------------------------------------------
+figura("q7_inflacao", {
+  op <- par(mfrow = c(1, 2))
+  plot(tt[(T0 + 1):T_], pi_real, type = "h", lwd = 3, col = COR[["eixo"]], xlab = "", ylab = "% a.m.",
+       ylim = range(c(pi_real, pi1_prev, pi_prev)), main = "(a) Inflação mensal na validação")
+  abline(h = 0, col = COR[["eixo"]])
+  lines(tt[(T0 + 1):T_], pi1_prev, col = COR[["ciano"]], lwd = 2)
+  points(tt[(T0 + 1):T_], pi_prev, pch = 19, cex = 0.7, col = COR[["vermelho"]])
+  legend("topright", c("observada", "Esquema 1 (origem fixa)", "Esquema 2 (um passo)"),
+         col = c(COR[["eixo"]], COR[["ciano"]], COR[["vermelho"]]), lty = c(1, 1, NA), lwd = c(3, 2, NA),
+         pch = c(NA, NA, 19), bty = "n", cex = 0.75)
+  plot(1:H, ep_h, type = "b", pch = 19, cex = 0.6, col = COR[["azul"]], xlab = "horizonte h (meses)",
+       ylab = "erro-padrão de previsão de y", main = expression("(b) " * sigma[h] == sigma * sqrt(sum(psi[j]^2, j < h))))
+  grade()
+  par(op)
+}, largura = 10, altura = 4.2)
+
+## ---- 7.10 Saídas ----------------------------------------------------------------------
 tab_prev <- data.frame(data = sprintf("%d-%02d", floor(tt[(T0 + 1):T_] + 1e-9), round((tt[(T0 + 1):T_] %% 1) * 12) + 1),
                        h = h, real = real, E1_prev = prev1, E1_li = li1, E1_ls = ls1, E1_dentro = dentro1,
                        E2_prev = prev2, RW_E1 = rw1, SN_E1 = sn1, RW_E2 = rw2, SN_E2 = sn2)
+rownames(acum12) <- NULL
+acum12$janela <- c(paste(tab_prev$data[1], "a", tab_prev$data[12]), paste(tab_prev$data[13], "a", tab_prev$data[24]))
 salvar_tabela(tab7, "q7_metricas"); salvar_tabela(tab_prev, "q7_previsoes")
+salvar_tabela(acum12, "q7_acumulada12"); salvar_tabela(tab_psi, "q7_psi")
 salvar(list(T0 = T0, data_T0 = sprintf("%d-%02d", floor(tt[T0] + 1e-9), round((tt[T0] %% 1) * 12) + 1),
             data_val_ini = tab_prev$data[1], data_fim = tail(tab_prev$data, 1), coef_tr = tabela_coef(fit_tr),
             modelo = nome_modelo(fit_tr), tab7 = tab7, razoes = razoes, tab_dm = tab_dm, cob = cob,
-            dentro1 = dentro1, sigma2_tr = fit_tr$sigma2), "q7")
+            dentro1 = dentro1, sigma2_tr = fit_tr$sigma2, escala_mase = escala_mase,
+            psi = psi, ep_h = ep_h, acum12 = acum12, pi1_prev = pi1_prev, q16 = q16), "q7")
 message("Q7 ok: RMSE E1 = ", round(tab7$E1_RMSE[1], 2), " (RW ", round(tab7$E1_RMSE[2], 2), ", SN ", round(tab7$E1_RMSE[3], 2),
         "); E2 = ", round(tab7$E2_RMSE[1], 2), " (RW ", round(tab7$E2_RMSE[2], 2), "); cobertura E1 = ", round(cob[1, "cobertura"], 1), "%")

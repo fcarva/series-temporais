@@ -631,6 +631,12 @@ A AU03 (slides 46 e 49) faz dois alertas que valem para este trabalho:
 
 O ganho é significativo a 5% contra os dois, mas bem menor contra o passeio aleatório a um passo: ele erra só a inflação de um mês.
 
+**O que a lista teórica pede a mais (Q12, Q15 e Q16).** A previsão não é só o número do `forecast()`.
+- **A equação de previsão.** Com $w_t=\Delta y_t-\mu$, a previsão é $\widehat w_{T+h}=\phi\widehat w_{T+h-1}+\Phi\widehat w_{T+h-12}-\phi\Phi\widehat w_{T+h-13}$, com $\widehat y_{T+h}=\widehat y_{T+h-1}+\mu+\widehat w_{T+h}$. O desvio sazonal de cada mês volta no ano seguinte multiplicado por $\Phi$ e some aos poucos; no longo prazo, a previsão vira uma reta de inclinação $\mu$.
+- **Os pesos $\psi$.** O erro de $h$ passos é um MA($h-1$) com variância $\sigma^2\sum_{j<h}\psi_j^2$. Como $d=1$, os $\psi_j$ não vão a zero, e é por isso que o intervalo se abre sem limite.
+- **A inflação, não só o índice.** A inflação acumulada em 12 meses prevista de out/2024 a set/2025 foi $5{,}62\%$; a observada, $5{,}10\%$.
+- **O modelo da Q16, com $D=1$.** O SARIMA(1,1,1)(0,1,1)$_{12}$ não se compara ao nosso por AIC ($D$ diferente), mas se compara fora da amostra. Ele ganha a um passo (RMSE $27{,}4$ contra $30{,}7$; DM $=2{,}13$, p-valor $0{,}044$) e perde a 24 passos ($119{,}3$ contra $81{,}5$). Seu MA sazonal estimado é $-0{,}87$, perto de $-1$: o $(1-B^{12})$ quase se cancela, o sinal de diferença sazonal em excesso. Confirma $D=0$, e mostra que a resposta "de livro" foi testada.
+
 **A cobertura.** Dos 24 valores observados, $100\%$ caíram dentro do intervalo de 95% do esquema 1. Isso está acima do nominal, mas não prova que o intervalo está errado:
 - o intervalo de um modelo integrado se abre muito com $h$;
 - os 24 erros de uma única origem estão fortemente correlacionados entre si; na prática, são quase uma única observação.
@@ -864,6 +870,13 @@ Fora das aulas, a literatura sobre modelar um índice de preços (o log do índi
 | l01_q7_rmse_sn2 | 328,7 |
 | l01_q7_mape_sn2 | 4,33 |
 | l01_q7_cobertura | 100 |
+| l01_acum12_prev | 5,62 |
+| l01_acum12_obs | 5,10 |
+| l01_q16_rmse1 | 119,3 |
+| l01_q16_rmse2 | 27,4 |
+| l01_q16_dm | 2,13 |
+| l01_q16_dm_p | 0,044 |
+| l01_q16_sma | -0,87 |
 | l01_longa_T | 321 |
 | l01_longa_ar1_ep | 0,044 |
 | l01_c1_ar1_ep | 0,067 |
