@@ -1,0 +1,252 @@
+---
+title: "Lista 01 — Econometria II"
+subtitle: "SARIMA para o INPC (jan/2013 a set/2026), versão simples"
+author: "[nomes da dupla]"
+format:
+  pdf:
+    toc: false
+    number-sections: false
+lang: pt
+knitr:
+  opts_chunk:
+    warning: false
+    message: false
+    fig-align: center
+    out-width: "75%"
+---
+
+```{r}
+# install.packages(c("sidrar", "forecast", "urca", "tseries", "lmtest", "FinTS"))
+library(sidrar)    # dados do IBGE
+library(forecast)  # Arima, ggtsdisplay, checkresiduals, forecast, accuracy
+library(urca)      # ur.df, ur.pp, ur.kpss, ur.ers
+library(tseries)   # jarque.bera.test
+library(lmtest)    # coeftest
+library(FinTS)     # ArchTest
+options(OutDec = ",")
+```
+
+```{r}
+# INPC, número-índice (dez/1993 = 100), SIDRA tabela 1736, variável 2289
+inpc <- get_sidra(api = "/t/1736/n1/all/v/2289/p/201301-202609")
+P <- ts(inpc$Valor, start = c(2013, 1), frequency = 12)
+y <- 100 * log(P)
+length(y)
+```
+
+# Questão 1
+
+**(a) Gráfico da série e descrição.**
+
+```{r}
+autoplot(P, ylab = "INPC")
+autoplot(y, ylab = "100 × log(INPC)")
+ggsubseriesplot(diff(y), ylab = "inflação mensal (%)")
+```
+
+O índice cresce sem voltar (tendência), e em log vira quase uma reta. A inflação mensal tem média de `r round(mean(diff(y)), 2)`% e uma sazonalidade fraca: fevereiro, março e dezembro mais altos, agosto mais baixo.
+
+**Transformação.** Usamos $y_t = 100 \ln P_t$: assim $\Delta y_t$ é a inflação mensal em %, e o drift do modelo é a inflação média.
+
+# Questão 2
+
+**(a) ADF, PP e KPSS no nível.**
+
+```{r}
+adf <- ur.df(y, type = "trend", lags = 13, selectlags = "AIC")
+summary(adf)
+summary(ur.pp(y, type = "Z-tau", model = "trend", lags = "long"))
+summary(ur.kpss(y, type = "tau", lags = "long"))
+```
+
+ADF e PP não rejeitam a raiz unitária, e o KPSS não rejeita a estacionariedade em tendência: os testes são pouco informativos no nível.
+
+**(b) Constante e tendência no ADF.**
+
+```{r}
+adf_c <- ur.df(y, type = "drift", lags = 13, selectlags = "AIC")
+adf_n <- ur.df(y, type = "none", lags = 13, selectlags = "AIC")
+c(tau3 = adf@teststat[1], tau2 = adf_c@teststat[1], tau1 = adf_n@teststat[1])
+```
+
+O gráfico mostra a série crescendo, então a versão certa é a com constante e tendência (Mattos, 2019). Com τ3 = `r round(adf@teststat[1], 2)`, acima do crítico de `r adf@cval[1, 2]`, não se rejeita $H_0$: a série é diferença estacionária. Sem constante, τ1 sai positivo.
+
+**(c) Série diferenciada: d e D.**
+
+```{r}
+summary(ur.df(diff(y), type = "drift", lags = 13, selectlags = "AIC"))
+summary(ur.kpss(diff(y), type = "mu", lags = "long"))
+Acf(diff(y), lag.max = 36)
+```
+
+Na diferença, o ADF rejeita a raiz unitária e o KPSS não rejeita a estacionariedade: d = 1. A FAC em 12, 24 e 36 não decai devagar, então a sazonalidade não pede diferença sazonal: D = 0.
+
+**(d) Tendência estocástica ou determinística?**
+
+```{r}
+summary(ur.ers(y, type = "DF-GLS", model = "trend", lag.max = 1))
+```
+
+O DF-GLS também não rejeita. Adotamos tendência estocástica com drift: $d = 1$, e a inflação média entra como constante.
+
+# Questão 3
+
+**(a) FAC e FACP da série diferenciada.**
+
+```{r}
+ggtsdisplay(diff(y), lag.max = 48)
+```
+
+**(b) Leitura.** A FACP tem um pico claro em 1, e a FAC decai: parte regular AR(1). Há um pico em 12 na FAC e quase nada em 24 e 36: parte sazonal de ordem 1.
+
+**(c) Candidatos.**
+
+- M0: ARIMA(1,1,0) com drift, sem parte sazonal;
+- M1: SARIMA(1,1,0)(1,0,0)$_{12}$ com drift;
+- M2: SARIMA(1,1,0)(0,0,1)$_{12}$ com drift.
+
+# Questão 4
+
+**(a) Estimação por máxima verossimilhança.**
+
+```{r}
+m0 <- Arima(y, order = c(1, 1, 0), include.drift = TRUE, method = "ML")
+m1 <- Arima(y, order = c(1, 1, 0), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML")
+m2 <- Arima(y, order = c(1, 1, 0), seasonal = c(0, 0, 1), include.drift = TRUE, method = "ML")
+coeftest(m0); coeftest(m1); coeftest(m2)
+```
+
+**(b) a (e) Amostra, critérios e escolha.**
+
+```{r}
+cbind(n = c(m0$nobs, m1$nobs, m2$nobs),
+      AIC = c(m0$aic, m1$aic, m2$aic), BIC = c(m0$bic, m1$bic, m2$bic))
+c(k_R = (m1$aic + 2 * m1$loglik) / 2, coeficientes = length(coef(m1)))
+```
+
+Os três usam as mesmas `r m1$nobs` observações (n = T − 1) e o mesmo d, então a comparação por AIC e BIC é válida. O R conta $\sigma^2$ em k. O M1 tem o menor AIC (`r round(m1$aic, 2)` contra `r round(m0$aic, 2)` do M0) e o menor BIC, e o termo sazonal é significativo: **escolhemos o M1, SARIMA(1,1,0)(1,0,0)$_{12}$**.
+
+**(f) Raízes.**
+
+```{r}
+autoplot(m1)
+```
+
+As raízes inversas estão dentro do círculo: o modelo é estacionário e invertível.
+
+# Questão 5
+
+**(a) e (b) Resíduos e Ljung-Box.**
+
+```{r}
+checkresiduals(m1, lag = 24)
+```
+
+O Ljung-Box com 24 defasagens não rejeita: os resíduos do M1 são ruído branco.
+
+**(c) Jarque-Bera e ARCH-LM.**
+
+```{r}
+jarque.bera.test(residuals(m1))
+ArchTest(residuals(m1), lags = 12)
+```
+
+A normalidade é rejeitada por três choques (2018, 2022 e 2025), e não há efeito ARCH.
+
+**(d) O caminho: por que não o ARIMA sem sazonal.**
+
+```{r}
+Acf(residuals(m0), lag.max = 24)
+```
+
+Sem o termo sazonal, a FAC dos resíduos do M0 em 12 vale `r round(Acf(residuals(m0), plot = FALSE)$acf[13], 3)`, fora da banda: sobra a sazonalidade que o M1 captura.
+
+**(e) Sobreajuste.**
+
+```{r}
+coeftest(Arima(y, order = c(2, 1, 0), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML"))
+coeftest(Arima(y, order = c(1, 1, 1), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML"))
+```
+
+O AR e o MA acrescentados não são significativos: o M1 está bem especificado.
+
+# Questão 6
+
+**(a) e (b) O modelo com d = 2.**
+
+```{r}
+d2 <- Arima(y, order = c(1, 2, 1), seasonal = c(1, 0, 0), method = "ML")
+d2_sem_ma <- Arima(y, order = c(1, 2, 0), seasonal = c(1, 0, 0), method = "ML")
+coeftest(d2)
+c(sigma2_d1 = m1$sigma2, sigma2_d2 = d2_sem_ma$sigma2)
+```
+
+Com uma diferença a mais, o MA vai para `r round(coef(d2)["ma1"], 3)`, com raiz sobre o círculo unitário (não invertível), e a variância dos resíduos sobe.
+
+**(c) FAC dos resíduos.**
+
+```{r}
+Acf(residuals(d2_sem_ma), lag.max = 24)
+```
+
+**(d)** Sinais de sobrediferenciação: MA perto de −1, $\rho_1$ perto de −0,5 na série diferenciada e variância residual maior.
+
+# Questão 7
+
+**(a) Treino e validação (últimos 24 meses).**
+
+```{r}
+treino <- window(y, end = c(2024, 9))
+P_teste <- window(P, start = c(2024, 10))
+fit <- Arima(treino, order = c(1, 1, 0), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML")
+```
+
+**(b) Esquema 1: origem fixa, 24 passos.**
+
+```{r}
+fc <- forecast(fit, h = 24, level = 95)
+autoplot(fc)
+prev1 <- exp(fc$mean / 100)
+```
+
+**(c) Esquema 2: um passo, sem reestimar.**
+
+```{r}
+prev2 <- exp(window(fitted(Arima(y, model = fit)), start = c(2024, 10)) / 100)
+```
+
+**(d) e (e) Métricas contra os benchmarks, no índice.**
+
+```{r}
+P_treino <- window(P, end = c(2024, 9))
+rbind(SARIMA_1 = accuracy(prev1, P_teste)[, c("RMSE", "MAE", "MAPE")],
+      passeio_1 = accuracy(naive(P_treino, h = 24), P_teste)[2, c("RMSE", "MAE", "MAPE")],
+      sazonal_1 = accuracy(snaive(P_treino, h = 24), P_teste)[2, c("RMSE", "MAE", "MAPE")],
+      SARIMA_2 = accuracy(prev2, P_teste)[, c("RMSE", "MAE", "MAPE")],
+      passeio_2 = accuracy(window(fitted(naive(P)), start = c(2024, 10)), P_teste)[, c("RMSE", "MAE", "MAPE")],
+      sazonal_2 = accuracy(window(fitted(snaive(P)), start = c(2024, 10)), P_teste)[, c("RMSE", "MAE", "MAPE")])
+```
+
+**(f)** O SARIMA erra menos que o passeio aleatório e que o sazonal ingênuo nos dois esquemas. O ARIMA sem sazonal (M0) também perde para ele um passo à frente:
+
+```{r}
+fit0 <- Arima(treino, order = c(1, 1, 0), include.drift = TRUE, method = "ML")
+prev0 <- exp(window(fitted(Arima(y, model = fit0)), start = c(2024, 10)) / 100)
+c(RMSE_SARIMA = accuracy(prev2, P_teste)[, "RMSE"], RMSE_ARIMA = accuracy(prev0, P_teste)[, "RMSE"])
+```
+
+**(g) Cobertura do intervalo de 95% (esquema 1).**
+
+```{r}
+mean(P_teste >= exp(fc$lower / 100) & P_teste <= exp(fc$upper / 100))
+```
+
+`r round(100 * mean(P_teste >= exp(fc$lower / 100) & P_teste <= exp(fc$upper / 100)))`% dos 24 meses caíram dentro do intervalo.
+
+# Questão 8
+
+Resolvida à mão.
+
+```{r}
+sessionInfo()
+```
