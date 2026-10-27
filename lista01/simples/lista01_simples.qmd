@@ -197,6 +197,7 @@ Acf(residuals(d2_sem_ma), lag.max = 24)
 
 ```{r}
 treino <- window(y, end = c(2024, 9))
+P_treino <- window(P, end = c(2024, 9))
 P_teste <- window(P, start = c(2024, 10))
 fit <- Arima(treino, order = c(1, 1, 0), seasonal = c(1, 0, 0), include.drift = TRUE, method = "ML")
 ```
@@ -218,7 +219,6 @@ prev2 <- exp(window(fitted(Arima(y, model = fit)), start = c(2024, 10)) / 100)
 **(d) e (e) Métricas contra os benchmarks, no índice.**
 
 ```{r}
-P_treino <- window(P, end = c(2024, 9))
 rbind(SARIMA_1 = accuracy(prev1, P_teste)[, c("RMSE", "MAE", "MAPE")],
       passeio_1 = accuracy(naive(P_treino, h = 24), P_teste)[2, c("RMSE", "MAE", "MAPE")],
       sazonal_1 = accuracy(snaive(P_treino, h = 24), P_teste)[2, c("RMSE", "MAE", "MAPE")],
@@ -234,6 +234,28 @@ fit0 <- Arima(treino, order = c(1, 1, 0), include.drift = TRUE, method = "ML")
 prev0 <- exp(window(fitted(Arima(y, model = fit0)), start = c(2024, 10)) / 100)
 c(RMSE_SARIMA = accuracy(prev2, P_teste)[, "RMSE"], RMSE_ARIMA = accuracy(prev0, P_teste)[, "RMSE"])
 ```
+
+**Inflação acumulada em 12 meses (out/2024 a set/2025).**
+
+```{r}
+c(prevista = 100 * (exp((fc$mean[12] - tail(treino, 1)) / 100) - 1),
+  observada = 100 * (P_teste[12] / tail(P_treino, 1) - 1))
+```
+
+O modelo previu a inflação de 12 meses com erro de cerca de meio ponto percentual.
+
+**O modelo da Q16 da lista teórica, com diferença sazonal ($D = 1$).**
+
+```{r}
+fit16 <- Arima(treino, order = c(1, 1, 1), seasonal = c(0, 1, 1), method = "ML")
+prev16_1 <- exp(forecast(fit16, h = 24)$mean / 100)
+prev16_2 <- exp(window(fitted(Arima(y, model = fit16)), start = c(2024, 10)) / 100)
+rbind(esquema_1 = c(SARIMA = accuracy(prev1, P_teste)[, "RMSE"], Q16 = accuracy(prev16_1, P_teste)[, "RMSE"]),
+      esquema_2 = c(SARIMA = accuracy(prev2, P_teste)[, "RMSE"], Q16 = accuracy(prev16_2, P_teste)[, "RMSE"]))
+coef(Arima(y, order = c(1, 1, 1), seasonal = c(0, 1, 1), method = "ML"))
+```
+
+O modelo com $D = 1$ erra menos um mês à frente, mas bem mais a 24 meses. Seu MA sazonal fica perto de −1, o sinal de diferença sazonal em excesso: a sazonalidade do INPC é determinística, e $D = 0$ se mantém.
 
 **(g) Cobertura do intervalo de 95% (esquema 1).**
 
