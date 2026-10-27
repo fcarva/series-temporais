@@ -12,7 +12,6 @@ format:
 
 # Diagramação e código
 
-- Entrou um sumário no início.
 - Cada questão começa em página nova, e figuras e tabelas ficam junto do código que as gera.
 - Fonte de 11 pt, margens de 2,5 cm e tamanho padrão para os gráficos.
 - Saiu a numeração duplicada dos títulos ("1 1. Preparação" virou "1 Preparação").

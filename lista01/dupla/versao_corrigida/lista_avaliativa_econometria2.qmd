@@ -4,7 +4,6 @@ author: "Patrick Beraldo Torezani e Felipe Carvalho Souza Santos"
 lang: pt
 format:
   pdf:
-    toc: true
     number-sections: true
     fontsize: 11pt
     geometry: margin=2.5cm
@@ -43,8 +42,6 @@ inpc_ts <- ts(inpc$Variação, start = c(2013, 1), frequency = 12)
 # números no texto com vírgula decimal
 vf <- function(x, d = 0) format(round(x, d), nsmall = d, decimal.mark = ",")
 ```
-
-\newpage
 
 # Preparação e Inspeção Preliminar
 
