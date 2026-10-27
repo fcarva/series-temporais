@@ -21,7 +21,7 @@ format:
         \usepackage{needspace}
         \usepackage{etoolbox}
         \pretocmd{\section}{\clearpage}{}{}
-        \pretocmd{\subsection}{\needspace{0.5\textheight}}{}{}
+        \pretocmd{\subsection}{\needspace{0.55\textheight}}{}{}
         \BeforeBeginEnvironment{Shaded}{\par\noindent\begin{minipage}{\linewidth}}
         \AfterEndEnvironment{Shaded}{\end{minipage}\par}
         \BeforeBeginEnvironment{verbatim}{\par\noindent\begin{minipage}{\linewidth}}
@@ -49,7 +49,7 @@ options(OutDec = ",", digits = 4)
 knitr::knit_hooks$set(junto = \(before, options) {
   if (before && knitr::is_latex_output()) {
     alto <- grepl("^(fig|tbl)-", options$label)
-    sprintf("\\needspace{%s\\textheight}", if (alto) "0.5" else "0.2")
+    sprintf("\\needspace{%s\\textheight}", if (alto) "0.45" else "0.2")
   }
 })
 knitr::opts_chunk$set(junto = TRUE, collapse = TRUE)
@@ -97,18 +97,24 @@ ini_teste <- time(y)[length(y) - h + 1]
 
 ```{r}
 #| label: fig-serie
-#| fig-cap: "A série do INPC."
-#| fig-subcap: ["Em nível", "Em log", "Inflação mensal por mês do ano"]
-#| layout-ncol: 3
-#| out-width: "32%"
-#| fig-width: 4
-#| fig-height: 3.4
+#| fig-cap: "O INPC de jan/2013 a set/2026."
+#| fig-subcap: ["Em nível", "Em log"]
+#| layout-ncol: 2
+#| out-width: "49%"
+#| fig-width: 3.6
+#| fig-height: 2.8
 autoplot(p, ylab = "INPC", xlab = "")
 autoplot(y, ylab = "100 × log(INPC)", xlab = "")
+```
+
+```{r}
+#| label: fig-sazonal
+#| fig-cap: "Inflação mensal por mês do ano; a linha azul é a média do mês."
+#| fig-height: 3.2
 ggsubseriesplot(diff(y), ylab = "inflação mensal (%)", xlab = "")
 ```
 
-O índice cresce sem voltar e, em log, vira quase uma reta. A inflação mensal tem média de `r round(mean(diff(y)), 2)`% e sazonalidade fraca (fevereiro, março e dezembro altos; agosto baixo). Modelamos $y_t = 100\ln P_t$: $\Delta y_t$ é a inflação em %, e o drift, a inflação média.
+O índice cresce sem voltar e, em log, vira quase uma reta (@fig-serie). A inflação mensal tem média de `r round(mean(diff(y)), 2)`% e sazonalidade fraca (@fig-sazonal): fevereiro, março e dezembro altos; agosto baixo. Modelamos $y_t = 100\ln P_t$: $\Delta y_t$ é a inflação em %, e o drift, a inflação média.
 
 ```{r}
 #| label: fig-amplitude
@@ -165,7 +171,7 @@ knitr::kable(sapply(diferenca, resumo_ur), digits = 3)
 ```{r}
 #| label: fig-acf-sazonal
 #| fig-cap: "FAC da inflação mensal: nos múltiplos de 12 ela não decai devagar."
-Acf(diff(y), lag.max = 3 * s, main = "")
+ggAcf(diff(y), lag.max = 3 * s) + ggplot2::labs(title = NULL)
 ```
 
 Na diferença, o ADF rejeita e o KPSS não (@tbl-diferenca): **d = 1**. A FAC em 12, 24 e 36 cai logo, sem o decaimento lento de uma raiz sazonal (@fig-acf-sazonal): **D = 0**.
@@ -242,14 +248,18 @@ autoplot(m1)
 
 ```{r}
 #| label: fig-residuos
-#| fig-cap: "Resíduos do M1."
-#| fig-subcap: ["No tempo, FAC e FACP", "QQ-plot contra a normal"]
-#| layout-ncol: 2
-#| out-width: "49%"
-#| fig-width: 4.5
-#| fig-height: 3.8
+#| fig-cap: "Resíduos do M1 no tempo, com FAC e FACP."
+#| fig-height: 4.2
 e <- residuals(m1)
 ggtsdisplay(e, lag.max = 2 * s)
+```
+
+```{r}
+#| label: fig-qq
+#| fig-cap: "QQ-plot dos resíduos do M1 contra a normal."
+#| out-width: "60%"
+#| fig-width: 5
+#| fig-height: 4
 qqnorm(e, main = "")
 qqline(e)
 ```
@@ -259,7 +269,7 @@ qqline(e)
 Box.test(e, lag = 2 * s, type = "Ljung-Box", fitdf = sum(m1$arma[1:4]))
 ```
 
-A FAC e a FACP ficam dentro das bandas, e o Ljung-Box com 24 − 2 graus de liberdade não rejeita: os resíduos são ruído branco. O QQ-plot mostra as caudas que fazem a normalidade falhar (@fig-residuos).
+A FAC e a FACP ficam dentro das bandas (@fig-residuos), e o Ljung-Box com 24 − 2 graus de liberdade não rejeita: os resíduos são ruído branco. O QQ-plot mostra as caudas que fazem a normalidade falhar (@fig-qq).
 
 ## (c) Jarque-Bera e ARCH-LM
 
@@ -276,7 +286,7 @@ Os resíduos são ruído branco e sem ARCH; a normalidade falha por três choque
 #| label: fig-acf-m0
 #| fig-cap: "FAC dos resíduos do M0: sobra o pico em 12."
 #| fig-height: 3
-Acf(residuals(modelos$M0), lag.max = 2 * s, main = "")
+ggAcf(residuals(modelos$M0), lag.max = 2 * s) + ggplot2::labs(title = NULL)
 ```
 
 ## (e) Sobreajuste
@@ -314,10 +324,10 @@ Com uma diferença a mais, o MA vai para `r round(coef(d2)[["ma1"]], 3)`: raiz s
 #| fig-subcap: ["d = 1 (M1)", "d = 2"]
 #| layout-ncol: 2
 #| out-width: "49%"
-#| fig-width: 4.5
-#| fig-height: 3
-Acf(residuals(m1), lag.max = 2 * s, main = "")
-Acf(residuals(d2_sem_ma), lag.max = 2 * s, main = "")
+#| fig-width: 3.6
+#| fig-height: 2.8
+ggAcf(residuals(m1), lag.max = 2 * s) + ggplot2::labs(title = NULL)
+ggAcf(residuals(d2_sem_ma), lag.max = 2 * s) + ggplot2::labs(title = NULL)
 ```
 
 Com d = 2 aparecem autocorrelações negativas nas primeiras defasagens, que não existiam com d = 1 (@fig-acf-d2): é a diferença a mais deixando sua marca.
@@ -332,13 +342,13 @@ MA perto de −1, $\rho_1 \approx -0{,}5$ na série diferenciada e variância re
 
 ```{r}
 #| label: fig-previsao
-#| fig-cap: "Esquema 1: previsão de 24 meses desde set/2024, IC de 95%."
+#| fig-cap: "Esquema 1: previsão de 24 meses com IC de 95%."
 fit <- update(m1, y = window(y, end = fim_treino))
 p_treino <- window(p, end = fim_treino)
 p_teste <- window(p, start = ini_teste)
 fc <- forecast(fit, h = h, level = 95)
-autoplot(fc, ylab = "100 × log(INPC)", xlab = "") +
-  autolayer(y, series = "observado")
+autoplot(fc, include = 60, ylab = "100 × log(INPC)", xlab = "") +
+  autolayer(window(y, start = ini_teste), series = "observado")
 
 # Esquema 2: coeficientes do treino fixos; só o filtro anda com os dados
 um_passo <- \(f) {
@@ -403,18 +413,19 @@ O modelo com D = 1 erra menos um mês à frente e bem mais a 24 meses (@tbl-q16)
 
 ## (g) Cobertura do intervalo de 95% (esquema 1)
 
+O intervalo se abre com o horizonte porque o modelo é integrado; a cobertura é a fração dos 24 meses que caem dentro dele (@fig-cobertura).
+
 ```{r}
 #| label: fig-cobertura
-#| fig-cap: "Esquema 1 no índice: previsão, IC de 95% e valores observados."
+#| fig-cap: "Esquema 1 no índice: previsão, IC de 95% e observados."
 #| fig-height: 3
-ic <- para_indice(cbind(previsão = fc$mean, inferior = fc$lower,
-                        superior = fc$upper))
-autoplot(ic, ylab = "INPC", xlab = "") +
+campos <- c("x", "mean", "lower", "upper")
+fc_indice <- fc
+fc_indice[campos] <- lapply(fc[campos], para_indice)  # tudo de volta ao índice
+autoplot(fc_indice, include = 36, ylab = "INPC", xlab = "") +
   autolayer(p_teste, series = "observado")
-mean(p_teste >= ic[, "inferior"] & p_teste <= ic[, "superior"])
+mean(p_teste >= fc_indice$lower & p_teste <= fc_indice$upper)
 ```
-
-Todos os 24 meses caem dentro do intervalo, que se abre com o horizonte porque o modelo é integrado (@fig-cobertura).
 
 # Questão 8
 
