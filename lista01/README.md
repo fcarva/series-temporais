@@ -28,7 +28,7 @@ A série é o **INPC em nível** (número-índice), de **jan/2013 a set/2026 (16
 
 ## A versão da dupla em Quarto (variação mensal, $d=0$)
 
-A pasta [dupla/](dupla/revisao.md) tem a versão em Quarto feita pela dupla, que modela a variação mensal do INPC com $d=0$. Ela foi revisada e completada: [inpc_lista_1_revisado.qmd](dupla/inpc_lista_1_revisado.qmd), com a base `dupla/inpc_13_a_26.csv`. A [revisão](dupla/revisao.md) lista o que estava errado e por quê.
+A pasta [dupla/](dupla/revisao.md) tem a versão em Quarto feita pela dupla, que modela a variação mensal do INPC com $d=0$. Ela foi revisada e completada: [inpc_lista_1_revisado.qmd](dupla/inpc_lista_1_revisado.qmd), com a base `dupla/inpc_13_a_26.csv`. A [revisão](dupla/revisao.md) lista o que estava errado e por quê. A [auditoria do PDF de 33 páginas](dupla/auditoria_pdf.md) cobre a versão com as Q5 a Q7 e discute por que a previsão do M1 fica colada na média.
 
 ## O jeito mais simples: um script só, em qualquer lugar
 
