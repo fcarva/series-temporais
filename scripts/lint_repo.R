@@ -124,7 +124,12 @@ for (id in names(ids_D)) if (length(unique(ids_D[[id]])) > 1)
 
 if (dir.exists(file.path(RAIZ, ".git"))) {
   rastreados <- tryCatch(system2("git", c("ls-files"), stdout = TRUE), error = function(e) character(0))
-  for (p in grep("\\.(pdf|jpe?g)$|^materiais/", rastreados, value = TRUE))
+  # exceções: PDFs gerados pelo próprio repo, versionados para irem ao cofre do Obsidian
+  # (as mesmas do .gitignore); nenhum PDF de terceiros entra aqui
+  pdfs_proprios <- c("lista01/relatorio_lista01.pdf", "lista01/laboratorio_lista01.pdf",
+                     "caderno/pdf/caderno_volume4_lista01_laboratorio.pdf",
+                     "caderno/pdf/caderno_lista01_guia_estudo.pdf")
+  for (p in setdiff(grep("\\.(pdf|jpe?g)$|^materiais/", rastreados, value = TRUE), pdfs_proprios))
     E("arquivo proibido versionado: %s", p)
 }
 

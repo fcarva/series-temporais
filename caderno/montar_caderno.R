@@ -2,7 +2,7 @@
 #   Volume 1 — revisão, convenções e teoria (módulos 01–03, mais a teoria de 04 e 05)
 #   Volume 2 — a lista de exercícios resolvida (Q1–Q16)
 #   Volume 3 — o trabalho em dupla do INPC (roteiro e relatório)
-#   Volume 4 — Lista 01: guia de estudo, README e laboratório
+#   Volume 4 — Lista 01: guia de estudo, referências do INPC, README e laboratório
 #   Guia     — só o guia de estudo da Lista 01, num PDF à parte
 #
 # Caminho: nota .md -> preparo em R (tira o frontmatter, resolve caminhos de figura,
@@ -248,7 +248,7 @@ volume_lista01 <- function() {
   if (!file.exists(file.path(RAIZ, "lista01", "laboratorio_lista01.md")))
     stop("Rode antes: Rscript lista01/renderizar_laboratorio.R")
   partes <- list(
-    "Guia de estudo: o que estou fazendo e por quê" = c("lista01/guia_estudo.md"),
+    "Guia de estudo: o que estou fazendo e por quê" = c("lista01/guia_estudo.md", "lista01/referencias_inpc.md"),
     "Lista 01: o que foi feito" = c("lista01/README.md"),
     "Laboratório Box-Jenkins" = c("lista01/laboratorio_lista01.md")
   )

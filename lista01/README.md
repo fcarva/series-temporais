@@ -75,6 +75,7 @@ No Windows, use `scripts\r.ps1 lista01\rodar_tudo.R`. Para o PDF é preciso LaTe
 | `relatorio_lista01.Rmd` | Q1–Q7 | o relatório: lê `saidas/` e escreve cada número inline |
 | `dados/inpc_lista01.csv` | — | o banco: INPC (SIDRA, tabela 1736), jan/2013 a set/2026 |
 | `dados/inpc_2000_2026.csv` | Q2(d) | a série longa, só para a checagem de robustez |
+| `referencias_inpc.md` | Q2 e relatório | a literatura sobre modelar um índice de preços (preços I(1) × I(2)), o exemplo 3 do Mattos lado a lado com o INPC e o que citar |
 
 ## O que o código encontrou (para estudar)
 

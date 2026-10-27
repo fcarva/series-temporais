@@ -789,6 +789,8 @@ Conferência deste guia contra as aulas de 2026 (AU01 a AU03) e o texto de Matto
 | ADF, PP, DF-GLS, as versões e os quatro processos | MAT, seções 1.11 e 2.2–2.4 | ver a seção 2 deste guia |
 | ADF com dummies sazonais centradas | MAT, seção 2.6 | a sazonalidade determinística entra na regressão sem mudar os críticos; é como se decide $D$ aqui |
 
+Fora das aulas, a literatura sobre modelar um índice de preços (o log do índice é I(1) ou I(2)?) e o exemplo 3 do Mattos comparado ao INPC estão em [referencias_inpc](referencias_inpc.md).
+
 <!-- conferência numérica
 | chave_R | nota |
 |---|---|
