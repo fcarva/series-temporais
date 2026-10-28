@@ -17,6 +17,7 @@ manter <- grepl("^[0-9]{2}_[^/]+/[^/]+\\.R$", rel) |
   grepl("^trabalho_inpc/[^/]+\\.R$", rel) |
   grepl("^prova/[^/]+\\.R$", rel) |
   grepl("^lista_comentada/[^/]+\\.R$", rel) |
+  grepl("^apostila/[^/]+\\.R$", rel) |
   grepl("^lista01/(0[1-7]_[^/]+|guia_numeros)\\.R$", rel)
 rel <- sort(rel[manter])
 
