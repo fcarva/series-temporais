@@ -220,3 +220,18 @@ ap_am3_q12_c5,         -1.4
 ap_am3_q12_c6,          0.4
 ap_am3_q12_dif,1.70530256582e-13
 ap_am3_q12_perda,            5
+ap_am4_m2ll1,        420.6
+ap_am4_m2ll2,        425.6
+ap_am4_m2ll3,        428.2
+ap_am4_klnT,15.0319058823
+ap_am4_dif_aic12,            5
+ap_am5_ic2_inf,-1.85211150468
+ap_am5_ic2_sup,4.89211150468
+ap_am5_cov12,          1.4
+ap_am6_c1,          1.5
+ap_am6_c2,         -0.5
+ap_am6_c12,            1
+ap_am6_c13,         -1.5
+ap_am6_c14,          0.5
+ap_am6_dif,            0
+ap_am6_ma13,         0.24

@@ -282,4 +282,22 @@ for (h in 1:5) {
 registrar("ap_am3_q12_dif", max(abs(f - pr)))
 registrar("ap_am3_q12_perda", 1 + 4 * 1)
 
+## ---- Folhas à mão dos capítulos 4, 5 e 6 (Q13 a Q16) --------------------------------------
+# Q14: as parcelas de AIC e BIC (T = 150, k = 3)
+ll <- c(-210.3, -212.8, -214.1)
+for (i in 1:3) registrar(sprintf("ap_am4_m2ll%d", i), -2 * ll[i])
+registrar("ap_am4_klnT", 3 * log(150)); registrar("ap_am4_dif_aic12", (-2 * ll[2] + 6) - (-2 * ll[1] + 6))
+# Q15: intervalo de 95% do ARMA(1,1) (phi = 0,8, theta = 0,6) em h = 2, com y_T = 2 e eps_T = 0,5
+p2 <- 0.8 * (0.8 * 2 + 0.6 * 0.5); v2 <- 1 + 1.4^2
+registrar("ap_am5_ic2_inf", p2 - 1.96 * sqrt(v2)); registrar("ap_am5_ic2_sup", p2 + 1.96 * sqrt(v2))
+registrar("ap_am5_cov12", 1.4)
+# Q16: lado AR de (1 - 0,5 L)(1 - L)(1 - L^12), coeficientes de y nas defasagens 1, 2, 12, 13, 14
+ph <- 0.5
+registrar("ap_am6_c1", 1 + ph); registrar("ap_am6_c2", -ph); registrar("ap_am6_c12", 1)
+registrar("ap_am6_c13", -(1 + ph)); registrar("ap_am6_c14", ph)
+pr <- c(1, -ph) %o% c(1, -1); a1 <- c(pr[1, 1], pr[1, 2] + pr[2, 1], pr[2, 2])
+full <- rep(0, 15); full[1:3] <- a1; full[13:15] <- full[13:15] - a1
+registrar("ap_am6_dif", max(abs(-full[c(2, 3, 13, 14, 15)] - c(1 + ph, -ph, 1, -(1 + ph), ph))))
+registrar("ap_am6_ma13", (-0.4) * (-0.6))
+
 gravar_resultados("ap")

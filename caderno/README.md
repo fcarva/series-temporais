@@ -45,7 +45,7 @@ Os cinco PDFs da prova saem no **modo de impressão** (`compilar(..., impressao 
 - **formulários:** célula vazia de tabela ganha altura e linha-guia para escrever à mão (log de erros, placar);
 - **sem ruído:** a linha "Conferido em R" fica só nas notas e no build.
 
-O volume 7 (`Rscript caderno/montar_caderno.R apostila`) é a [apostila](../apostila/README.md), com um capítulo por bloco da lista. O PDF "à mão" (`Rscript caderno/montar_caderno.R amao`) traz só a Q2 e a Q6 demonstradas linha a linha, no formato de caderno, para copiar e refazer no papel.
+O volume 7 (`Rscript caderno/montar_caderno.R apostila`) é a [apostila](../apostila/README.md), com um capítulo por bloco da lista. As folhas à mão dos seis blocos saem juntas em `caderno_a_mao_blocos.pdf` (`Rscript caderno/montar_caderno.R amao_blocos`), com a Q2/Q6 completa em apêndice. O PDF "à mão" original (`Rscript caderno/montar_caderno.R amao`) traz só a Q2 e a Q6 demonstradas linha a linha, no formato de caderno, para copiar e refazer no papel.
 
 A meta de diagramação é **zero `Overfull \hbox`** nos logs de `caderno/_build/`: nenhuma linha sai da mancha.
 

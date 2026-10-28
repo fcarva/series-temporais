@@ -304,6 +304,8 @@ Numa série simulada de 300 observações, a recursão (5) e o `predict` do ARIM
 
 ## Na prova
 
+**A folha de caderno do bloco** está em [a_mao_cap5.md](a_mao_cap5.md): Q15 (a) a (e) em 40 linhas numeradas, cada uma com a justificativa, mais a versão para a prova e a conferência em R.
+
 | Questão | O que este capítulo dá | Resolução completa |
 |---|---|---|
 | Q15 (a) | média condicional minimiza o EQM | [Q15](../lista_comentada/q15.md) |

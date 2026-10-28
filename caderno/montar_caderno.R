@@ -8,7 +8,7 @@
 #   Simulados — só os enunciados dos três simulados, para resolver no papel
 #   Volume 6 — lista comentada: Q1–Q16 passo a passo na notação dos slides, com o caderno
 #   À mão    — Q2 e Q6 demonstradas linha a linha, no formato de caderno, para treinar no papel
-#   À mão    — blocos 1 a 3 da lista (Q1–Q12) linha a linha, com a folha da Q2/Q6 em apêndice
+#   À mão    — os seis blocos da lista (Q1–Q16) linha a linha, com a folha da Q2/Q6 em apêndice
 #   Volume 7 — apostila da P1: um capítulo por bloco da lista, com teoria, demonstrações, exemplo,
 #              cadeia socrática, diálogo e imagens
 #
@@ -354,14 +354,17 @@ volume_apostila <- function() {
   compilar("caderno_volume7_apostila", md, file.path(BUILD, "capa7.tex"), OPC_IMPRESSAO, passes = 3, impressao = TRUE)
 }
 
-# As folhas de caderno dos blocos 1 a 3 (Q1–Q12); a Q2 e a Q6 completas vêm no apêndice
+# As folhas de caderno dos seis blocos (Q1–Q16); a Q2 e a Q6 completas vêm no apêndice
 volume_amao_blocos <- function() {
   partes <- list("Bloco 1 à mão: Q1 a Q4" = c("apostila/a_mao_cap1.md"),
                  "Bloco 2 à mão: Q5 a Q8" = c("apostila/a_mao_cap2.md"),
                  "Bloco 3 à mão: Q9 a Q12" = c("apostila/a_mao_cap3.md"),
+                 "Bloco 4 à mão: Q13 e Q14" = c("apostila/a_mao_cap4.md"),
+                 "Bloco 5 à mão: Q15" = c("apostila/a_mao_cap5.md"),
+                 "Bloco 6 à mão: Q16" = c("apostila/a_mao_cap6.md"),
                  "Apêndice: Q2 e Q6 completas" = c("lista_comentada/a_mao_q02_q06.md"))
   md <- file.path(BUILD, "amao_blocos.md"); montar_md(partes, md)
-  capa("À mão", "Blocos 1 a 3 da lista (Q1–Q12) linha a linha, na notação dos slides e do caderno",
+  capa("À mão", "Os seis blocos da lista (Q1–Q16) linha a linha, na notação dos slides e do caderno",
        file.path(BUILD, "capa_amao_blocos.tex"))
   compilar("caderno_a_mao_blocos", md, file.path(BUILD, "capa_amao_blocos.tex"), OPC_IMPRESSAO, passes = 3, impressao = TRUE)
 }

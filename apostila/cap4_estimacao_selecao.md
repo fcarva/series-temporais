@@ -315,6 +315,8 @@ A teoria da D4.4 prevê, para o AIC, $P(\chi^2(1)\gt2)=0{,}1573$ **em qualquer**
 
 ## Na prova
 
+**A folha de caderno do bloco** está em [a_mao_cap4.md](a_mao_cap4.md): Q13 e Q14 em 43 linhas numeradas, cada uma com a justificativa, mais a versão para a prova e a conferência em R.
+
 | Questão | O que este capítulo dá | Resolução completa |
 |---|---|---|
 | Q13 | log-verossimilhança condicional do AR(1) e o MQO de $\phi$ | [Q13](../lista_comentada/q13.md) |

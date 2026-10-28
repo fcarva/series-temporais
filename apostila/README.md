@@ -39,7 +39,7 @@ As nove seções têm sempre a mesma ordem, e a ordem é o método:
 1. **Pergunta de abertura.** Responda de cabeça, mesmo errado. É o "não sei" que faz o resto grudar.
 2. **A imagem.** A metáfora do tema e, numa caixa, **onde a analogia quebra**. Os limites da imagem ensinam tanto quanto ela.
 3. **Teoria.** Os resultados, com a página da aula. É o que se cita na prova.
-4. **Demonstrações.** Copie no papel, linha a linha, como na [folha à mão](../lista_comentada/a_mao_q02_q06.md). Depois refaça sem olhar.
+4. **Demonstrações.** Copie no papel, linha a linha. Cada capítulo tem a sua **folha à mão**, com as questões do bloco em linhas numeradas e justificadas: [cap. 1](a_mao_cap1.md) · [cap. 2](a_mao_cap2.md) · [cap. 3](a_mao_cap3.md) · [cap. 4](a_mao_cap4.md) · [cap. 5](a_mao_cap5.md) · [cap. 6](a_mao_cap6.md). Depois refaça sem olhar.
 5. **Exemplo.** Os números que dão corpo à fórmula, todos conferidos em R.
 6. **Cadeia socrática.** Cubra a caixa de resposta e responda primeiro. Cada pergunta prepara a seguinte.
 7. **Diálogo.** O erro mais comum do tema, encenado: o aluno erra, e o professor conduz por perguntas.

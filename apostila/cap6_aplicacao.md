@@ -292,6 +292,8 @@ O pico sazonal quase não muda com o AR. Já $\rho_1$ muda até de sinal, porque
 
 ## Na prova
 
+**A folha de caderno do bloco** está em [a_mao_cap6.md](a_mao_cap6.md): Q16 (a) a (d), mais o ciclo de Box-Jenkins em 41 linhas numeradas, cada uma com a justificativa, mais a versão para a prova e a conferência em R.
+
 | Questão | O que este capítulo dá | Resolução completa |
 |---|---|---|
 | Q16 (a) | o modelo em $B$, com o termo cruzado $+\theta\Theta B^{13}$ | [Q16](../lista_comentada/q16.md) |
