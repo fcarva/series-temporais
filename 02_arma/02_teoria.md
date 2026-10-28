@@ -107,7 +107,7 @@ $$\boxed{\text{AR estacionário}\iff\phi(z)\neq0\ \text{para}\ \lvert z\rvert\le
    - Se o discriminante $a_1^2-4a_2$ for negativo, as raízes são complexas, $b=r(\cos\omega\pm i\sin\omega)$, e a solução é $r^t$ vezes uma combinação de $\cos\omega t$ e $\sin\omega t$: um **ciclo amortecido** se $r\lt1$.
 6. **A ligação com o AR(2).** $y_t=\phi_1y_{t-1}+\phi_2y_{t-2}$ é a equação de segunda ordem com $a_1=-\phi_1$ e $a_2=-\phi_2$. A equação característica é $b^2-\phi_1b-\phi_2=0$. Dividindo $\phi(z)=1-\phi_1z-\phi_2z^2=0$ por $z^2$ e trocando $b=1/z$, obtém-se a mesma equação. Então $\lvert b\rvert\lt1\iff\lvert z\rvert\gt1$.
 
-$$\boxed{y_t=\Big(y_0-\frac{c}{1+a}\Big)(-a)^t+\frac{c}{1+a}\ \text{converge}\iff\lvert a\rvert\lt1;\qquad \text{2ª ordem: }\lvert b_i\rvert\lt1\iff\text{raízes de }\phi(z)\text{ fora do círculo}}$$
+$$\boxed{\begin{gathered}y_t=\Big(y_0-\frac{c}{1+a}\Big)(-a)^t+\frac{c}{1+a}\ \text{converge}\iff\lvert a\rvert\lt1\\ \text{2ª ordem: }\lvert b_i\rvert\lt1\iff\text{raízes de }\phi(z)\text{ fora do círculo}\end{gathered}}$$
 
 **Dois exemplos** (conferidos em [02_arma.R](02_arma.R)):
 

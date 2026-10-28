@@ -9,6 +9,7 @@
 #   Volume 6 — lista comentada: Q1–Q16 passo a passo na notação dos slides, com o caderno
 #   À mão    — Q2 e Q6 demonstradas linha a linha, no formato de caderno, para treinar no papel
 #   À mão    — os seis blocos da lista (Q1–Q16) linha a linha, com a folha da Q2/Q6 em apêndice
+#   P1 completa — o volume único para imprimir: tudo por bloco (caderno/volume_completo.tsv)
 #   Volume 7 — apostila da P1: um capítulo por bloco da lista, com teoria, demonstrações, exemplo,
 #              cadeia socrática, diálogo e imagens
 #
@@ -17,7 +18,7 @@
 # Requer pandoc e LuaLaTeX (TeX Live ou MiKTeX).
 #
 # Rodar: Rscript caderno/montar_caderno.R  (Windows: scripts\r.ps1 caderno\montar_caderno.R)
-#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao, amao_blocos, apostila; sem argumento, tudo
+#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao, amao_blocos, apostila, completo; sem argumento, tudo
 # Saída: caderno/pdf/ (fora do git, exceto o volume 4, o guia, o volume 5 e os simulados,
 #        que vão ao cofre do Obsidian)
 
@@ -80,8 +81,25 @@ SIMBOLOS <- c(
   "\uFE0F"     = ""
 )
 
+# "arquivo.md::Trecho do título": só a seção cujo cabeçalho contém o trecho, até o próximo
+# cabeçalho de nível igual ou maior; o cabeçalho escolhido vira o título de nível 1
+recortar_secao <- function(l, trecho, rel) {
+  fora <- !cumsum(grepl("^\\s*(```|~~~)", l)) %% 2 | grepl("^\\s*(```|~~~)", l)
+  cab <- which(grepl("^#{1,6} ", l) & fora)
+  achou <- cab[vapply(cab, function(i) grepl(trecho, l[i], fixed = TRUE), logical(1))]
+  if (!length(achou)) stop("seção não encontrada: ", rel, " :: ", trecho)
+  ini <- achou[1]; nivel <- nchar(sub("^(#+) .*", "\\1", l[ini]))
+  depois <- cab[cab > ini & nchar(sub("^(#+) .*", "\\1", l[cab])) <= nivel]
+  fim <- if (length(depois)) depois[1] - 1 else length(l)
+  sec <- l[ini:fim]
+  sub_cab <- grepl("^#{1,6} ", sec) & fora[ini:fim]
+  sec[sub_cab] <- sub(paste0("^#{", nivel - 1, "}"), "", sec[sub_cab])
+  sec
+}
+
 preparar_nota <- function(rel) {
-  caminho <- file.path(RAIZ, rel)
+  partes_rel <- strsplit(rel, "::", fixed = TRUE)[[1]]
+  caminho <- file.path(RAIZ, partes_rel[1])
   if (!file.exists(caminho)) stop("nota não encontrada: ", rel)
   l <- readLines(caminho, encoding = "UTF-8", warn = FALSE)
   titulo <- NA_character_
@@ -92,6 +110,7 @@ preparar_nota <- function(rel) {
     if (length(t)) titulo <- gsub('^title:\\s*"?|"\\s*$', "", t[1])
     l <- l[-(1:fim)]
   }
+  if (length(partes_rel) > 1) { l <- recortar_secao(l, partes_rel[2], rel); titulo <- NA_character_ }
   dir_nota <- dirname(caminho)
   em_codigo <- FALSE
   for (i in seq_along(l)) {
@@ -124,7 +143,7 @@ preparar_nota <- function(rel) {
   # rebaixa todos um nível e usa o título do frontmatter como capítulo
   fora_codigo <- !cumsum(grepl("^\\s*(```|~~~)", l)) %% 2 | grepl("^\\s*(```|~~~)", l)
   h1 <- grepl("^# ", l) & fora_codigo
-  nome_cap <- if (is.na(titulo)) basename(rel) else titulo
+  nome_cap <- if (is.na(titulo)) basename(partes_rel[1]) else titulo
   if (sum(h1) > 1) {
     cab <- grepl("^#{1,5} ", l) & fora_codigo
     l[cab] <- paste0("#", l[cab])
@@ -369,9 +388,47 @@ volume_amao_blocos <- function() {
   compilar("caderno_a_mao_blocos", md, file.path(BUILD, "capa_amao_blocos.tex"), OPC_IMPRESSAO, passes = 3, impressao = TRUE)
 }
 
+# O volume único da P1: tudo por bloco da lista, na ordem de caderno/volume_completo.tsv
+# (fonte de verdade, lida também por autoestudo/avaliar_volume.R). Fora: INPC, Lista 01 e AU06.
+BLOCOS_Q <- list(`1` = 1:4, `2` = 5:8, `3` = 9:12, `4` = 13:14, `5` = 15, `6` = 16)
+volume_completo <- function() {
+  man <- utils::read.delim(file.path(CAD, "volume_completo.tsv"), quote = "", stringsAsFactors = FALSE,
+                           encoding = "UTF-8", na.strings = character())
+  if (anyDuplicated(man$fonte)) stop("fonte repetida no manifesto: ", man$fonte[duplicated(man$fonte)][1])
+  if (any(grepl("^(trabalho_inpc|lista01)/", man$fonte))) stop("o volume não leva o INPC")
+  # mapa das questões: página de cada camada, por \pageref nos rótulos do manifesto
+  pr <- function(r) if (r %in% man$rotulo) sprintf("\\pageref{vc:%s}", r) else "--"
+  linhas_mapa <- vapply(1:16, function(q) {
+    b <- names(BLOCOS_Q)[vapply(BLOCOS_Q, function(v) q %in% v, logical(1))]
+    folha <- if (q %in% c(2, 6)) sprintf("%s, %s", pr(paste0("am", b)), pr(paste0("amq", q))) else pr(paste0("am", b))
+    sprintf("Q%d & %s & %s & %s & %s \\\\", q, pr(paste0("ap", b)), folha, pr(sprintf("lc%02d", q)), pr(paste0("bb", b)))
+  }, character(1))
+  mapa <- c("# Mapa das questões", "",
+            "Cada questão da lista aparece em quatro camadas, nesta ordem dentro do bloco: o capítulo da apostila (teoria, imagens, perguntas), a folha à mão (a demonstração linha a linha), a nota comentada (slide, livro e caderno) e as variações do banco. A tabela dá a página de cada uma.",
+            "", "```{=latex}", "\\begin{center}\\small", "\\begin{tabular}{lcccc}", "\\toprule",
+            "Questão & Apostila & Folha à mão & Comentada & Banco \\\\", "\\midrule", linhas_mapa,
+            "\\bottomrule", "\\end{tabular}", "\\end{center}", "```", "")
+  linhas <- c(bloco_latex("\\part{Mapa}"), mapa)
+  for (parte in unique(man$parte)) {
+    linhas <- c(linhas, bloco_latex(sprintf("\\part{%s}", parte)))
+    for (i in which(man$parte == parte)) {
+      nota <- preparar_nota(man$fonte[i])
+      if (identical(man$impar[i], "sim")) linhas <- c(linhas, bloco_latex("\\cleardoublepage"))
+      h <- which(grepl("^# ", nota))[1]
+      nota <- append(nota, bloco_latex(sprintf("\\label{vc:%s}", man$rotulo[i])), after = h)
+      linhas <- c(linhas, nota)
+    }
+  }
+  md <- file.path(BUILD, "completo.md")
+  writeLines(enc2utf8(linhas), md, useBytes = TRUE)
+  capa("P1 completa", "Teoria, folhas à mão, lista comentada, banco, simulados e formulário, bloco a bloco da lista",
+       file.path(BUILD, "capa_completo.tex"))
+  compilar("caderno_p1_completo", md, file.path(BUILD, "capa_completo.tex"), OPC_IMPRESSAO, passes = 3, impressao = TRUE)
+}
+
 ## ---- execução ------------------------------------------------------------------------
 alvos <- commandArgs(trailingOnly = TRUE)
-if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila")
+if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo")
 cat("pandoc:  ", PANDOC, "\nlualatex:", LUALATEX, "\n")
 if ("teoria" %in% alvos) volume_teoria()
 if ("lista" %in% alvos) volume_lista()
@@ -384,4 +441,5 @@ if ("comentada" %in% alvos) volume_comentada()
 if ("amao" %in% alvos) volume_amao()
 if ("amao_blocos" %in% alvos) volume_amao_blocos()
 if ("apostila" %in% alvos) volume_apostila()
+if ("completo" %in% alvos) volume_completo()
 cat("\nPDFs em caderno/pdf/\n")

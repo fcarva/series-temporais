@@ -1,0 +1,55 @@
+parte	fonte	rotulo	impar
+Como usar este volume	prova/README.md	guia	
+Como usar este volume	apostila/README.md	apostila	
+Como usar este volume	lista_comentada/README.md::1. Da lista para os slides	traducao	
+Como usar este volume	lista_comentada/README.md::2. Caixa de ferramentas	ferramentas	
+Como usar este volume	lista_comentada/README.md::3. O meu caderno	caderno	
+Bloco 1 — Processos e momentos (Q1–Q4)	apostila/cap1_processos_momentos.md	ap1	
+Bloco 1 — Processos e momentos (Q1–Q4)	apostila/a_mao_cap1.md	am1	
+Bloco 1 — Processos e momentos (Q1–Q4)	lista_comentada/a_mao_q02_q06.md::Q2 ·	amq2	
+Bloco 1 — Processos e momentos (Q1–Q4)	lista_comentada/q01.md	lc01	
+Bloco 1 — Processos e momentos (Q1–Q4)	lista_comentada/q02.md	lc02	
+Bloco 1 — Processos e momentos (Q1–Q4)	lista_comentada/q03.md	lc03	
+Bloco 1 — Processos e momentos (Q1–Q4)	lista_comentada/q04.md	lc04	
+Bloco 1 — Processos e momentos (Q1–Q4)	prova/banco.md::Bloco 1 —	bb1	
+Bloco 1 — Processos e momentos (Q1–Q4)	01_processos_estacionariedade/01_teoria.md::D01.4	af11	
+Bloco 2 — AR, MA e ARMA (Q5–Q8)	apostila/cap2_ar_ma_arma.md	ap2	
+Bloco 2 — AR, MA e ARMA (Q5–Q8)	apostila/a_mao_cap2.md	am2	
+Bloco 2 — AR, MA e ARMA (Q5–Q8)	lista_comentada/a_mao_q02_q06.md::Q6 ·	amq6	
+Bloco 2 — AR, MA e ARMA (Q5–Q8)	lista_comentada/q05.md	lc05	
+Bloco 2 — AR, MA e ARMA (Q5–Q8)	lista_comentada/q06.md	lc06	
+Bloco 2 — AR, MA e ARMA (Q5–Q8)	lista_comentada/q07.md	lc07	
+Bloco 2 — AR, MA e ARMA (Q5–Q8)	lista_comentada/q08.md	lc08	
+Bloco 2 — AR, MA e ARMA (Q5–Q8)	prova/banco.md::Bloco 2 —	bb2	
+Bloco 2 — AR, MA e ARMA (Q5–Q8)	02_arma/02_teoria.md::D02.4	af21	
+Bloco 2 — AR, MA e ARMA (Q5–Q8)	02_arma/02_teoria.md::D02.5	af22	
+Bloco 2 — AR, MA e ARMA (Q5–Q8)	02_arma/02_teoria.md::4. A tabela de identificação	af23	
+Bloco 3 — Integrados, ARIMA e SARIMA (Q9–Q12)	apostila/cap3_integrados_sarima.md	ap3	
+Bloco 3 — Integrados, ARIMA e SARIMA (Q9–Q12)	apostila/a_mao_cap3.md	am3	
+Bloco 3 — Integrados, ARIMA e SARIMA (Q9–Q12)	lista_comentada/q09.md	lc09	
+Bloco 3 — Integrados, ARIMA e SARIMA (Q9–Q12)	lista_comentada/q10.md	lc10	
+Bloco 3 — Integrados, ARIMA e SARIMA (Q9–Q12)	lista_comentada/q11.md	lc11	
+Bloco 3 — Integrados, ARIMA e SARIMA (Q9–Q12)	lista_comentada/q12.md	lc12	
+Bloco 3 — Integrados, ARIMA e SARIMA (Q9–Q12)	prova/banco.md::Bloco 3 —	bb3	
+Bloco 3 — Integrados, ARIMA e SARIMA (Q9–Q12)	03_arima_sarima/03_teoria.md::2. Testes de raiz unitária	af31	
+Bloco 4 — Estimação e seleção (Q13–Q14)	apostila/cap4_estimacao_selecao.md	ap4	
+Bloco 4 — Estimação e seleção (Q13–Q14)	apostila/a_mao_cap4.md	am4	
+Bloco 4 — Estimação e seleção (Q13–Q14)	lista_comentada/q13.md	lc13	
+Bloco 4 — Estimação e seleção (Q13–Q14)	lista_comentada/q14.md	lc14	
+Bloco 4 — Estimação e seleção (Q13–Q14)	prova/banco.md::Bloco 4 —	bb4	
+Bloco 5 — Previsão (Q15)	apostila/cap5_previsao.md	ap5	
+Bloco 5 — Previsão (Q15)	apostila/a_mao_cap5.md	am5	
+Bloco 5 — Previsão (Q15)	lista_comentada/q15.md	lc15	
+Bloco 5 — Previsão (Q15)	prova/banco.md::Bloco 5 —	bb5	
+Bloco 6 — Aplicação (Q16)	apostila/cap6_aplicacao.md	ap6	
+Bloco 6 — Aplicação (Q16)	apostila/a_mao_cap6.md	am6	
+Bloco 6 — Aplicação (Q16)	lista_comentada/q16.md	lc16	
+Bloco 6 — Aplicação (Q16)	prova/banco.md::Bloco 6 —	bb6	
+Treino: simulados, gabaritos e log de erros	prova/simulado_01.md	sim1	sim
+Treino: simulados, gabaritos e log de erros	prova/simulado_02.md	sim2	sim
+Treino: simulados, gabaritos e log de erros	prova/simulado_03.md	sim3	sim
+Treino: simulados, gabaritos e log de erros	prova/simulado_01_gabarito.md	gab1	sim
+Treino: simulados, gabaritos e log de erros	prova/simulado_02_gabarito.md	gab2	
+Treino: simulados, gabaritos e log de erros	prova/simulado_03_gabarito.md	gab3	
+Treino: simulados, gabaritos e log de erros	prova/log_erros.md	log	sim
+Consulta rápida	formulario/formulario.md	formulario	

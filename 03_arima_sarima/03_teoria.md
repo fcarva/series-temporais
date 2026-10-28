@@ -155,7 +155,7 @@ $$\boxed{\tau\ \text{sob } H_0\ \text{segue Dickey-Fuller, não } N(0,1);\qquad 
 
    Com um salto de 6, cerca de 3,6 desvios-padrão de $u_t$, o ADF comum rejeita só 5,4% das vezes, o mesmo que faria se houvesse raiz unitária de verdade. Com a dummy, rejeita quase sempre.
 
-$$\boxed{\text{quebra de nível ignorada}\Rightarrow\text{ADF viesado para "raiz unitária"};\qquad\text{data conhecida: dummy na regressão e crítico próprio}}$$
+$$\boxed{\begin{gathered}\text{quebra de nível ignorada}\Rightarrow\text{ADF viesado para "raiz unitária"}\\ \text{data conhecida: dummy na regressão e crítico próprio}\end{gathered}}$$
 
 Quando a data da quebra não é conhecida e é escolhida pelos dados, os críticos mudam de novo. É o caso de Zivot e Andrews (1992), que procuram a quebra que mais favorece a alternativa.
 
