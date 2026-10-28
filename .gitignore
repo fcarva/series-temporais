@@ -41,3 +41,5 @@ lista01/saidas/*.rds
 lista01/*.tex
 lista01/*.log
 lista01/relatorio_lista01_files/
+autoestudo/resultados_apostila.tsv
+autoestudo/cobertura_apostila.tsv

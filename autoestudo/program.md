@@ -66,3 +66,43 @@ O loop do autoresearch não para. Aqui, ele para quando:
 - ou o humano interrompe.
 
 No fim, o agente resume o que entrou, o que foi descartado e por quê, e o humano revisa o diff antes de levar para o branch principal.
+
+## Modo apostila (P1 de 05/11)
+
+Mesmo loop, com outra régua e outro alvo: a pasta `apostila/`, seis capítulos, um por bloco da lista teórica (Q1–Q16).
+
+| Arquivo | Papel |
+|---|---|
+| `autoestudo/apostila_rubrica.tsv` | a régua: por capítulo, nove elementos obrigatórios (com peso) e os tópicos do bloco |
+| `autoestudo/avaliar_apostila.R` | a métrica: `nota_apostila`, por capítulo e no total |
+
+As duas ficam **fixas durante o loop**, como `topicos.tsv` e `avaliar.R`.
+
+**Esqueleto de cada capítulo**, com o critério mínimo de cada elemento:
+
+| Seção (`##`) | Conta quando |
+|---|---|
+| Pergunta de abertura | tem uma pergunta e pelo menos 40 palavras |
+| A imagem | traz a frase "onde a analogia quebra" e pelo menos 120 palavras |
+| Teoria | cita 3 ou mais páginas de aula ("AU02, p. 31") e tem matemática em bloco |
+| Demonstrações | tem 2 ou mais subseções `###` com 6 ou mais linhas `\text{(n)}` cada, e 2 ou mais `\boxed` |
+| Exemplo | tem 4 ou mais números `ap_*` conferidos numa tabela `chave_R` |
+| Cadeia socrática | tem 6 ou mais perguntas `**P1.** …?`, cada uma seguida de um `> [!TIP]` com a resposta |
+| Diálogo | tem 4 ou mais falas de `**Professor:**` e 4 ou mais de `**Aluno:**` |
+| Na prova | liga para a nota comentada de cada questão do bloco e traz um checklist |
+| No material do professor | cita 3 ou mais páginas de aula e um livro |
+
+Um **tópico** do bloco só conta se aparece em Teoria, Demonstrações ou Exemplo.
+
+**O experimento** é um elemento de um capítulo. Escolha a maior lacuna do capítulo da vez, na ordem cap2, cap1, cap3, cap5, cap4, cap6. Depois:
+1. escreva o elemento;
+2. rode `bash scripts/build.sh`;
+3. rode `Rscript autoestudo/avaliar_apostila.R`;
+4. decida **keep** se o build passa e a nota sobe, ou **discard** se não;
+5. registre a decisão em `autoestudo/resultados_apostila.tsv`, fora do git.
+
+**Regras de conteúdo:**
+- a notação é a do professor: $L$, $\varepsilon_t$, sinal positivo do MA, $\Omega_t$; a tradução para a lista vem no fim;
+- as fontes externas de `apostila/fontes.md` inspiram imagens e perguntas, mas o texto não depende delas;
+- as demonstrações seguem o formato de `lista_comentada/a_mao_q02_q06.md`: linhas numeradas e justificativa entre colchetes;
+- nada de palavra-chave solta para fazer a régua contar.
