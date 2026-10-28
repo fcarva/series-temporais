@@ -8,7 +8,7 @@
 #   Simulados — só os enunciados dos três simulados, para resolver no papel
 #   Volume 6 — lista comentada: Q1–Q16 passo a passo na notação dos slides, com o caderno
 #   À mão    — Q2 e Q6 demonstradas linha a linha, no formato de caderno, para treinar no papel
-#   À mão 2  — cap. 2 da apostila (Q5–Q8) linha a linha, com a folha da Q2/Q6 em apêndice
+#   À mão    — blocos 1 a 3 da lista (Q1–Q12) linha a linha, com a folha da Q2/Q6 em apêndice
 #   Volume 7 — apostila da P1: um capítulo por bloco da lista, com teoria, demonstrações, exemplo,
 #              cadeia socrática, diálogo e imagens
 #
@@ -17,7 +17,7 @@
 # Requer pandoc e LuaLaTeX (TeX Live ou MiKTeX).
 #
 # Rodar: Rscript caderno/montar_caderno.R  (Windows: scripts\r.ps1 caderno\montar_caderno.R)
-#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao, amao2, apostila; sem argumento, tudo
+#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao, amao_blocos, apostila; sem argumento, tudo
 # Saída: caderno/pdf/ (fora do git, exceto o volume 4, o guia, o volume 5 e os simulados,
 #        que vão ao cofre do Obsidian)
 
@@ -354,18 +354,21 @@ volume_apostila <- function() {
   compilar("caderno_volume7_apostila", md, file.path(BUILD, "capa7.tex"), OPC_IMPRESSAO, passes = 3, impressao = TRUE)
 }
 
-# O bloco 2 da lista (Q5–Q8) em formato de caderno; a Q6 completa vem no apêndice
-volume_amao2 <- function() {
-  partes <- list("Bloco 2 à mão: Q5 a Q8" = c("apostila/a_mao_cap2.md"),
+# As folhas de caderno dos blocos 1 a 3 (Q1–Q12); a Q2 e a Q6 completas vêm no apêndice
+volume_amao_blocos <- function() {
+  partes <- list("Bloco 1 à mão: Q1 a Q4" = c("apostila/a_mao_cap1.md"),
+                 "Bloco 2 à mão: Q5 a Q8" = c("apostila/a_mao_cap2.md"),
+                 "Bloco 3 à mão: Q9 a Q12" = c("apostila/a_mao_cap3.md"),
                  "Apêndice: Q2 e Q6 completas" = c("lista_comentada/a_mao_q02_q06.md"))
-  md <- file.path(BUILD, "amao2.md"); montar_md(partes, md)
-  capa("À mão — cap. 2", "AR, MA e ARMA: Q5 a Q8 linha a linha, na notação dos slides e do caderno", file.path(BUILD, "capa_amao2.tex"))
-  compilar("caderno_a_mao_cap2", md, file.path(BUILD, "capa_amao2.tex"), OPC_IMPRESSAO, passes = 3, impressao = TRUE)
+  md <- file.path(BUILD, "amao_blocos.md"); montar_md(partes, md)
+  capa("À mão", "Blocos 1 a 3 da lista (Q1–Q12) linha a linha, na notação dos slides e do caderno",
+       file.path(BUILD, "capa_amao_blocos.tex"))
+  compilar("caderno_a_mao_blocos", md, file.path(BUILD, "capa_amao_blocos.tex"), OPC_IMPRESSAO, passes = 3, impressao = TRUE)
 }
 
 ## ---- execução ------------------------------------------------------------------------
 alvos <- commandArgs(trailingOnly = TRUE)
-if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao2", "apostila")
+if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila")
 cat("pandoc:  ", PANDOC, "\nlualatex:", LUALATEX, "\n")
 if ("teoria" %in% alvos) volume_teoria()
 if ("lista" %in% alvos) volume_lista()
@@ -376,6 +379,6 @@ if ("prova" %in% alvos) volume_prova()
 if ("simulados" %in% alvos) volume_simulados()
 if ("comentada" %in% alvos) volume_comentada()
 if ("amao" %in% alvos) volume_amao()
-if ("amao2" %in% alvos) volume_amao2()
+if ("amao_blocos" %in% alvos) volume_amao_blocos()
 if ("apostila" %in% alvos) volume_apostila()
 cat("\nPDFs em caderno/pdf/\n")

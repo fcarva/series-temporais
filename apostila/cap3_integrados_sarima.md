@@ -354,6 +354,8 @@ No R, $\rho_1=0$, $\rho_4=0{,}6$ e $\rho_8=0{,}36$: a FAC só vive nos múltiplo
 
 ## Na prova
 
+**A folha de caderno do bloco** está em [a_mao_cap3.md](a_mao_cap3.md): Q9 a Q12 em 67 linhas numeradas, cada uma com a justificativa, mais a versão para a prova e a conferência em R.
+
 | Questão | O que este capítulo dá | Resolução completa |
 |---|---|---|
 | Q9 | sobrediferenciação do AR(1): $(1-\phi B)w_t=(1-B)\varepsilon_t$, raiz $z=1$, sem AR($\infty$) | [Q9](../lista_comentada/q09.md) |

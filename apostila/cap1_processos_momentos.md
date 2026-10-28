@@ -361,6 +361,8 @@ Cada média temporal acerta o **seu** $Z$, não o $\mu=0$ do processo. Já a mé
 
 ## Na prova
 
+**A folha de caderno do bloco** está em [a_mao_cap1.md](a_mao_cap1.md): Q1 a Q4 (a Q2 em esqueleto, com a folha completa ao lado) em 52 linhas numeradas, cada uma com a justificativa, mais a versão para a prova e a conferência em R.
+
 | Questão | O que este capítulo dá | Resolução completa |
 |---|---|---|
 | Q1 | momentos do passeio com drift e $y_0=10$; não estacionário | [Q1](../lista_comentada/q01.md) |

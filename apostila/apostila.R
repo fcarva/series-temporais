@@ -239,4 +239,47 @@ registrar("ap_am2_q8_rho1", g1 / g0); registrar("ap_am2_q8_rho2", al * g1 / g0)
 registrar("ap_am2_q8_ez4", 1 * 4 + 0.5 * 4 * 5 / 2); registrar("ap_am2_q8_ez4_item", 1 * 4 + 0.5 / 2 * 16)
 registrar("ap_am2_q8_vz4", 4); registrar("ap_am2_q8_vz4_item", 1 + 0.5 * 4)
 
+## ---- Folha à mão do capítulo 1 (Q1, Q3 e Q4) ---------------------------------------------
+# Q3: z1 = MA(1) com theta = 0,5 e sigma2 = 0,4; z2 = MA(2) com theta = (-1,1; 0,3) e sigma2 = 1
+g_z1 <- acvf_arma(numeric(0), 0.5, 0.4, 2, "r"); g_z2 <- acvf_arma(numeric(0), c(-1.1, 0.3), 1, 3, "r")
+registrar("ap_am1_z1_g0", g_z1[1]); registrar("ap_am1_z1_g1", g_z1[2])
+registrar("ap_am1_z2_g0", g_z2[1]); registrar("ap_am1_z2_g1", g_z2[2]); registrar("ap_am1_z2_g2", g_z2[3])
+registrar("ap_am1_z2_delta", 1.1^2 - 4 * 0.3); registrar("ap_am1_z2_zmin", min(modulo_raizes_ma(c(-1.1, 0.3), "r")))
+set.seed(31)
+n <- 200000
+z1 <- as.numeric(stats::arima.sim(list(ma = 0.5), n, sd = sqrt(0.4)))
+z2 <- as.numeric(stats::arima.sim(list(ma = c(-1.1, 0.3)), n))
+z3 <- z1 + 2 * z2
+ac <- stats::acf(z3, lag.max = 3, type = "covariance", plot = FALSE)$acf
+registrar("ap_am1_z3_g0_sim", ac[1]); registrar("ap_am1_z3_g1_sim", ac[2])
+registrar("ap_am1_z3_g2_sim", ac[3]); registrar("ap_am1_z3_g3_sim", ac[4])
+# Q1: passeio com drift; a FAC "amostral" de um passeio decai devagar: corr(y_100, y_90)
+registrar("ap_am1_rw_corr_100_90", sqrt(90 / 100))
+
+## ---- Folha à mão do capítulo 3 (Q9 a Q12) ------------------------------------------------
+# Q10(b): ARIMA(1,1,1) com phi = 0,5 e theta_lista = 0,3 -> y_t = 1,5 y_{t-1} - 0,5 y_{t-2} + a_t - 0,3 a_{t-1}
+registrar("ap_am3_q10_c1", 1 + 0.5); registrar("ap_am3_q10_c2", -0.5); registrar("ap_am3_q10_soma", 1.5 - 0.5)
+# Q12: SARIMA(1,1,0)(0,1,1)_4 com phi = 0,4 e Theta_lista = 0,6 (slides: Theta_1 = -0,6)
+ph <- 0.4; TH <- -0.6
+cf <- c(1 + ph, -ph, 0, 1, -(1 + ph), ph)
+for (j in 1:6) registrar(sprintf("ap_am3_q12_c%d", j), cf[j])
+set.seed(32)
+n <- 400; e <- stats::rnorm(n); w <- numeric(n)
+for (t in 6:n) w[t] <- ph * w[t - 1] + e[t] + TH * e[t - 4]
+y <- numeric(n); for (t in 6:n) y[t] <- y[t - 1] + y[t - 4] - y[t - 5] + w[t]
+y <- stats::ts(y[101:n], frequency = 4)
+fit <- stats::arima(y, order = c(1, 1, 0), seasonal = list(order = c(0, 1, 1), period = 4),
+                    fixed = c(ph, TH), transform.pars = FALSE)
+pr <- as.numeric(stats::predict(fit, n.ahead = 5)$pred)
+yy <- as.numeric(y); ee <- as.numeric(stats::resid(fit)); TT <- length(yy)
+f <- numeric(5); hist <- yy
+for (h in 1:5) {
+  ext <- c(hist, f[seq_len(h - 1)])
+  k <- length(ext) + 1
+  ma <- if (h <= 4) TH * ee[TT + h - 4] else 0
+  f[h] <- sum(cf * rev(ext[(k - 6):(k - 1)])) + ma
+}
+registrar("ap_am3_q12_dif", max(abs(f - pr)))
+registrar("ap_am3_q12_perda", 1 + 4 * 1)
+
 gravar_resultados("ap")

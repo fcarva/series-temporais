@@ -197,3 +197,26 @@ ap_am2_q8_ez4,            9
 ap_am2_q8_ez4_item,            8
 ap_am2_q8_vz4,            4
 ap_am2_q8_vz4_item,            3
+ap_am1_z1_g0,          0.5
+ap_am1_z1_g1,          0.2
+ap_am1_z2_g0,          2.3
+ap_am1_z2_g1,        -1.43
+ap_am1_z2_g2,          0.3
+ap_am1_z2_delta,         0.01
+ap_am1_z2_zmin,1.66666666667
+ap_am1_z3_g0_sim,9.73053716963
+ap_am1_z3_g1_sim,-5.55504430512
+ap_am1_z3_g2_sim,1.22922140035
+ap_am1_z3_g3_sim,-0.0137143610923
+ap_am1_rw_corr_100_90,0.948683298051
+ap_am3_q10_c1,          1.5
+ap_am3_q10_c2,         -0.5
+ap_am3_q10_soma,            1
+ap_am3_q12_c1,          1.4
+ap_am3_q12_c2,         -0.4
+ap_am3_q12_c3,            0
+ap_am3_q12_c4,            1
+ap_am3_q12_c5,         -1.4
+ap_am3_q12_c6,          0.4
+ap_am3_q12_dif,1.70530256582e-13
+ap_am3_q12_perda,            5
