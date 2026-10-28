@@ -8,13 +8,15 @@
 #   Simulados — só os enunciados dos três simulados, para resolver no papel
 #   Volume 6 — lista comentada: Q1–Q16 passo a passo na notação dos slides, com o caderno
 #   À mão    — Q2 e Q6 demonstradas linha a linha, no formato de caderno, para treinar no papel
+#   Volume 7 — apostila da P1: um capítulo por bloco da lista, com teoria, demonstrações, exemplo,
+#              cadeia socrática, diálogo e imagens
 #
 # Caminho: nota .md -> preparo em R (tira o frontmatter, resolve caminhos de figura,
 # troca emoji por símbolo) -> pandoc (commonmark_x + filtros.lua) -> .tex -> LuaLaTeX.
 # Requer pandoc e LuaLaTeX (TeX Live ou MiKTeX).
 #
 # Rodar: Rscript caderno/montar_caderno.R  (Windows: scripts\r.ps1 caderno\montar_caderno.R)
-#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao; sem argumento, tudo
+#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao, apostila; sem argumento, tudo
 # Saída: caderno/pdf/ (fora do git, exceto o volume 4, o guia, o volume 5 e os simulados,
 #        que vão ao cofre do Obsidian)
 
@@ -334,9 +336,26 @@ volume_amao <- function() {
   compilar("caderno_a_mao_q02_q06", md, file.path(BUILD, "capa_amao.tex"), OPC_IMPRESSAO, passes = 3, impressao = TRUE)
 }
 
+# A apostila da P1: um capítulo por bloco da lista teórica
+volume_apostila <- function() {
+  partes <- list(
+    "Como usar a apostila" = c("apostila/README.md"),
+    "Bloco 1 — Processos e momentos" = c("apostila/cap1_processos_momentos.md"),
+    "Bloco 2 — AR, MA e ARMA" = c("apostila/cap2_ar_ma_arma.md"),
+    "Bloco 3 — Integrados, ARIMA e SARIMA" = c("apostila/cap3_integrados_sarima.md"),
+    "Bloco 4 — Estimação e seleção" = c("apostila/cap4_estimacao_selecao.md"),
+    "Bloco 5 — Previsão" = c("apostila/cap5_previsao.md"),
+    "Bloco 6 — Aplicação" = c("apostila/cap6_aplicacao.md")
+  )
+  md <- file.path(BUILD, "volume7.md"); montar_md(partes, md)
+  capa("Volume 7", "Apostila da P1: teoria, demonstrações, exemplos, perguntas e imagens, bloco a bloco da lista",
+       file.path(BUILD, "capa7.tex"))
+  compilar("caderno_volume7_apostila", md, file.path(BUILD, "capa7.tex"), OPC_IMPRESSAO, passes = 3, impressao = TRUE)
+}
+
 ## ---- execução ------------------------------------------------------------------------
 alvos <- commandArgs(trailingOnly = TRUE)
-if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao")
+if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "apostila")
 cat("pandoc:  ", PANDOC, "\nlualatex:", LUALATEX, "\n")
 if ("teoria" %in% alvos) volume_teoria()
 if ("lista" %in% alvos) volume_lista()
@@ -347,4 +366,5 @@ if ("prova" %in% alvos) volume_prova()
 if ("simulados" %in% alvos) volume_simulados()
 if ("comentada" %in% alvos) volume_comentada()
 if ("amao" %in% alvos) volume_amao()
+if ("apostila" %in% alvos) volume_apostila()
 cat("\nPDFs em caderno/pdf/\n")
