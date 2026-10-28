@@ -155,3 +155,45 @@ ap_c2_arma_psi2,         1.12
 ap_c2_arma_psi3,        0.896
 ap_c2_arma_rho1,0.893103448276
 ap_c2_arma_rho1_r,0.893103448276
+ap_am2_q5m1_z,            2
+ap_am2_q5m1_psi1,          0.5
+ap_am2_q5m1_psi2,         0.25
+ap_am2_q5m1_psi3,        0.125
+ap_am2_q5m1_psi4,       0.0625
+ap_am2_q5m2_delta,         0.09
+ap_am2_q5m2_z1,            2
+ap_am2_q5m2_z2,         1.25
+ap_am2_q5m2_zmin_r,         1.25
+ap_am2_q5m2_pi1,         -1.3
+ap_am2_q5m2_pi2,        -1.29
+ap_am2_q5m2_pi3,       -1.157
+ap_am2_q5m2_pi4,      -0.9881
+ap_am2_q5m2_dif,            0
+ap_am2_q5m3_psi1,         -0.8
+ap_am2_q5m3_psi2,            0
+ap_am2_q5m3_dif,            0
+ap_am2_q5m3_pi1,         -0.8
+ap_am2_q5m3_pi2,        -0.64
+ap_am2_q5m3_pi3,       -0.512
+ap_am2_q5m3_pi4,      -0.4096
+ap_am2_q7_rho1,       0.9375
+ap_am2_q7_rho2,      0.80625
+ap_am2_q7_rho2_formula,      0.80625
+ap_am2_q7_g0_rho,12.9032258065
+ap_am2_q7_g0_formula,12.9032258065
+ap_am2_q7_g0_r,12.9032258065
+ap_am2_q7_f1,          0.4
+ap_am2_q7_f2,          0.1
+ap_am2_q7_f3,          3.1
+ap_am2_q8_g0,     2.265625
+ap_am2_q8_g1,     1.659375
+ap_am2_q8_g0_r,     2.265625
+ap_am2_q8_g1_r,     1.659375
+ap_am2_q8_item1,     2.265625
+ap_am2_q8_item2,     2.259375
+ap_am2_q8_rho1,0.732413793103
+ap_am2_q8_rho2,0.439448275862
+ap_am2_q8_ez4,            9
+ap_am2_q8_ez4_item,            8
+ap_am2_q8_vz4,            4
+ap_am2_q8_vz4_item,            3

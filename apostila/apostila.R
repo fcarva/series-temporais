@@ -198,4 +198,45 @@ registrar("ap_c2_arma_psi1", ps[2]); registrar("ap_c2_arma_psi2", ps[3]); regist
 registrar("ap_c2_arma_rho1", (1 + 0.8 * 0.6) * (0.8 + 0.6) / (1 + 2 * 0.8 * 0.6 + 0.6^2))
 registrar("ap_c2_arma_rho1_r", stats::ARMAacf(ar = 0.8, ma = 0.6, lag.max = 1)[2])
 
+## ---- Folha à mão do capítulo 2 (Q5, Q7 e Q8) ---------------------------------------------
+# Q5 (1): AR(1) com phi = 0,5
+registrar("ap_am2_q5m1_z", 1 / 0.5)
+ps <- pesos_psi(0.5, numeric(0), 4, "r")
+for (j in 1:4) registrar(sprintf("ap_am2_q5m1_psi%d", j), ps[j + 1])
+# Q5 (2): MA(2) com theta(z) = 1 - 1,3 z + 0,4 z^2 (slides: theta_1 = -1,3, theta_2 = 0,4)
+a <- 0.4; b <- -1.3; c0 <- 1
+de <- b^2 - 4 * a * c0
+registrar("ap_am2_q5m2_delta", de); registrar("ap_am2_q5m2_z1", (-b + sqrt(de)) / (2 * a)); registrar("ap_am2_q5m2_z2", (-b - sqrt(de)) / (2 * a))
+registrar("ap_am2_q5m2_zmin_r", min(modulo_raizes_ma(c(-1.3, 0.4), "r")))
+cc <- numeric(5); cc[1] <- 1
+for (j in 2:5) cc[j] <- 1.3 * cc[j - 1] - 0.4 * (if (j >= 3) cc[j - 2] else 0)
+pis <- pesos_pi(numeric(0), c(-1.3, 0.4), 4, "r")
+for (j in 1:4) registrar(sprintf("ap_am2_q5m2_pi%d", j), -cc[j + 1])
+registrar("ap_am2_q5m2_dif", max(abs(-cc[2:5] - pis)))
+# Q5 (3): fator comum -> MA(1) com theta_1 = -0,8
+ps3 <- pesos_psi(0.5, c(-1.3, 0.4), 20, "r"); ps1 <- pesos_psi(numeric(0), -0.8, 20, "r")
+registrar("ap_am2_q5m3_psi1", ps3[2]); registrar("ap_am2_q5m3_psi2", ps3[3])
+registrar("ap_am2_q5m3_dif", max(abs(ps3 - ps1)))
+for (j in 1:4) registrar(sprintf("ap_am2_q5m3_pi%d", j), -(0.8)^j)
+# Q7: AR(2) do caderno, phi_1 = 1,5 e phi_2 = -0,6, sigma2 = 1
+p1 <- 1.5; p2 <- -0.6
+r1 <- p1 / (1 - p2); r2 <- p1 * r1 + p2
+registrar("ap_am2_q7_rho1", r1); registrar("ap_am2_q7_rho2", r2)
+registrar("ap_am2_q7_rho2_formula", (p1^2 + p2 - p2^2) / (1 - p2))
+registrar("ap_am2_q7_g0_rho", 1 / (1 - p1 * r1 - p2 * r2))
+registrar("ap_am2_q7_g0_formula", (1 - p2) / ((1 + p2) * ((1 - p2)^2 - p1^2)))
+registrar("ap_am2_q7_g0_r", acvf_arma(c(p1, p2), numeric(0), 1, 0)[1])
+registrar("ap_am2_q7_f1", 1 + p2); registrar("ap_am2_q7_f2", 1 - p2 - p1); registrar("ap_am2_q7_f3", 1 - p2 + p1)
+# Q8 (I): alpha = 0,6, beta = 0,3, sigma2 = 1
+al <- 0.6; be <- 0.3
+g0 <- (1 + 2 * al * be + be^2) / (1 - al^2); g1 <- al * g0 + be
+registrar("ap_am2_q8_g0", g0); registrar("ap_am2_q8_g1", g1)
+registrar("ap_am2_q8_g0_r", acvf_arma(al, be, 1, 1, "r")[1]); registrar("ap_am2_q8_g1_r", acvf_arma(al, be, 1, 1, "r")[2])
+registrar("ap_am2_q8_item1", al * g1 + 1 + be * (al + be))
+registrar("ap_am2_q8_item2", al * (g0 + 1) + be)
+registrar("ap_am2_q8_rho1", g1 / g0); registrar("ap_am2_q8_rho2", al * g1 / g0)
+# Q8 (II): c = 1, theta = 0,5, Z0 = 0, t = 4
+registrar("ap_am2_q8_ez4", 1 * 4 + 0.5 * 4 * 5 / 2); registrar("ap_am2_q8_ez4_item", 1 * 4 + 0.5 / 2 * 16)
+registrar("ap_am2_q8_vz4", 4); registrar("ap_am2_q8_vz4_item", 1 + 0.5 * 4)
+
 gravar_resultados("ap")

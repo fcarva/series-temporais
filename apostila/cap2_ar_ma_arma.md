@@ -414,6 +414,8 @@ Tente responder antes de ler a caixa. Cada pergunta prepara a seguinte.
 
 ## Na prova
 
+**A folha de caderno do bloco** está em [a_mao_cap2.md](a_mao_cap2.md): Q5, Q7 e Q8 em 80 linhas numeradas, cada uma com a justificativa, mais o esqueleto da Q6, a versão para a prova e a conferência em R. É o que se copia no papel para treinar.
+
 | Questão | O que este capítulo dá | Resolução completa |
 |---|---|---|
 | Q5 | escrever em $B$, classificar, estacionariedade e invertibilidade pelas raízes, pesos $\psi_j$ e $\pi_j$ | [Q5](../lista_comentada/q05.md) |
