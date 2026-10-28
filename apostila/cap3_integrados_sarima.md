@@ -221,6 +221,53 @@ $$
 
 O termo $\phi\Phi L^5$ é o "dente a mais" das engrenagens. É ele que cria os satélites na FAC em volta da defasagem 4.
 
+### D3.6 · Beveridge-Nelson e o mapa dos testes de raiz unitária (MAT §1.6 e §2)
+
+**Beveridge-Nelson** (MAT, p. 11 e apêndice A). Todo processo I(1) é a soma de uma tendência estocástica, um passeio, com um ciclo estacionário. A conta no ARIMA(0,1,1) dos slides, $\Delta y_t=\mu+\varepsilon_t+\theta_1\varepsilon_{t-1}$, com $y_0$ e $\varepsilon_0=0$:
+
+$$
+\begin{aligned}
+\text{(1)}\quad & \Delta y_t=\mu+\psi(L)\,\varepsilon_t,\qquad \psi(L)=1+\theta_1L && [\text{modelo}]\\
+\text{(2)}\quad & \psi(L)=\psi(1)+(1-L)\,\psi^*(L) && [\text{divide } \psi(L)-\psi(1) \text{ por } (1-L)]\\
+\text{(3)}\quad & 1+\theta_1L=(1+\theta_1)+(1-L)(-\theta_1) && [\text{confere: } 1+\theta_1-\theta_1+\theta_1L]\\
+\text{(4)}\quad & y_t=y_0+\mu t+\psi(1)\textstyle\sum_{s=1}^{t}\varepsilon_s+\psi^*(L)\varepsilon_t-\psi^*(L)\varepsilon_0 && [\text{soma de 1 a } t;\ (1-L) \text{ telescopa}]\\
+\text{(5)}\quad & \underbrace{y_0+\mu t+(1+\theta_1)\textstyle\sum_{s=1}^{t}\varepsilon_s}_{\text{tendência (passeio)}}\ +\ \underbrace{(-\theta_1)\,\varepsilon_t}_{\text{ciclo}} && [(3),(4),\ \varepsilon_0=0]\\
+\text{(6)}\quad & \psi(1)=1+\theta_1:\ \text{a fração de um choque que fica para sempre} && [\text{persistência}]\\
+\text{(7)}\quad & \theta_1\to-1\ \Rightarrow\ \psi(1)\to0:\ \text{nada é permanente, e } y_t \text{ é TS} && [\text{sobrediferenciação, D3.1}]
+\end{aligned}
+$$
+
+$$
+\boxed{y_t=\underbrace{y_0+\mu t+\psi(1)\textstyle\sum\varepsilon_s}_{\text{tendência estocástica}}+\underbrace{\psi^*(L)\varepsilon_t}_{\text{ciclo}},\qquad \psi(1)=\text{persistência}}
+$$
+
+Com $\theta_1=-0{,}6$, $\psi(1)=0{,}4$: 40% de cada choque é permanente, e o resto se desfaz no período seguinte. Numa série simulada de 5 000 períodos, a tendência mais o ciclo de (5) reconstroem $y_t$ com diferença da ordem de $10^{-13}$. A identidade (3) confere com diferença zero.
+
+**O mapa dos testes** (MAT §2; AU04). Todos partem da mesma regressão; o que muda é como tratam o erro e os termos determinísticos.
+
+$$
+\begin{aligned}
+\text{(8)}\quad & y_t=\rho\,y_{t-1}+u_t\ \Rightarrow\ \Delta y_t=\gamma\,y_{t-1}+u_t,\ \ \gamma=\rho-1;\ \ H_0:\gamma=0 && [\text{MAT §2.1, p. 17}]\\
+\text{(9)}\quad & \text{DF: } \tau=\widehat\gamma/ep(\widehat\gamma),\ \text{críticos não padrão, três especificações} && [\text{MAT §2.2, p. 19–23}]\\
+\text{(10)}\quad & \text{ADF: acrescenta } \textstyle\sum_{i=1}^{k}\delta_i\Delta y_{t-i} \text{ para branquear } u_t && [\text{MAT p. 24–28}]\\
+\text{(11)}\quad & \text{PP: corrige } \tau \text{ pela variância de longo prazo, sem defasagens} && [\text{MAT §2.3, p. 29}]\\
+\text{(12)}\quad & \text{DF-GLS: tira os determinísticos por MQG antes; mais poder} && [\text{MAT §2.4, p. 32}]\\
+\text{(13)}\quad & \text{ERS ponto ótimo: o teste mais poderoso contra uma alternativa fixada} && [\text{MAT §2.5, p. 35}]\\
+\text{(14)}\quad & \text{KPSS: nula invertida (estacionariedade), para cruzar com o ADF} && [\text{AU04}]\\
+\text{(15)}\quad & \text{raiz unitária sazonal: HEGY, OCSB, Canova-Hansen} && [\text{MAT §2.6; AU05}]
+\end{aligned}
+$$
+
+Em (15), o MAT, p. 38, estende o ADF para a frequência sazonal. A ligação com a lista: na Q10, decidir entre TS e DS é exatamente o que esses testes fazem. Com $\phi$ perto de 1, nenhum deles tem muito poder (D03.3 no aprofundamento deste bloco). Por isso a regra prática é cruzar um teste de nula "raiz unitária" com um de nula "estacionário".
+
+<!-- conferência numérica
+| chave_R | nota |
+|---|---|
+| ap_c3_bn_psi1 | 0,4 |
+| ap_c3_bn_dif | 0 |
+| ap_c3_bn_recon | 0 |
+-->
+
 ## Exemplo
 
 **1. Quanto custa diferenciar um AR(1) estacionário.** Valores do R para $w_t=\Delta y_t$, com $\sigma^2=1$, a partir de (9)–(11) da D3.1:

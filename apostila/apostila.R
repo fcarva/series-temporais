@@ -76,6 +76,16 @@ registrar("ap_c3_mult_phi1", -coef[2]); registrar("ap_c3_mult_phi4", -coef[5]); 
 # observações perdidas: d + s D
 registrar("ap_c3_perda_trim", 1 + 4 * 1); registrar("ap_c3_perda_mensal", 1 + 12 * 1)
 
+# D3.6: Beveridge-Nelson do ARIMA(0,1,1) com theta_1 = -0,6 (slides)
+th <- -0.6
+registrar("ap_c3_bn_psi1", 1 + th)
+# identidade 1 + th L = psi(1) + (1 - L) psi*(L), com psi*(L) = -th
+registrar("ap_c3_bn_dif", max(abs(c((1 + th) + (-th), -(-th)) - c(1, th))))
+set.seed(36)
+e <- stats::rnorm(5000); dy <- 0.1 + e + th * c(0, e[-length(e)]); y <- cumsum(dy)
+tend <- cumsum(0.1 + (1 + th) * e); ciclo <- -th * e
+registrar("ap_c3_bn_recon", max(abs(y - (tend + ciclo - (-th) * 0))))
+
 ## ---- Capítulo 4: estimação e seleção -------------------------------------------------------
 # um AR(1) simulado: MQO (= MV condicional), Yule-Walker e MV exata
 set.seed(13)
