@@ -226,6 +226,131 @@ Numa série simulada de 300 observações, a recursão (5) e o `predict` do ARIM
 | ap_c5_ses_plano | 0 |
 -->
 
+## Avaliar previsões
+
+A Q15 pergunta como prever. A AU03, p. 32–60, completa com a pergunta seguinte: **como saber se a previsão foi boa**, e se um modelo prevê melhor que outro. Nada disso é cobrado diretamente na lista, mas é o fecho natural do bloco e cai bem como item de discussão.
+
+**Treino, teste e janelas** (AU03, p. 32–38). A amostra é dividida:
+- um trecho de **treino**, para estimar;
+- um trecho de **teste**, para medir os erros fora da amostra, que é o único lugar onde o erro de previsão é honesto.
+
+Ao avançar a origem da previsão, há três esquemas:
+- **janela fixa**: estima uma vez, no treino original, e só prevê;
+- **janela recursiva**, ou expansiva: reestima a cada origem com todos os dados até ali;
+- **janela móvel**, ou deslizante: reestima com as últimas $R$ observações, que é o esquema que se adapta a quebras.
+
+A AU03, p. 37–38, ressalta que essa escolha, o horizonte e a forma de prever (iterada ou direta) são três decisões independentes.
+
+### DA5.1 · Iterada × direta: quando a direta ganha (AU03, p. 41–44)
+
+A **iterada** estima o modelo de um passo e o aplica $h$ vezes. A **direta** regride $y_{t+h}$ diretamente em $y_t$, um modelo por horizonte. No AR(1) de média zero, a iterada usa $\widehat\phi^{\,h}y_T$, e a direta usa $\widehat b_hy_T$, com $\widehat b_h$ da regressão de $y_{t+h}$ em $y_t$.
+
+$$
+\begin{aligned}
+\text{(1)}\quad & b_h^{*}=\frac{\operatorname{Cov}(y_{t+h},y_t)}{\operatorname{Var}(y_t)}=\rho_h && [\text{a direta}]\\
+\text{(2)}\quad & \operatorname{plim}\widehat\phi=\rho_1\ \Rightarrow\ \text{iterada usa } \rho_1^{\,h} && [\text{MQO do AR(1)}]\\
+\text{(3)}\quad & \text{AR(1) verdadeiro: } \rho_h=\phi^h=\rho_1^{\,h}:\ \text{mesmo alvo} && [\text{cap. 2, D2.4}]\\
+\text{(4)}\quad & EQM(b)=E\big((y_{T+h}-by_T)^2\big)=\gamma_0\big(1-2b\rho_h+b^2\big) && [\text{F4, estac.}]\\
+\text{(5)}\quad & \frac{d\,EQM}{db}=\gamma_0(-2\rho_h+2b)=0\ \Rightarrow\ b=\rho_h && [\text{a direta é a ótima linear}]\\
+\text{(6)}\quad & \text{AR(2) verdadeiro, AR(1) ajustado: } \rho_1^{\,h}\ne\rho_h\ \Rightarrow\ EQM_{iter}\gt EQM_{dir} && [(4),(5)]
+\end{aligned}
+$$
+
+$$
+\boxed{\text{modelo certo: iterada (mesmo alvo, menos parâmetros);\quad modelo errado e } h \text{ longo: direta}}
+$$
+
+Com o AR(2) do caderno ($\phi_1=1{,}5$, $\phi_2=-0{,}6$) ajustado como AR(1), em $h=5$:
+- a iterada usa $\rho_1^5=0{,}9375^5=0{,}7242$, mas o certo é $\rho_5=0{,}3417$;
+- o EQM relativo da iterada é $1{,}0295\,\gamma_0$, pior até do que prever a média;
+- o da direta é $0{,}8832\,\gamma_0$;
+- a direta reduz o RMSE em 7,4%.
+
+### DA5.2 · As métricas de previsão pontual (AU03, p. 45–49)
+
+Com os erros fora da amostra $\widehat e_t=y_t-\widehat y_t$, $t=1,\dots,n$:
+
+$$
+\begin{aligned}
+\text{(7)}\quad & MAD=\frac1n\textstyle\sum\lvert\widehat e_t\rvert && [\text{na unidade de } y]\\
+\text{(8)}\quad & RMSE=\sqrt{\tfrac1n\textstyle\sum\widehat e_t^{\,2}} && [\text{pune erros grandes}]\\
+\text{(9)}\quad & MAPE=\frac{100}{n}\textstyle\sum\big\lvert\widehat e_t/y_t\big\rvert && [\text{sem escala; exige } y_t\ne0]\\
+\text{(10)}\quad & MASE=\frac{\frac1n\sum\lvert\widehat e_t\rvert}{Q},\quad Q=\frac{1}{T_{tr}-m}\textstyle\sum_{t=m+1}^{T_{tr}}\lvert y_t-y_{t-m}\rvert && [\text{escala do ingênuo no treino}]\\
+\text{(11)}\quad & MASE\lt1\iff\text{melhor que o ingênuo} && [(10)]
+\end{aligned}
+$$
+
+**Exemplo.** São cinco previsões, com reais $(102;98;105;110;107)$ e previstos $(100;101;103;106;109)$; o treino é $(95;97;96;99;101;100)$, com $m=1$.
+- $MAD=2{,}6$, $RMSE=2{,}7203$ e $MAPE=2{,}49\%$;
+- $Q=1{,}8$, logo $MASE=1{,}44$: o modelo é **pior que o ingênuo**, embora o MAPE pareça baixo.
+
+### DA5.3 · Diebold-Mariano: a diferença é real? (AU03, p. 50–51)
+
+$$
+\begin{aligned}
+\text{(12)}\quad & d_t=L(e_{1t})-L(e_{2t}),\ \ L(e)=e^2 && [\text{diferencial de perda}]\\
+\text{(13)}\quad & H_0:E(d_t)=0\ \ \text{(mesma acurácia)} && [\text{AU03 p. 50}]\\
+\text{(14)}\quad & DM=\frac{\bar d}{\sqrt{\widehat V(\bar d)}}\ \xrightarrow{d}\ N(0,1),\quad \widehat V(\bar d)=\frac{\widehat\sigma_d^2}{n} \text{ se } h=1 && [\text{TLC}]\\
+\text{(15)}\quad & \text{rejeita } H_0 \text{ a 5\% se } \lvert DM\rvert\gt1{,}96;\ \text{o sinal de } \bar d \text{ diz quem é melhor} && [\text{AU03 p. 51}]
+\end{aligned}
+$$
+
+Com $h\gt1$, os $d_t$ são autocorrelacionados até a defasagem $h-1$, porque o erro de $h$ passos é um MA($h-1$) (D5.3). Então $\widehat V(\bar d)$ precisa de um estimador robusto, do tipo Newey-West.
+
+**Exemplo** com dez erros de dois modelos: $\bar d=1{,}46$, $\widehat V(\bar d)=0{,}1581$ e $DM=3{,}67\gt1{,}96$. O modelo 2 prevê significativamente melhor.
+
+### DA5.4 · Intervalos e distribuições: Winkler, CRPS e Christoffersen (AU03, p. 52–60)
+
+Na linha (18), $z=(y_t-\mu)/\sigma$, e $\Phi$ e $\varphi$ são a acumulada e a densidade da normal padrão.
+
+$$
+\begin{aligned}
+\text{(16)}\quad & W_t=(u-\ell)+\tfrac{2}{\alpha}(\ell-y_t)\,\mathbb 1\{y_t\lt\ell\}+\tfrac{2}{\alpha}(y_t-u)\,\mathbb 1\{y_t\gt u\} && [\text{Winkler, AU03 p. 53–55}]\\
+\text{(17)}\quad & CRPS_t=\textstyle\int_{-\infty}^{\infty}\big(F_t(x)-\mathbb 1\{x\ge y_t\}\big)^2dx && [\text{AU03 p. 56–58}]\\
+\text{(18)}\quad & CRPS=\sigma\Big(z\big(2\Phi(z)-1\big)+2\varphi(z)-\tfrac{1}{\sqrt\pi}\Big) && [F_t=N(\mu,\sigma^2)]\\
+\text{(19)}\quad & I_t=\mathbb 1\{y_t\notin[\ell,u]\},\ \ \widehat\pi=\tfrac{n_1}{n};\ \ H_0:E(I_t)=\alpha && [\text{violações, AU03 p. 59}]\\
+\text{(20)}\quad & LR_{uc}=-2\ln\big[(1-\alpha)^{n_0}\alpha^{n_1}\big]+2\ln\big[(1-\widehat\pi)^{n_0}\widehat\pi^{\,n_1}\big]\sim\chi^2_1 && [\text{incondicional}]\\
+\text{(21)}\quad & LR_{cc}=LR_{uc}+LR_{ind}\sim\chi^2_2 && [\text{AU03 p. 59–60}]
+\end{aligned}
+$$
+
+$$
+\boxed{\begin{gathered}\text{Winkler: largura} + \tfrac{2}{\alpha}\times\text{distância do ponto fora};\quad \text{CRPS: área entre } F_t \text{ e o degrau em } y_t\\ LR_{cc}=LR_{uc}+LR_{ind}\end{gathered}}
+$$
+
+**Exemplos:**
+- **Winkler**, com $\alpha=0{,}05$ e o intervalo $[8;12]$: $W=4$ se $y=10$ (dentro); $W=24$ se $y=7{,}5$ (meio ponto abaixo); $W=44$ se $y=13$ (um ponto acima). A cobertura que falha custa caro.
+- **CRPS** com $y_t=0$: a distribuição larga, $N(0;9)$, dá 0,7011; a deslocada, $N(2;1)$, dá 1,4528; a calibrada e afiada, $N(0;0{,}25)$, dá 0,1168. A fórmula (18) coincide com a integral numérica (17).
+- **Christoffersen**, com 100 intervalos de 90% e 15 violações: $LR_{uc}=2{,}45$, $p=0{,}12$. Não se rejeita a cobertura nominal, mas é preciso ainda o teste de independência: violações **agrupadas** reprovam o modelo mesmo com a frequência certa (AU03, p. 60).
+
+<!-- conferência numérica
+| chave_R | nota |
+|---|---|
+| ap_c5av_rho1 | 0,9375 |
+| ap_c5av_rho5 | 0,3417 |
+| ap_c5av_rho1_5 | 0,7242 |
+| ap_c5av_eqm_iter | 1,0295 |
+| ap_c5av_eqm_dir | 0,8832 |
+| ap_c5av_ganho | 0,074 |
+| ap_c5av_mad | 2,6 |
+| ap_c5av_rmse | 2,7203 |
+| ap_c5av_mape | 2,49 |
+| ap_c5av_q | 1,8 |
+| ap_c5av_mase | 1,44 |
+| ap_c5av_dbar | 1,46 |
+| ap_c5av_vd | 0,1581 |
+| ap_c5av_dm | 3,67 |
+| ap_c5av_w_dentro | 4 |
+| ap_c5av_w_abaixo | 24 |
+| ap_c5av_w_acima | 44 |
+| ap_c5av_crps_larga | 0,7011 |
+| ap_c5av_crps_desloc | 1,4528 |
+| ap_c5av_crps_afiada | 0,1168 |
+| ap_c5av_crps_dif | 0 |
+| ap_c5av_lruc | 2,45 |
+| ap_c5av_lruc_p | 0,12 |
+-->
+
 ## Cadeia socrática
 
 **P1.** Por que $E(\varepsilon_{T+1}\mid\Omega_T)=0$, mas $E(\varepsilon_T\mid\Omega_T)=\varepsilon_T$?
@@ -335,6 +460,8 @@ Numa série simulada de 300 observações, a recursão (5) e o `predict` do ARIM
 - AU02, p. 72–76: previsão do AR(1), o erro e a variância;
 - AU02, p. 85: previsão do ARMA(1,1);
 - AU03, p. 32–41: treino e teste, esquemas de janela, horizonte e origem, iterada × direta.
+- AU03, p. 42–49: o exemplo iterada × direta no AR(1) e as métricas MAPE, MAD, RMSE e MASE;
+- AU03, p. 50–60: Diebold-Mariano, Winkler, CRPS e os testes de cobertura de Christoffersen.
 
 **Livros:**
 - **HAMILTON**, cap. 4: previsão ótima, a projeção linear e a esperança condicional;

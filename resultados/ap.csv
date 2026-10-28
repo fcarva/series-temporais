@@ -123,6 +123,29 @@ ap_c6_lb_p,0.802832743227
 ap_c6_lr,0.467372389127
 ap_c6_bic1, 651.41927397
 ap_c6_bic2,656.376851599
+ap_c5av_rho1,       0.9375
+ap_c5av_rho5,   0.34171875
+ap_c5av_rho1_5,0.724196434021
+ap_c5av_eqm_iter,1.02951747467
+ap_c5av_eqm_dir,0.883228295898
+ap_c5av_ganho,0.0737683315025
+ap_c5av_mad,          2.6
+ap_c5av_rmse,2.72029410175
+ap_c5av_mape,2.48645864463
+ap_c5av_q,          1.8
+ap_c5av_mase,1.44444444444
+ap_c5av_dbar,         1.46
+ap_c5av_vd,0.158088888889
+ap_c5av_dm,3.67199585462
+ap_c5av_w_dentro,            4
+ap_c5av_w_abaixo,           24
+ap_c5av_w_acima,           44
+ap_c5av_crps_larga,0.701084931765
+ap_c5av_crps_desloc,1.45279182169
+ap_c5av_crps_afiada,0.116847488628
+ap_c5av_crps_dif,1.18647314196e-11
+ap_c5av_lruc,2.44702289045
+ap_c5av_lruc_p,0.11774800243
 ap_c2_ma_a_g0,            5
 ap_c2_ma_a_g1,            2
 ap_c2_ma_a_rho1,          0.4

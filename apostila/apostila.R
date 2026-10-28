@@ -159,6 +159,41 @@ fit2 <- stats::arima(y, order = c(2, 1, 1), seasonal = list(order = c(0, 1, 1), 
 registrar("ap_c6_lr", 2 * (fit2$loglik - fit$loglik))
 registrar("ap_c6_bic1", stats::BIC(fit)); registrar("ap_c6_bic2", stats::BIC(fit2))
 
+## ---- Capítulo 5: avaliar previsões (AU03, p. 32–60) --------------------------------------
+# iterada x direta quando o verdadeiro é o AR(2) do caderno (1,5; -0,6) e se ajusta um AR(1)
+ac <- stats::ARMAacf(ar = c(1.5, -0.6), lag.max = 5)
+r1 <- ac[2]; r5 <- ac[6]
+eqm <- function(b, rh) 1 - 2 * b * rh + b^2          # EQM / gamma_0 do previsor b * y_T
+registrar("ap_c5av_rho1", r1); registrar("ap_c5av_rho5", r5); registrar("ap_c5av_rho1_5", r1^5)
+registrar("ap_c5av_eqm_iter", eqm(r1^5, r5)); registrar("ap_c5av_eqm_dir", eqm(r5, r5))
+registrar("ap_c5av_ganho", 1 - sqrt(eqm(r5, r5) / eqm(r1^5, r5)))
+# métricas num exemplo de cinco previsões
+y <- c(102, 98, 105, 110, 107); f <- c(100, 101, 103, 106, 109); e <- y - f
+ytr <- c(95, 97, 96, 99, 101, 100)                      # treino, para a escala do MASE (m = 1)
+registrar("ap_c5av_mad", mean(abs(e))); registrar("ap_c5av_rmse", sqrt(mean(e^2)))
+registrar("ap_c5av_mape", 100 * mean(abs(e / y)))
+Q <- mean(abs(diff(ytr))); registrar("ap_c5av_q", Q); registrar("ap_c5av_mase", mean(abs(e)) / Q)
+# Diebold-Mariano com perda quadrática, h = 1 (sem autocorrelação em d_t)
+e1 <- c(1.2, -0.8, 2.1, -1.5, 0.9, 1.8, -2.2, 1.1, -0.6, 1.9)
+e2 <- c(0.7, -0.5, 1.0, -1.1, 0.8, 0.9, -1.4, 0.6, -0.7, 1.0)
+d <- e1^2 - e2^2; n <- length(d)
+registrar("ap_c5av_dbar", mean(d)); registrar("ap_c5av_vd", stats::var(d) / n)
+registrar("ap_c5av_dm", mean(d) / sqrt(stats::var(d) / n))
+# Winkler com alpha = 0,05 e intervalo [8; 12]
+w <- function(l, u, y, a) (u - l) + (2 / a) * (l - y) * (y < l) + (2 / a) * (y - u) * (y > u)
+registrar("ap_c5av_w_dentro", w(8, 12, 10, 0.05)); registrar("ap_c5av_w_abaixo", w(8, 12, 7.5, 0.05))
+registrar("ap_c5av_w_acima", w(8, 12, 13, 0.05))
+# CRPS da normal: fórmula fechada e integral numérica
+crps_n <- function(mu, sg, y) { z <- (y - mu) / sg; sg * (z * (2 * stats::pnorm(z) - 1) + 2 * stats::dnorm(z) - 1 / sqrt(pi)) }
+crps_int <- function(mu, sg, y) stats::integrate(function(x) (stats::pnorm(x, mu, sg) - (x >= y))^2, -Inf, y)$value +
+  stats::integrate(function(x) (stats::pnorm(x, mu, sg) - 1)^2, y, Inf)$value
+registrar("ap_c5av_crps_larga", crps_n(0, 3, 0)); registrar("ap_c5av_crps_desloc", crps_n(2, 1, 0))
+registrar("ap_c5av_crps_afiada", crps_n(0, 0.5, 0)); registrar("ap_c5av_crps_dif", abs(crps_n(2, 1, 0) - crps_int(2, 1, 0)))
+# Christoffersen, cobertura incondicional: n = 100 intervalos de 90%, 15 violações
+nn <- 100; n1 <- 15; n0 <- nn - n1; al <- 0.10; pih <- n1 / nn
+lruc <- -2 * (n0 * log(1 - al) + n1 * log(al)) + 2 * (n0 * log(1 - pih) + n1 * log(pih))
+registrar("ap_c5av_lruc", lruc); registrar("ap_c5av_lruc_p", 1 - stats::pchisq(lruc, 1))
+
 ## ---- Capítulo 2: AR, MA e ARMA -----------------------------------------------------------
 # MA(1): o par theta = 0,5 (sigma2 = 4) e theta = 2 (sigma2 = 1) da AU02, p. 34
 ma1 <- function(th, s2) c(g0 = (1 + th^2) * s2, g1 = th * s2, rho1 = th / (1 + th^2))
