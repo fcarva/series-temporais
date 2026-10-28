@@ -164,3 +164,16 @@ lc_cad_075q,       0.5625
 lc_cad_im_q,       0.0375
 lc_cad_g0_certo,1.17647058824
 lc_cad_g0_caderno,0.078431372549
+lc_am_q2_ey1,          1.2
+lc_am_q2_ey2,          2.6
+lc_am_q2_ey3,          4.2
+lc_am_q2_dif_formula,            0
+lc_am_q2_var3,2.98843799471
+lc_am_q2_cov31,1.00383813771
+lc_am_q2_corr31,0.581566474072
+lc_am_q2_corr31_formula,0.57735026919
+lc_am_q6_meiavida_05,            1
+lc_am_q6_meiavida_09,6.57881347896
+lc_am_q6_meiavida_099,68.9675639365
+lc_am_q6_dif_psi,            0
+lc_am_q6_dif_pi,6.93889390391e-18

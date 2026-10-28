@@ -7,13 +7,14 @@
 #   Volume 5 — prova de 05/11: guia, banco de variações, três simulados e gabaritos
 #   Simulados — só os enunciados dos três simulados, para resolver no papel
 #   Volume 6 — lista comentada: Q1–Q16 passo a passo na notação dos slides, com o caderno
+#   À mão    — Q2 e Q6 demonstradas linha a linha, no formato de caderno, para treinar no papel
 #
 # Caminho: nota .md -> preparo em R (tira o frontmatter, resolve caminhos de figura,
 # troca emoji por símbolo) -> pandoc (commonmark_x + filtros.lua) -> .tex -> LuaLaTeX.
 # Requer pandoc e LuaLaTeX (TeX Live ou MiKTeX).
 #
 # Rodar: Rscript caderno/montar_caderno.R  (Windows: scripts\r.ps1 caderno\montar_caderno.R)
-#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada; sem argumento, tudo
+#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao; sem argumento, tudo
 # Saída: caderno/pdf/ (fora do git, exceto o volume 4, o guia, o volume 5 e os simulados,
 #        que vão ao cofre do Obsidian)
 
@@ -325,9 +326,17 @@ volume_comentada <- function() {
   compilar("caderno_volume6_lista_comentada", md, file.path(BUILD, "capa6.tex"), OPC_IMPRESSAO, passes = 3, impressao = TRUE)
 }
 
+# Q2 e Q6 linha a linha, para refazer à mão
+volume_amao <- function() {
+  partes <- list("Q2 e Q6 linha a linha" = c("lista_comentada/a_mao_q02_q06.md"))
+  md <- file.path(BUILD, "amao.md"); montar_md(partes, md)
+  capa("À mão", "Q2 e Q6 demonstradas linha a linha, na notação dos slides e do caderno", file.path(BUILD, "capa_amao.tex"))
+  compilar("caderno_a_mao_q02_q06", md, file.path(BUILD, "capa_amao.tex"), OPC_IMPRESSAO, passes = 3, impressao = TRUE)
+}
+
 ## ---- execução ------------------------------------------------------------------------
 alvos <- commandArgs(trailingOnly = TRUE)
-if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada")
+if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao")
 cat("pandoc:  ", PANDOC, "\nlualatex:", LUALATEX, "\n")
 if ("teoria" %in% alvos) volume_teoria()
 if ("lista" %in% alvos) volume_lista()
@@ -337,4 +346,5 @@ if ("guia" %in% alvos) volume_guia()
 if ("prova" %in% alvos) volume_prova()
 if ("simulados" %in% alvos) volume_simulados()
 if ("comentada" %in% alvos) volume_comentada()
+if ("amao" %in% alvos) volume_amao()
 cat("\nPDFs em caderno/pdf/\n")

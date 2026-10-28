@@ -130,7 +130,8 @@ if (dir.exists(file.path(RAIZ, ".git"))) {
                      "caderno/pdf/caderno_volume4_lista01_laboratorio.pdf",
                      "caderno/pdf/caderno_lista01_guia_estudo.pdf",
                      "caderno/pdf/caderno_volume5_prova.pdf", "caderno/pdf/caderno_prova_simulados.pdf",
-                     "caderno/pdf/caderno_volume6_lista_comentada.pdf")
+                     "caderno/pdf/caderno_volume6_lista_comentada.pdf",
+                     "caderno/pdf/caderno_a_mao_q02_q06.pdf")
   for (p in setdiff(grep("\\.(pdf|jpe?g)$|^materiais/", rastreados, value = TRUE), pdfs_proprios))
     E("arquivo proibido versionado: %s", p)
 }

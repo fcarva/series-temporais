@@ -36,6 +36,8 @@ Todos os números estão em [lista_comentada.R](lista_comentada.R) (id `lc`) e s
 | 5. Previsão | [Q15](q15.md) |
 | 6. Aplicação | [Q16](q16.md) |
 
+**Para fazer à mão:** a Q2 e a Q6 estão também em [versão de caderno](a_mao_q02_q06.md), linha a linha, sem comentário, na notação dos slides e do caderno (PDF: `caderno/pdf/caderno_a_mao_q02_q06.pdf`).
+
 Para treinar com outros números, use o [banco de variações](../prova/banco.md) e os [simulados](../prova/README.md).
 
 ## 1. Da lista para os slides

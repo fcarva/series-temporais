@@ -207,4 +207,24 @@ phi <- 0.7; th_s <- -0.4
 registrar("lc_cad_g0_certo", (1 + th_s^2 + 2 * phi * th_s) / (1 - phi^2))
 registrar("lc_cad_g0_caderno", (1 + th_s + 2 * phi * th_s) / (1 - phi^2))
 
+## ---- Demonstrações à mão (Q2 e Q6) ----------------------------------------------------
+# Q2: Y_t = a1 + Y_{t-1} + a2 t + eps_t, Y_0 = 0; recursão direta x fórmula fechada
+a1 <- 1; a2 <- 0.2
+media_rec <- numeric(3); m <- 0
+for (t in 1:3) { m <- a1 + m + a2 * t; media_rec[t] <- m }
+registrar("lc_am_q2_ey1", media_rec[1]); registrar("lc_am_q2_ey2", media_rec[2]); registrar("lc_am_q2_ey3", media_rec[3])
+registrar("lc_am_q2_dif_formula", max(abs(media_rec - (a1 * (1:3) + a2 * (1:3) * (2:4) / 2))))
+set.seed(11)
+eps <- matrix(stats::rnorm(50000 * 3), 50000, 3)
+Y <- t(apply(eps, 1, function(e) { y <- numeric(3); yy <- 0; for (t in 1:3) { yy <- a1 + yy + a2 * t + e[t]; y[t] <- yy }; y }))
+registrar("lc_am_q2_var3", stats::var(Y[, 3])); registrar("lc_am_q2_cov31", stats::cov(Y[, 3], Y[, 1]))
+registrar("lc_am_q2_corr31", stats::cor(Y[, 3], Y[, 1])); registrar("lc_am_q2_corr31_formula", sqrt(1 / 3))
+# Q6: meia-vida dos pesos, h = ln 0,5 / ln |phi|
+for (f in c(0.5, 0.9, 0.99)) registrar(sprintf("lc_am_q6_meiavida_%s", sub("\\.", "", format(f))), log(0.5) / log(f))
+# Q6: psi_j por substituição recursiva (resolvendo y_t a partir de choques) = fórmula fechada
+phi <- 0.7; th <- -0.4
+psi_rec <- c(1, phi + th); for (j in 3:6) psi_rec[j] <- phi * psi_rec[j - 1]
+registrar("lc_am_q6_dif_psi", max(abs(psi_rec - pesos_psi(phi, th, 5, "r"))))
+registrar("lc_am_q6_dif_pi", max(abs((phi + th) * (-th)^(0:4) - pesos_pi(phi, th, 5, "r"))))
+
 gravar_resultados("lc")

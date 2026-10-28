@@ -25,6 +25,7 @@ O que se sabe da prova: **5 ou 6 questões, de 1h50 a 2h, sem consulta, tiradas 
 | Arquivo | Para quê |
 |---|---|
 | [lista comentada](../lista_comentada/README.md) | **as 16 questões da lista, passo a passo, na notação dos slides**, com o caderno corrigido: comece por aqui |
+| [Q2 e Q6 à mão](../lista_comentada/a_mao_q02_q06.md) | as duas questões escolhidas para treinar no papel, linha a linha, no formato de caderno |
 | [banco.md](banco.md) | as 16 questões da lista em **variações** curtas com resposta: o treino diário |
 | [simulado_01.md](simulado_01.md) · [gabarito](simulado_01_gabarito.md) | próximo da lista, para calibrar o tempo |
 | [simulado_02.md](simulado_02.md) · [gabarito](simulado_02_gabarito.md) | as torções: sinal positivo, AR(2), sazonal trimestral |
