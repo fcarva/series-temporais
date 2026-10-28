@@ -66,6 +66,10 @@ $$
 
 Modelo: $y_t=c+\phi_1y_{t-1}+\varepsilon_t+\theta_1\varepsilon_{t-1}$ (AU02, p. 85).
 
+> [!CAUTION]
+> **Erro do caderno (26/08): a previsão do MA(2) misturou os horizontes e pôs $\theta_2$ nos dois lugares**
+> O caderno trocou $E(y_t\mid\Omega_{t-1})$ por $E(y_{t+2}\mid\Omega_t)$ na mesma linha. A defesa é sempre escrever o modelo **na data futura** antes de tirar a esperança, como em (8) e (11), e só então aplicar as regras [F9].
+
 $$
 \begin{aligned}
 \text{(8)}\quad & y_{T+1}=c+\phi_1y_T+\varepsilon_{T+1}+\theta_1\varepsilon_T && [\text{modelo em } T+1]\\

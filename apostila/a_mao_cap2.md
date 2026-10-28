@@ -169,6 +169,10 @@ $$
 
 **Nos slides:** a mesma notação (AU02, p. 66–69), com média zero.
 
+> [!CAUTION]
+> **Erro do caderno (03/09): o sinal de $\phi_2$ ao montar o polinômio**
+> No exemplo $\phi_1=1{,}5$ e $\phi_2=-0{,}6$, o polinômio virou $1-1{,}5B-0{,}6B^2$. O certo é $1-\phi_1B-\phi_2B^2=1-1{,}5B+0{,}6B^2$, porque $-\phi_2B^2=-(-0{,}6)B^2$. Daí o $\Delta$ do caderno saiu errado e os módulos 0,6 e 0,52 também; o certo é $\sqrt{0{,}6}=0{,}7746$.
+
 $$
 \begin{aligned}
 \text{(47)}\quad & y_t=\phi_1y_{t-1}+\phi_2y_{t-2}+\varepsilon_t,\quad E(y_t)=0 && [\text{modelo}]\\

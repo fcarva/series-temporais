@@ -66,6 +66,10 @@ $$
 
 Mesmo com $c=0$, quando a média fica constante em 10, a variância cresce: a conclusão não depende do drift. E a correlação (11) vai a 1 para $k$ fixo e $t$ grande: com $t=100$ e $k=10$, $\sqrt{0{,}9}=0{,}95$. É a FAC que decai devagar, assinatura da raiz unitária.
 
+> [!CAUTION]
+> **Erro do caderno (19/08): $E(XY)=E(X)E(Y)$ escrito sem condição**
+> Essa regra só vale para variáveis **não correlacionadas**, e $\sigma^2=E(X^2)$ só vale com média zero. Em (8), o que zera os termos com $i\ne j$ é a hipótese de ruído branco, $E(u_iu_j)=0$, e não uma regra geral da esperança.
+
 ---
 
 # Q2 · Drift e tendência: o esqueleto, com a demonstração completa ao lado
@@ -153,6 +157,10 @@ O componente determinístico **não** é uma tendência: uma tendência faria a 
 
 **(b) AR(1):** $y_t=\phi y_{t-1}+\varepsilon_t$, com $\lvert\phi\rvert\lt1$.
 
+> [!CAUTION]
+> **Erro do caderno (19/08): $y_2$ do AR(1) recursivo sem o $y_0$**
+> O caderno escreveu $y_2=\phi^2+\phi\varepsilon_1+\varepsilon_2$. Pela linha (42), com $t=2$ e $n=2$, o certo é $y_2=\phi^2y_0+\phi\varepsilon_1+\varepsilon_2$. A fórmula final do caderno, $y_t=\phi^ty_0+\sum\phi^{t-i}\varepsilon_i$, está certa.
+
 $$
 \begin{aligned}
 \text{(41)}\quad & y_t=\phi(\phi y_{t-2}+\varepsilon_{t-1})+\varepsilon_t=\phi^2y_{t-2}+\phi\varepsilon_{t-1}+\varepsilon_t && [\text{modelo em } t-1]\\
@@ -169,6 +177,10 @@ $$
 $$
 
 **(c) Invertibilidade e o AR($\infty$)**, no MA(1) dos slides, $y_t=\varepsilon_t+\theta_1\varepsilon_{t-1}$ (AU02, p. 30–34):
+
+> [!CAUTION]
+> **Erro do caderno (03/09): $+\theta_1^2\varepsilon_{t-2}$ no lugar de $-\theta_1^2\varepsilon_{t-2}$**
+> Ao substituir $\varepsilon_{t-1}=y_{t-1}-\theta_1\varepsilon_{t-2}$, o sinal troca. Os pesos de (48) alternam: $+,-,+,\dots$
 
 $$
 \begin{aligned}
