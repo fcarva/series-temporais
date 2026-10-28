@@ -62,7 +62,7 @@ Os seis erros da P1 de Econometria I, com a ação traduzida para séries tempor
 
 Atualize depois de cada simulado. A causa com mais linhas vira o foco do treino seguinte.
 
-| causa | S1 (28/10) | S2 (30/10) | S3 (01/11) |
+| causa | S1 (01/11) | S2 (02/11) | S3 (03/11) |
 |---|---|---|---|
 | H hipótese |  |  |  |
 | A álgebra ou sinal |  |  |  |

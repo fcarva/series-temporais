@@ -121,20 +121,49 @@ Tudo o mais se deriva disto em poucas linhas. Formulário completo em [formulari
 
 ## 5. Plano até a prova
 
-Hoje é 27/10. Um simulado a cada dois dias, com correção no mesmo dia e revisões do log em +1, +3 e +7.
+### Como atacar a lista
 
-| Dia | Tarefa | Tempo |
+1. **Não comece pela Q1. Comece pelo bloco 2 (Q5–Q8).** É o que mais pesa e é a base dos outros: raízes, $\psi$ e $\pi$, $\gamma_k$, Yule-Walker. A ordem é bloco 2 → 1 → 3 → 5 → 4 → 6, a mesma da [apostila](../apostila/README.md).
+2. **Por questão, um ciclo de quatro passos**, sem ler a resolução antes:
+   1. **Ler e marcar:** a convenção do MA (BJ ou sinal positivo), $s$, $T$ e o verbo de cada item.
+   2. **Tentar sozinho, de 10 a 15 minutos, no papel,** mesmo travando. Pergunte-se qual ferramenta resolve (F1–F9).
+   3. **Comparar com a folha à mão, linha a linha.** Ache a **primeira linha** em que você divergiu e anote no [log](log_erros.md), com o código.
+   4. **No dia seguinte, refazer sem olhar**, usando só a "Versão para a prova" da folha como roteiro.
+3. **A apostila serve para destravar, não para ler antes.** Quando travar, leia só a pergunta de abertura e a imagem do capítulo. Faça a cadeia socrática **cobrindo as respostas**. A teoria e as demonstrações gerais ficam para depois da tentativa.
+4. **Treine os cinco moldes, não as 16 questões.** Se o molde sai de cabeça, a questão sai.
+
+   | Molde | Questões |
+   |---|---|
+   | (a) somar de 1 a $t$ (telescópica), depois $E$ e $\operatorname{Var}$ da soma | Q1, Q2, Q8 (II), Q10 (c, d) |
+   | (b) multiplicar pelo passado e tirar a esperança | Q3, Q6, Q7, Q8 (I), Q11 |
+   | (c) raízes por Bhaskara e pesos por igualdade de coeficientes | Q5, Q6 (c), Q9, Q10 (b), Q11 (c) |
+   | (d) esperança condicional com as três regras [F9] | Q12 (c), Q15 |
+   | (e) contas de critério: AIC/BIC, LR, Ljung-Box, $d+sD$, parâmetros | Q14, Q16, Q12 (b) |
+
+5. **Q2 e Q6, as questões escolhidas para fazer à mão:** copie a folha completa **uma vez**, depois refaça de cabeça em +1 e +3 dias, cronometrando. Metas: Q2 em até 12 minutos e Q6 em até 15.
+6. **O mínimo de cor** (§4): escreva numa folha A4, de memória, a cada dois dias. O que faltar entra no log.
+7. **No dia, as lições da P1 de Econometria I** (§3):
+   - contas curtas primeiro;
+   - fórmula geral e convenção antes dos números;
+   - uma justificativa por linha;
+   - fechar com a frase que o verbo pede.
+
+### O ciclo de 29/10 a 05/11
+
+Cerca de 2h30 a 3h por dia; os simulados levam 1h50 mais 40 minutos de correção. Revisões do log em +1 e +3 dias. No papel, tudo está no volume único `caderno_p1_completo.pdf`, e o mapa das questões na abertura dá as páginas.
+
+| Dia | Foco | Tarefas |
 |---|---|---|
-| ter 27/10 | ler este guia; [banco](banco.md), blocos 1 e 2; refazer de cabeça o $\gamma_0$ do ARMA(1,1) | 2h |
-| qua 28/10 | **Simulado 01** cronometrado; corrigir pela rubrica; preencher o [log](log_erros.md) | 2h40 |
-| qui 29/10 | revisão +1 do S1; banco, blocos 3 e 4 | 2h |
-| sex 30/10 | **Simulado 02**; correção e log | 2h40 |
-| sáb 31/10 | +3 do S1; +1 do S2; banco, blocos 5 e 6 | 2h |
-| dom 01/11 | **Simulado 03**; correção e log | 2h40 |
-| seg 02/11 | +1 do S3; +3 do S2; refazer as questões da lista que mais apareceram no log, sem olhar | 2h |
-| ter 03/11 | a tabela da seção 4 de memória, no papel; reler as armadilhas | 1h30 |
-| qua 04/11 | +7 do S1; +3 do S3; nada novo; dormir cedo | 1h |
-| **qui 05/11** | **prova** | 1h50–2h |
+| qui 29/10 | bloco 2 (Q5–Q8) | ciclo dos quatro passos em Q5, Q7 e Q8; **copiar a folha completa da Q6**; cadeia socrática do cap. 2 |
+| sex 30/10 | bloco 1 (Q1–Q4) | ciclo em Q1, Q3 e Q4; **copiar a folha completa da Q2**; Q6 de cabeça, cronometrada (+1) |
+| sáb 31/10 | blocos 3 e 5 (Q9–Q12, Q15) | ciclo nas cinco questões; Q2 de cabeça (+1); refazer os erros do log de 29/10 (+1) |
+| dom 01/11 | diagnóstico | **Simulado 01** cronometrado, correção pela rubrica e log; blocos 4 e 6 (Q13, Q14, Q16) pelo molde (e) |
+| seg 02/11 | treino | **Simulado 02** e correção; Q6 de cabeça (+3); refazer os itens do log do S1 (+1) |
+| ter 03/11 | treino | **Simulado 03** e correção; Q2 de cabeça (+3); mínimo de cor de memória; refazer as 5 questões que mais aparecem no log |
+| qua 04/11 | leve (1h) | só as perguntas das cadeias socráticas e as armadilhas (§3); esqueletos da Q2 e da Q6; **nada novo**; dormir cedo |
+| **qui 05/11** | **prova** | 15 minutos antes: o mínimo de cor e a regra de ordem (contas curtas → derivações → revisão) |
+
+Se sobrar tempo num dia, use o [banco](banco.md) do bloco do dia: cada questão tem uma variação curta com resposta.
 
 ## Os três simulados
 
