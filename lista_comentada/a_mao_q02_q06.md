@@ -24,6 +24,7 @@ Esta é a demonstração **como se escreve no caderno**: cada linha numerada, (1
 **Legenda dos colchetes:**
 - [RB]: ruído branco, $E(\varepsilon_t)=0$, $E(\varepsilon_t^2)=\sigma^2$ e $E(\varepsilon_i\varepsilon_j)=0$ se $i\ne j$;
 - [lin.]: linearidade da esperança, em que constantes saem e a esperança da soma é a soma das esperanças;
+- [F3], [F4]…: ferramentas demonstradas uma vez na [caixa de ferramentas](README.md#2-caixa-de-ferramentas): F3 é a soma de Gauss; F4 é a linearidade, $E(a+bX+cY)=a+bE(X)+cE(Y)$ e $E(c)=c$;
 - [estac.]: estacionariedade, os momentos não dependem da data: $E(y_t)=\mu$ e $E\big((y_{t-j}-\mu)^2\big)=\gamma_0$ para todo $j$;
 - [caus.]: causalidade, o choque de hoje não se correlaciona com o passado de $y$;
 - [(n)]: usando a linha (n).
@@ -94,31 +95,59 @@ $$
 
 ## (b) Média, variância e autocovariância
 
-**Média.**
+**Média.** Antes de tirar a esperança, separe em (10) o que é número do que é aleatório:
+- $a_t\equiv\alpha_1t+\alpha_2\frac{t(t+1)}{2}$ é um **número**: $t$ é a data, $\alpha_1$ e $\alpha_2$ são parâmetros, e nada ali é sorteado;
+- $S_t\equiv\sum_{s=1}^{t}\varepsilon_s=\varepsilon_1+\varepsilon_2+\cdots+\varepsilon_t$ é a **única parte aleatória**: uma soma de $t$ choques.
+
+Assim, (10) é $Y_t=a_t+S_t$. Linha a linha:
 
 $$
 \begin{aligned}
-\text{(11)}\quad & E(Y_t)=E\Big(\alpha_1t+\alpha_2\tfrac{t(t+1)}{2}+\sum_{s=1}^{t}\varepsilon_s\Big) && [(10)]\\
-\text{(12)}\quad & \phantom{E(Y_t)}=\alpha_1t+\alpha_2\tfrac{t(t+1)}{2}+\sum_{s=1}^{t}E(\varepsilon_s) && [\text{lin.}]\\
-\text{(13)}\quad & \phantom{E(Y_t)}=\alpha_1t+\alpha_2\tfrac{t(t+1)}{2}\equiv\mu_t && [\text{RB}]
+\text{(11)}\quad & E(Y_t)=E(a_t+S_t) && [(10)]\\
+\text{(12)}\quad & \phantom{E(Y_t)}=E(a_t)+E(S_t) && [\text{F4: esperança da soma}]\\
+\text{(13)}\quad & E(a_t)=a_t && [\text{F4: } E(c)=c,\ a_t \text{ não é aleatório}]\\
+\text{(14)}\quad & E(S_t)=E(\varepsilon_1+\varepsilon_2+\cdots+\varepsilon_t) && [\text{abre o }\textstyle\sum]\\
+\text{(15)}\quad & \phantom{E(S_t)}=E(\varepsilon_1)+E(\varepsilon_2+\cdots+\varepsilon_t) && [\text{F4: } X=\varepsilon_1,\ Y=\text{resto}]\\
+\text{(16)}\quad & \phantom{E(S_t)}=E(\varepsilon_1)+E(\varepsilon_2)+E(\varepsilon_3+\cdots+\varepsilon_t) && [\text{F4 de novo}]\\
+\text{(17)}\quad & \phantom{E(S_t)}=E(\varepsilon_1)+E(\varepsilon_2)+\cdots+E(\varepsilon_t)=\sum_{s=1}^{t}E(\varepsilon_s) && [\text{F4, } t-1 \text{ vezes}]\\
+\text{(18)}\quad & \phantom{E(S_t)}=\underbrace{0+0+\cdots+0}_{t\ \text{parcelas}} && [\text{RB: } E(\varepsilon_s)=0\ \forall s]\\
+\text{(19)}\quad & \phantom{E(S_t)}=0\\
+\text{(20)}\quad & E(Y_t)=a_t+0=\alpha_1t+\alpha_2\tfrac{t(t+1)}{2}\equiv\mu_t && [(12),(13),(19)]
 \end{aligned}
 $$
 
-**Desvio em relação à média.** Subtraindo (13) de (10):
+**Por que a esperança pode entrar no $\Sigma$** (o passo (17)), por indução no número de parcelas $n$:
+- **base, $n=1$:** $E(\varepsilon_1)=E(\varepsilon_1)$ ✓;
+- **passo:** se $E\big(\sum_{s=1}^{n}\varepsilon_s\big)=\sum_{s=1}^{n}E(\varepsilon_s)$, então
 
 $$
-\text{(14)}\qquad Y_t-\mu_t=\sum_{s=1}^{t}\varepsilon_s
+E\Big(\sum_{s=1}^{n+1}\varepsilon_s\Big)=E\Big(\sum_{s=1}^{n}\varepsilon_s+\varepsilon_{n+1}\Big)=E\Big(\sum_{s=1}^{n}\varepsilon_s\Big)+E(\varepsilon_{n+1})=\sum_{s=1}^{n}E(\varepsilon_s)+E(\varepsilon_{n+1})=\sum_{s=1}^{n+1}E(\varepsilon_s),
+$$
+
+  usando a F4 com duas parcelas ($X=\sum_{s=1}^{n}\varepsilon_s$ e $Y=\varepsilon_{n+1}$) e depois a hipótese de indução. ✓
+
+Observações:
+- **A soma é finita**, com $t$ parcelas, e por isso a troca vale sempre. Numa soma **infinita**, como o MA($\infty$) da Q6, a troca precisa de $\sum_j\lvert\psi_j\rvert\lt\infty$.
+- **Por que $E(\varepsilon_s)=0$:** é a primeira propriedade do ruído branco, $\varepsilon_t\sim RB(0,\sigma^2)$ (AU01, p. 31). Vale para **cada** data $s$, e por isso todas as $t$ parcelas de (18) são zero.
+- **Exemplo com $t=3$:** $E(\varepsilon_1+\varepsilon_2+\varepsilon_3)=E(\varepsilon_1)+E(\varepsilon_2)+E(\varepsilon_3)=0+0+0=0$.
+- **Com $y_0$ genérico**, como no slide: $Y_t=y_0+a_t+S_t$, e $E(y_0)=y_0$ pela F4, porque $y_0$ é fixo. Então $E(Y_t)=y_0+\alpha_1t+\alpha_2\frac{t(t+1)}{2}$, exatamente a AU01, p. 30.
+- **Atalho para a prova**, numa linha: $E\big(\sum_{s=1}^{t}\varepsilon_s\big)=\sum_{s=1}^{t}E(\varepsilon_s)=\sum_{s=1}^{t}0=0$ [F4, soma finita; RB].
+
+**Desvio em relação à média.** Subtraindo (20) de (10):
+
+$$
+\text{(21)}\qquad Y_t-\mu_t=\sum_{s=1}^{t}\varepsilon_s
 $$
 
 **Variância.**
 
 $$
 \begin{aligned}
-\text{(15)}\quad & V(Y_t)=E\big((Y_t-\mu_t)^2\big)=E\Big(\Big(\sum_{i=1}^{t}\varepsilon_i\Big)^2\Big) && [(14)]\\
-\text{(16)}\quad & \phantom{V(Y_t)}=E\Big(\sum_{i=1}^{t}\sum_{j=1}^{t}\varepsilon_i\varepsilon_j\Big) && [\text{quadrado da soma}]\\
-\text{(17)}\quad & \phantom{V(Y_t)}=\sum_{i=1}^{t}\sum_{j=1}^{t}E(\varepsilon_i\varepsilon_j) && [\text{lin.}]\\
-\text{(18)}\quad & \phantom{V(Y_t)}=\sum_{i=1}^{t}E(\varepsilon_i^2)+\sum_{i\ne j}E(\varepsilon_i\varepsilon_j) && [\text{separa } i=j]\\
-\text{(19)}\quad & \phantom{V(Y_t)}=t\sigma^2+0=t\sigma^2 && [\text{RB}]
+\text{(22)}\quad & V(Y_t)=E\big((Y_t-\mu_t)^2\big)=E\Big(\Big(\sum_{i=1}^{t}\varepsilon_i\Big)^2\Big) && [(21)]\\
+\text{(23)}\quad & \phantom{V(Y_t)}=E\Big(\sum_{i=1}^{t}\sum_{j=1}^{t}\varepsilon_i\varepsilon_j\Big) && [\text{quadrado da soma}]\\
+\text{(24)}\quad & \phantom{V(Y_t)}=\sum_{i=1}^{t}\sum_{j=1}^{t}E(\varepsilon_i\varepsilon_j) && [\text{lin.}]\\
+\text{(25)}\quad & \phantom{V(Y_t)}=\sum_{i=1}^{t}E(\varepsilon_i^2)+\sum_{i\ne j}E(\varepsilon_i\varepsilon_j) && [\text{separa } i=j]\\
+\text{(26)}\quad & \phantom{V(Y_t)}=t\sigma^2+0=t\sigma^2 && [\text{RB}]
 \end{aligned}
 $$
 
@@ -126,20 +155,20 @@ $$
 
 $$
 \begin{aligned}
-\text{(20)}\quad & \operatorname{Cov}(Y_t,Y_{t-k})=E\big((Y_t-\mu_t)(Y_{t-k}-\mu_{t-k})\big)\\
-\text{(21)}\quad & \phantom{\operatorname{Cov}}=E\Big(\Big(\sum_{i=1}^{t}\varepsilon_i\Big)\Big(\sum_{j=1}^{t-k}\varepsilon_j\Big)\Big) && [(14)\text{ em } t \text{ e } t-k]\\
-\text{(22)}\quad & \phantom{\operatorname{Cov}}=\sum_{i=1}^{t}\sum_{j=1}^{t-k}E(\varepsilon_i\varepsilon_j) && [\text{lin.}]\\
-\text{(23)}\quad & \phantom{\operatorname{Cov}}=\sum_{j=1}^{t-k}E(\varepsilon_j^2) && [\text{RB: só } i=j]\\
-\text{(24)}\quad & \phantom{\operatorname{Cov}}=(t-k)\sigma^2
+\text{(27)}\quad & \operatorname{Cov}(Y_t,Y_{t-k})=E\big((Y_t-\mu_t)(Y_{t-k}-\mu_{t-k})\big)\\
+\text{(28)}\quad & \phantom{\operatorname{Cov}}=E\Big(\Big(\sum_{i=1}^{t}\varepsilon_i\Big)\Big(\sum_{j=1}^{t-k}\varepsilon_j\Big)\Big) && [(21)\text{ em } t \text{ e } t-k]\\
+\text{(29)}\quad & \phantom{\operatorname{Cov}}=\sum_{i=1}^{t}\sum_{j=1}^{t-k}E(\varepsilon_i\varepsilon_j) && [\text{lin.}]\\
+\text{(30)}\quad & \phantom{\operatorname{Cov}}=\sum_{j=1}^{t-k}E(\varepsilon_j^2) && [\text{RB: só } i=j]\\
+\text{(31)}\quad & \phantom{\operatorname{Cov}}=(t-k)\sigma^2
 \end{aligned}
 $$
 
-Em (23), os pares com $i=j$ só existem para $j=1,\dots,t-k$, porque a segunda soma para em $t-k$: são os choques que $Y_t$ e $Y_{t-k}$ têm em comum.
+Em (30), os pares com $i=j$ só existem para $j=1,\dots,t-k$, porque a segunda soma para em $t-k$: são os choques que $Y_t$ e $Y_{t-k}$ têm em comum.
 
 **Correlação:**
 
 $$
-\text{(25)}\qquad \rho(t,k)=\frac{(t-k)\sigma^2}{\sqrt{t\sigma^2\cdot(t-k)\sigma^2}}=\sqrt{\frac{t-k}{t}}
+\text{(32)}\qquad \rho(t,k)=\frac{(t-k)\sigma^2}{\sqrt{t\sigma^2\cdot(t-k)\sigma^2}}=\sqrt{\frac{t-k}{t}}
 $$
 
 $$
@@ -150,7 +179,7 @@ $$
 
 ## (c) Comparação com o passeio com drift
 
-Repetindo (1)–(24) com $\alpha_2=0$, isto é, com $Y_t=\alpha_1+Y_{t-1}+\varepsilon_t$ e $Y_0=0$, obtém-se $Y_t=\alpha_1t+\sum_{s=1}^{t}\varepsilon_s$, e:
+Repetindo (1)–(31) com $\alpha_2=0$, isto é, com $Y_t=\alpha_1+Y_{t-1}+\varepsilon_t$ e $Y_0=0$, obtém-se $Y_t=\alpha_1t+\sum_{s=1}^{t}\varepsilon_s$, e:
 
 | Momento | Só drift ($\alpha_2=0$) | Drift e tendência |
 |---|---|---|
@@ -165,7 +194,7 @@ Repetindo (1)–(24) com $\alpha_2=0$, isto é, com $Y_t=\alpha_1+Y_{t-1}+\varep
 **Decomposição.** Por (10):
 
 $$
-\text{(26)}\qquad Y_t=\underbrace{\alpha_1t+\alpha_2\tfrac{t(t+1)}{2}}_{\text{tendência determinística}}+\underbrace{\sum_{s=1}^{t}\varepsilon_s}_{\text{tendência estocástica}}
+\text{(33)}\qquad Y_t=\underbrace{\alpha_1t+\alpha_2\tfrac{t(t+1)}{2}}_{\text{tendência determinística}}+\underbrace{\sum_{s=1}^{t}\varepsilon_s}_{\text{tendência estocástica}}
 $$
 
 - **Os dois processos têm tendência estocástica** (raiz unitária). Por (10), $\partial Y_{t+j}/\partial\varepsilon_t=1$ para todo $j\ge0$: o choque é **permanente**.
@@ -175,23 +204,23 @@ $$
 
 $$
 \begin{aligned}
-\text{(27)}\quad & \Delta Y_t=Y_t-Y_{t-1}=\alpha_1+\alpha_2t+\varepsilon_t && [\text{modelo}]\\
-\text{(28)}\quad & E(\Delta Y_t)=\alpha_1+\alpha_2t && [\text{lin., RB}]
+\text{(34)}\quad & \Delta Y_t=Y_t-Y_{t-1}=\alpha_1+\alpha_2t+\varepsilon_t && [\text{modelo}]\\
+\text{(35)}\quad & E(\Delta Y_t)=\alpha_1+\alpha_2t && [\text{lin., RB}]
 \end{aligned}
 $$
 
 - **Só drift ($\alpha_2=0$):** $\Delta Y_t=\alpha_1+\varepsilon_t$, que é estacionário. Uma diferença basta.
-- **Drift e tendência:** por (28), $\Delta Y_t$ **ainda tem tendência linear** na média. Uma diferença não basta.
+- **Drift e tendência:** por (35), $\Delta Y_t$ **ainda tem tendência linear** na média. Uma diferença não basta.
 
-**Caminho recomendado.** Diferenciar uma vez e **tirar a tendência linear de $\Delta Y_t$ por regressão** em $(1,t)$. Por (27), o resíduo dessa regressão estima $\varepsilon_t$, que é ruído branco.
+**Caminho recomendado.** Diferenciar uma vez e **tirar a tendência linear de $\Delta Y_t$ por regressão** em $(1,t)$. Por (34), o resíduo dessa regressão estima $\varepsilon_t$, que é ruído branco.
 
 **Caminho a evitar: diferenciar duas vezes.**
 
 $$
 \begin{aligned}
-\text{(29)}\quad & \Delta^2Y_t=\Delta Y_t-\Delta Y_{t-1} && [\text{definição}]\\
-\text{(30)}\quad & \phantom{\Delta^2Y_t}=(\alpha_1+\alpha_2t+\varepsilon_t)-\big(\alpha_1+\alpha_2(t-1)+\varepsilon_{t-1}\big) && [(27)]\\
-\text{(31)}\quad & \phantom{\Delta^2Y_t}=\alpha_2+\varepsilon_t-\varepsilon_{t-1}=\alpha_2+(1-L)\,\varepsilon_t
+\text{(36)}\quad & \Delta^2Y_t=\Delta Y_t-\Delta Y_{t-1} && [\text{definição}]\\
+\text{(37)}\quad & \phantom{\Delta^2Y_t}=(\alpha_1+\alpha_2t+\varepsilon_t)-\big(\alpha_1+\alpha_2(t-1)+\varepsilon_{t-1}\big) && [(34)]\\
+\text{(38)}\quad & \phantom{\Delta^2Y_t}=\alpha_2+\varepsilon_t-\varepsilon_{t-1}=\alpha_2+(1-L)\,\varepsilon_t
 \end{aligned}
 $$
 
@@ -203,7 +232,7 @@ A média fica constante, $\alpha_2$, mas sobra um MA(1) com $\theta_1=-1$. O pol
 
 O mínimo que precisa estar no papel:
 1. Some o modelo de 1 a $t$ (telescópica) e use $\sum s=\frac{t(t+1)}{2}$: $Y_t=\alpha_1t+\alpha_2\frac{t(t+1)}{2}+\sum_{s=1}^{t}\varepsilon_s$.
-2. $E(Y_t)=\alpha_1t+\alpha_2\frac{t(t+1)}{2}$ [lin., RB].
+2. Com $a_t=\alpha_1t+\alpha_2\frac{t(t+1)}{2}$ fixo: $E(Y_t)=E(a_t)+E\big(\sum\varepsilon_s\big)=a_t+\sum E(\varepsilon_s)=a_t+\sum0=a_t$ [F4, soma finita; RB].
 3. $Y_t-\mu_t=\sum\varepsilon_s$, logo $V(Y_t)=E\big((\sum\varepsilon_s)^2\big)=t\sigma^2$ [RB: só $i=j$].
 4. $\operatorname{Cov}(Y_t,Y_{t-k})=E\big(\sum_{i\le t}\varepsilon_i\sum_{j\le t-k}\varepsilon_j\big)=(t-k)\sigma^2$.
 5. Os momentos dependem de $t$: **não estacionário**.
@@ -214,7 +243,7 @@ O mínimo que precisa estar no papel:
 
 Com $\alpha_1=1$ e $\alpha_2=0{,}2$:
 - a recursão dá $E(Y_1)=1{,}2$, $E(Y_2)=2{,}6$ e $E(Y_3)=4{,}2$;
-- a fórmula (13) dá os mesmos valores: $2+0{,}2\cdot3=2{,}6$ e $3+0{,}2\cdot6=4{,}2$;
+- a fórmula (20) dá os mesmos valores: $2+0{,}2\cdot3=2{,}6$ e $3+0{,}2\cdot6=4{,}2$;
 - com 50 mil trajetórias simuladas e $\sigma^2=1$: $V(Y_3)\approx2{,}99$ (fórmula: 3), $\operatorname{Cov}(Y_3,Y_1)\approx1{,}00$ (fórmula: 1) e $\operatorname{Corr}(Y_3,Y_1)\approx0{,}58$ (fórmula: $\sqrt{1/3}=0{,}577$).
 
 ---

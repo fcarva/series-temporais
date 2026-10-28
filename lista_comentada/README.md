@@ -118,7 +118,7 @@ $\sum_{s=1}^{t}s=\frac{t(t+1)}{2}$.
 
 ### F4 · Linearidade da esperança
 
-$E(a+bX+cY)=a+bE(X)+cE(Y)$ para constantes $a$, $b$ e $c$. Constantes saem da esperança: $E(c)=c$. **Não** vale $E(XY)=E(X)E(Y)$ em geral. Isso só vale quando $X$ e $Y$ são não correlacionados.
+$E(a+bX+cY)=a+bE(X)+cE(Y)$ para constantes $a$, $b$ e $c$. Constantes saem da esperança: $E(c)=c$. Para uma soma **finita**, $E\big(\sum_{s=1}^{t}X_s\big)=\sum_{s=1}^{t}E(X_s)$: é a F4 aplicada $t-1$ vezes, com a prova por indução na [folha à mão da Q2](a_mao_q02_q06.md). **Não** vale $E(XY)=E(X)E(Y)$ em geral. Isso só vale quando $X$ e $Y$ são não correlacionados.
 
 ### F5 · Variância e covariância de combinações lineares
 
