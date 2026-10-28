@@ -35,6 +35,12 @@ Para gerar só um volume, passe `teoria`, `lista`, `trabalho`, `lista01`, `guia`
 
 **Requisitos:** pandoc e LuaLaTeX (TeX Live ou MiKTeX), com as fontes Libertinus, que vêm no TeX Live (`texlive-fonts-extra`) e no MiKTeX. O preâmbulo usa Consolas e Segoe UI Symbol quando existem, como no Windows, e DejaVu nos outros sistemas.
 
+## O volume único da P1
+
+`Rscript caderno/montar_caderno.R completo` gera `caderno_p1_completo.pdf`, **o PDF para imprimir e estudar**. A ordem vem de [volume_completo.tsv](volume_completo.tsv), que o builder e o [avaliador do autoestudo](../autoestudo/program.md#modo-volume-o-volume-único-da-p1) leem.
+
+O seletor `arquivo.md::trecho do título` recorta uma só seção de uma nota, como um bloco do banco, a Q2 da folha da Q2/Q6 ou uma demonstração de um módulo. Assim, nada se repete. O INPC, a Lista 01 e o módulo 07 ficam de fora.
+
 ## Versão para imprimir (volumes 5, 6, 7, simulados e "à mão")
 
 Os cinco PDFs da prova saem no **modo de impressão** (`compilar(..., impressao = TRUE)` em [montar_caderno.R](montar_caderno.R), com o preâmbulo extra [preambulo_impressao.tex](preambulo_impressao.tex)):

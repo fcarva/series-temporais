@@ -24,6 +24,7 @@ O que se sabe da prova: **5 ou 6 questões, de 1h50 a 2h, sem consulta, tiradas 
 
 | Arquivo | Para quê |
 |---|---|
+| volume único da P1 | **o PDF para imprimir**, `caderno_p1_completo.pdf`, na pasta `caderno/pdf/`: os seis blocos (apostila, folha à mão, comentadas, banco), os simulados e os gabaritos, o log e o formulário |
 | [apostila](../apostila/README.md) | **um capítulo por bloco da lista**: teoria com página do slide, demonstrações linha a linha, exemplo em R, perguntas em cadeia, diálogo e imagens; leia o capítulo antes de fazer as questões do bloco |
 | [lista comentada](../lista_comentada/README.md) | **as 16 questões da lista, passo a passo, na notação dos slides**, com o caderno corrigido: comece por aqui |
 | [Q2 e Q6 à mão](../lista_comentada/a_mao_q02_q06.md) | as duas questões escolhidas para treinar no papel, linha a linha, no formato de caderno |

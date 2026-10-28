@@ -45,6 +45,7 @@ Para só o trabalho do INPC: `Rscript trabalho_inpc/inpc.R`. Para atualizar a s�
 
 | Para… | Abra |
 |---|---|
+| **Imprimir tudo para a prova** | `caderno/pdf/caderno_p1_completo.pdf`: o volume único da P1, por bloco da lista e sem repetição (capítulo da apostila, folha à mão, notas comentadas, banco e aprofundamento), mais simulados, gabaritos, log de erros e formulário, com o mapa das questões na abertura; a ordem está em [caderno/volume_completo.tsv](caderno/volume_completo.tsv) |
 | **Entender a fundo cada bloco da lista** | [apostila/](apostila/README.md): seis capítulos, um por bloco (Q1–Q16), com teoria e página do slide, demonstrações linha a linha, exemplo conferido em R, perguntas em cadeia, diálogo e imagens com o ponto onde quebram; no papel, `caderno/pdf/caderno_volume7_apostila.pdf` |
 | **Estudar cada questão da lista passo a passo** | [lista_comentada/](lista_comentada/README.md): Q1–Q16 com todas as passagens (até Bhaskara), na notação dos slides, com slide, livro e o caderno corrigido; no papel, `caderno/pdf/caderno_volume6_lista_comentada.pdf`; Q2 e Q6 [linha a linha, para fazer à mão](lista_comentada/a_mao_q02_q06.md), em `caderno_a_mao_q02_q06.pdf` |
 | **Treinar para a prova de 05/11** | [prova/](prova/README.md): guia com estratégia de tempo e as lições da P1 de Econometria I, [banco de variações](prova/banco.md) das 16 questões, três simulados com gabarito e rubrica e o [log de erros](prova/log_erros.md); no papel, `caderno/pdf/caderno_volume5_prova.pdf` e `caderno_prova_simulados.pdf` |
@@ -118,4 +119,4 @@ series-temporais/
 
 ## Estado atual
 
-Build completo passando em 28/10/2026 (dados até set/2026): **229 testes** do testthat, **19 scripts** executados (inclusive `prova/prova.R`, `lista_comentada/lista_comentada.R` e `apostila/apostila.R`), **1328 números** das notas conferidos contra o R e lint sem erros, com o detector de cópia ligado contra slides e lista. O trabalho do INPC segue o enunciado da Lista 01, questão por questão.
+Build completo passando em 28/10/2026 (dados até set/2026): **229 testes** do testthat, **19 scripts** executados (inclusive `prova/prova.R`, `lista_comentada/lista_comentada.R` e `apostila/apostila.R`), **1543 números** das notas conferidos contra o R e lint sem erros, com o detector de cópia ligado contra slides e lista. O trabalho do INPC segue o enunciado da Lista 01, questão por questão.
