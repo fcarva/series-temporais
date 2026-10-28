@@ -25,6 +25,8 @@ Enunciado em [simulado_03.md](simulado_03.md). Números de [prova.R](prova.R). E
 
 ## Questão 1 (1,5)
 
+*Origem na lista:* (lista, Q2) e (lista, Q10): tendência determinística × estocástica e sobrediferenciação.
+
 ### a) TS (0,4)
 
 - $E(y_t)=2+0{,}5t+E(u_t)=2+0{,}5t$, porque $u$ é um AR(1) estacionário de média zero. Logo $E(y_{10})=7$.
@@ -68,6 +70,8 @@ Na prática, quem decide qual é o caso é o ADF com tendência (Mattos; Enders,
 
 ## Questão 2 (2,0)
 
+*Origem na lista:* (lista, Q8), modelo (I), com o ARMA(1,1) da (lista, Q6).
+
 **Convenção:** sinal positivo. Os momentos auxiliares, multiplicando o modelo por $u_t$ e por $u_{t-1}$, são:
 - $E(Y_tu_t)=\sigma^2$;
 - $E(Y_tu_{t-1})=\alpha\sigma^2+\beta\sigma^2=(\alpha+\beta)\sigma^2$.
@@ -109,6 +113,8 @@ Com os números, $\gamma_1=1{,}25/0{,}75=1{,}6667$ e $\rho_1=0{,}7143$.
 ---
 
 ## Questão 3 (2,0)
+
+*Origem na lista:* (lista, Q12).
 
 ### a) Expansão (0,6)
 
@@ -162,6 +168,8 @@ O termo $-0{,}6a_{T+h-4}$ usa resíduos observados só até $h=4$. Em $h=5$, ele
 
 ## Questão 4 (1,5)
 
+*Origem na lista:* (lista, Q16), item (d), e (lista, Q14).
+
 ### a) Parâmetros e observações (0,3)
 
 - M1: $\phi$, $\theta$, $\Theta$ e $\sigma^2$, isto é, $k=4$.
@@ -199,6 +207,8 @@ O **BIC**, porque é consistente. Como os modelos são aninhados, o LR é a conf
 
 ## Questão 5 (1,5)
 
+*Origem na lista:* (lista, Q15), item (c), no caso MA($q$).
+
 ### a) Previsões (0,5)
 
 **Convenção:** BJ, com $\theta(B)=1-\theta_1B-\theta_2B^2$, $\theta_1=0{,}5$ e $\theta_2=-0{,}2$. É um MA(2), sempre estacionário. É invertível? As raízes de $1-0{,}5z+0{,}2z^2$ são complexas, com módulo $\sqrt{1/0{,}2}=2{,}2361\gt1$: sim.
@@ -233,6 +243,8 @@ $y_{T+h}=\mu+a_{T+h}-\theta_1a_{T+h-1}-\theta_2a_{T+h-2}$. Para $h\gt2$, todos o
 ---
 
 ## Questão 6 (1,5)
+
+*Origem na lista:* (lista, Q16), item (c), lido ao contrário: da FAC amostral para o modelo.
 
 ### a) Banda (0,3)
 

@@ -25,6 +25,8 @@ Enunciado em [simulado_02.md](simulado_02.md). Números de [prova.R](prova.R). E
 
 ## Questão 1 (1,5)
 
+*Origem na lista:* (lista, Q4): o componente determinístico de Wold no item b) e a invertibilidade como escolha entre $\theta$ e $1/\theta$ no item c).
+
 ### a) O processo harmônico é estacionário (0,4)
 
 - $E(z_t)=\cos(\omega t)E(A)+\sin(\omega t)E(B)=0$, para todo $t$.
@@ -67,6 +69,8 @@ Em geral, $\theta$ e $1/\theta$ dão o mesmo $\rho_1=\theta/(1+\theta^2)$. A rai
 ---
 
 ## Questão 2 (2,0)
+
+*Origem na lista:* (lista, Q7), com a FACP e os pesos $\psi$ do cap. 2.
 
 ### a) Estacionariedade (0,4)
 
@@ -116,6 +120,8 @@ $\psi_j=\phi_1\psi_{j-1}+\phi_2\psi_{j-2}$, com $\psi_0=1$ e $\psi_{-1}=0$: $\ps
 
 ## Questão 3 (2,0)
 
+*Origem na lista:* itens a) e b): (lista, Q11); itens c) e d): (lista, Q10).
+
 ### a) SAR$(1)_4$ (0,7)
 
 O modelo é um AR(1) em "anos": $y_t$ só se liga a $y_{t-4}$, $y_{t-8}$, e assim por diante.
@@ -163,6 +169,8 @@ $(1-0{,}4B)(1-B)y_t=(1-0{,}4B)w_t=(1-0{,}7B)a_t$. A raiz AR é $2{,}5$ e a raiz 
 
 ## Questão 4 (1,5)
 
+*Origem na lista:* itens a) e b): (lista, Q14); item c): (lista, Q13).
+
 ### a) Critérios (0,8)
 
 $AIC=\frac{-2\ln L+2k}{T}$ e $BIC=\frac{-2\ln L+k\ln T}{T}$ (AU02), com $k$ incluindo $\sigma^2$.
@@ -203,6 +211,8 @@ Esse termo não é quadrático em $\phi$, então a exata não tem forma fechada.
 
 ## Questão 5 (1,5)
 
+*Origem na lista:* (lista, Q15): item a) é o item (b)–(d) e item b) é o item (e).
+
 ### a) ARMA(1,1) com sinal positivo (1,0)
 
 **Convenção:** sinal positivo, $\theta=0{,}4$ entra **somando**.
@@ -242,6 +252,8 @@ Iterando, os pesos das observações passadas são $\alpha(1-\alpha)^j$: $0{,}3$
 ---
 
 ## Questão 6 (1,5)
+
+*Origem na lista:* itens a) e b): (lista, Q16); itens c) e d): (lista, Q12), a previsão e o diagnóstico.
 
 ### a) Modelo (0,4)
 

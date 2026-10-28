@@ -29,6 +29,8 @@ Enunciado em [simulado_01.md](simulado_01.md). Todos os números saem de [prova.
 
 ## Questão 1 (1,5)
 
+*Origem na lista:* itens a) e b): (lista, Q1); item c): (lista, Q3).
+
 ### a) Momentos do passeio sem drift (0,5)
 
 Por substituição recursiva, $y_t=y_0+\sum_{j=1}^{t}u_j$. Então:
@@ -85,6 +87,8 @@ $\gamma_0=4(1{,}0)+1{,}5=5{,}5$, $\gamma_1=4(0{,}4)-0{,}6=1{,}0$, $\gamma_2=0+0{
 ---
 
 ## Questão 2 (2,0)
+
+*Origem na lista:* itens a) e d): (lista, Q5); itens b) e c): (lista, Q6).
 
 **Convenção:** Box-Jenkins, $\phi=0{,}6$, $\theta=0{,}3$.
 
@@ -144,6 +148,8 @@ Os $\psi$ convergem porque $\lvert\phi\rvert\lt1$; os $\pi$, porque $\lvert\thet
 
 ## Questão 3 (1,5)
 
+*Origem na lista:* (lista, Q9).
+
 ### a) A forma ARMA de $w_t$ (0,5)
 
 Aplique $(1-B)$ dos dois lados de $(1-0{,}5B)y_t=\varepsilon_t$. Os operadores comutam:
@@ -183,6 +189,8 @@ $\operatorname{Var}(y_t)=\sigma^2/(1-\phi^2)=1{,}3333$: com $\phi=0{,}5$, **dife
 ---
 
 ## Questão 4 (1,5)
+
+*Origem na lista:* item a): (lista, Q14); item b): (lista, Q13).
 
 ### a) AIC e BIC (0,9)
 
@@ -234,6 +242,8 @@ $$
 
 ## Questão 5 (2,0)
 
+*Origem na lista:* (lista, Q15).
+
 ### a) O previsor ótimo (0,6)
 
 Seja $g$ qualquer função de $\mathcal F_T$ e $m=E(y_{T+h}\mid\mathcal F_T)$. Somando e subtraindo $m$:
@@ -277,6 +287,8 @@ $$
 ---
 
 ## Questão 6 (1,5)
+
+*Origem na lista:* (lista, Q16).
 
 ### a) Modelo (0,3)
 
