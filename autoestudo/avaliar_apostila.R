@@ -60,6 +60,24 @@ criterio <- function(e, s, cap_q) {
     FALSE)
 }
 
+# "a_mao": a folha de caderno do capítulo, apostila/a_mao_capN.md, ligada pelo capítulo, com
+#   >= 40 linhas numeradas \text{(n)}, >= 90% delas com justificativa entre colchetes [...],
+#   uma seção (# ou ##) por questão do bloco ("Q5", "Q6"...), "Versão para a prova" e
+#   "Conferência" com >= 4 números ap_* numa tabela chave_R.
+a_mao_ok <- function(cap, l_cap, qs) {
+  n <- sub("^(cap[0-9]).*", "\\1", cap); f <- paste0("a_mao_", n, ".md")
+  arq <- file.path(RAIZ, "apostila", f)
+  if (!file.exists(arq) || !any(grepl(f, l_cap, fixed = TRUE))) return(FALSE)
+  l <- readLines(arq, warn = FALSE, encoding = "UTF-8")
+  num <- grep("\\\\text\\{\\([0-9]+\\)\\}", l, value = TRUE)
+  just <- grepl("&&\\s*\\[|\\\\qquad\\s*\\[", num)
+  cab <- grep("^#{1,2}\\s", l, value = TRUE)
+  length(num) >= 40 && mean(just) >= 0.9 &&
+    all(vapply(qs, function(q) any(grepl(sprintf("\\bQ%d\\b", q), cab)), logical(1))) &&
+    any(grepl("^#{1,3}\\s+Versão para a prova", l)) && any(grepl("^#{1,3}\\s+Conferência", l)) &&
+    sum(grepl("^\\|\\s*ap_[A-Za-z0-9_]+\\s*\\|", l)) >= 4
+}
+
 QUESTOES <- list(cap1_processos_momentos = 1:4, cap2_ar_ma_arma = 5:8, cap3_integrados_sarima = 9:12,
                  cap4_estimacao_selecao = 13:14, cap5_previsao = 15, cap6_aplicacao = 16)
 
@@ -71,7 +89,9 @@ for (cap in unique(rub$cap)) {
   s <- secoes2(l)
   nucleo <- unlist(s[intersect(names(s), TITULOS[c("teoria", "demonstracoes", "exemplo")])])
   for (i in which(rub$cap == cap)) {
-    rub$ok[i] <- if (rub$tipo[i] == "elemento") {
+    rub$ok[i] <- if (rub$tipo[i] == "elemento" && rub$alvo[i] == "a_mao") {
+      a_mao_ok(cap, l, QUESTOES[[cap]])
+    } else if (rub$tipo[i] == "elemento") {
       criterio(rub$alvo[i], s[[TITULOS[[rub$alvo[i]]]]], QUESTOES[[cap]])
     } else any(grepl(rub$alvo[i], nucleo, perl = TRUE, ignore.case = TRUE))
   }

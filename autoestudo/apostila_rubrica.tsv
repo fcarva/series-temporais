@@ -103,3 +103,9 @@ A101	cap6_aplicacao	topico	parâmetros	1
 A102	cap6_aplicacao	topico	Ljung-Box	1
 A103	cap6_aplicacao	topico	diagnóstico	1
 A104	cap6_aplicacao	topico	satélite	1
+A105	cap1_processos_momentos	elemento	a_mao	3
+A106	cap2_ar_ma_arma	elemento	a_mao	3
+A107	cap3_integrados_sarima	elemento	a_mao	3
+A108	cap4_estimacao_selecao	elemento	a_mao	3
+A109	cap5_previsao	elemento	a_mao	3
+A110	cap6_aplicacao	elemento	a_mao	3

@@ -91,6 +91,7 @@ As duas ficam **fixas durante o loop**, como `topicos.tsv` e `avaliar.R`.
 | Diálogo | tem 4 ou mais falas de `**Professor:**` e 4 ou mais de `**Aluno:**` |
 | Na prova | liga para a nota comentada de cada questão do bloco e traz um checklist |
 | No material do professor | cita 3 ou mais páginas de aula e um livro |
+| **À mão** (peso 3), arquivo `apostila/a_mao_capN.md` ligado pelo capítulo | 40 ou mais linhas `\text{(n)}`, 90% ou mais delas com a justificativa `[...]`, uma seção por questão do bloco, "Versão para a prova" e "Conferência" com 4 ou mais números `ap_*` |
 
 Um **tópico** do bloco só conta se aparece em Teoria, Demonstrações ou Exemplo.
 
