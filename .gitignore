@@ -45,3 +45,5 @@ lista01/*.log
 lista01/relatorio_lista01_files/
 autoestudo/resultados_apostila.tsv
 autoestudo/cobertura_apostila.tsv
+autoestudo/resultados_volume.tsv
+autoestudo/cobertura_volume.tsv

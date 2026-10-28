@@ -107,3 +107,34 @@ Um **tópico** do bloco só conta se aparece em Teoria, Demonstrações ou Exemp
 - as fontes externas de `apostila/fontes.md` inspiram imagens e perguntas, mas o texto não depende delas;
 - as demonstrações seguem o formato de `lista_comentada/a_mao_q02_q06.md`: linhas numeradas e justificativa entre colchetes;
 - nada de palavra-chave solta para fazer a régua contar.
+
+## Modo volume (o volume único da P1)
+
+O alvo é o que vai para o papel: as fontes de `caderno/volume_completo.tsv`, na ordem do manifesto (o mesmo que o builder lê, com o seletor `arquivo.md::trecho do título`). A régua mede a **sinergia** do volume com tudo o que existe no repositório e nas aulas.
+
+| Arquivo | Papel |
+|---|---|
+| `autoestudo/volume_rubrica.tsv` | pesos das seis dimensões |
+| `autoestudo/avaliar_volume.R` | a métrica: `nota_volume`, por dimensão e total |
+
+| Dimensão | O que conta |
+|---|---|
+| camadas | Q1–Q16 em cinco camadas: capítulo da apostila, folha à mão, nota comentada, banco e um simulado ou gabarito que diga "lista, Qn" |
+| slides | cada página de conteúdo de AU01 (p. 5–50), AU02 (p. 3–99) e AU03 (p. 4–60) citada no volume |
+| mat | cada seção 1.1–1.11 e 2.1–2.6 do MAT citada, por § ou por página |
+| topicos | T01–T50 numa seção substantiva do volume |
+| livros | ENDERS, HAMILTON e BJRL com capítulo em cada bloco |
+| caderno | cada um dos seis erros do caderno avisado ("erro do caderno") na folha à mão do bloco |
+
+**Portões** (reprovam o experimento):
+- `bash scripts/build.sh` verde;
+- `Rscript caderno/montar_caderno.R completo` com zero `Overfull`;
+- nenhuma fonte repetida no manifesto;
+- nada de INPC;
+- no máximo 300 páginas.
+
+**Regras de conteúdo:**
+- uma citação de página só vale se o texto em volta disser o que o slide mostra;
+- citar páginas só para pontuar é descarte na revisão humana.
+
+O log vai para `autoestudo/resultados_volume.tsv`, fora do git.

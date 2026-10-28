@@ -1,0 +1,7 @@
+dimensao	peso	descricao
+camadas	3	Q1–Q16 x {apostila, folha à mão, comentada, banco, simulado/gabarito}
+slides	1	cada página de conteúdo de AU01 (5–50), AU02 (3–99), AU03 (4–60) citada no volume
+mat	1	cada seção 1.1–1.11 e 2.1–2.6 do MAT citada
+topicos	1	T01–T50 numa seção substantiva (multiplica o peso do topicos.tsv)
+livros	2	ENDERS, HAMILTON e BJRL com capítulo em cada bloco 1–6
+caderno	2	cada erro do caderno sinalizado na folha à mão do bloco
