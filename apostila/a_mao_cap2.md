@@ -58,7 +58,7 @@ Pede-se:
 $$
 \begin{aligned}
 \text{(1)}\quad & \tilde z_t-0{,}5\,\tilde z_{t-1}=\varepsilon_t && [\text{lista}]\\
-\text{(2)}\quad & (1-0{,}5L)\,\tilde z_t=\varepsilon_t && [L\tilde z_t=\tilde z_{t-1},\ \text{AU02 p. 11}]\\
+\text{(2)}\quad & (1-0{,}5L)\,\tilde z_t=\varepsilon_t && [\text{operador de defasagem: } L\tilde z_t=\tilde z_{t-1}]\\
 \text{(3)}\quad & \phi(L)=1-0{,}5L \text{ (grau 1)},\ \ \theta(L)=1 \text{ (grau 0)}\ \Rightarrow\ \text{ARMA}(1,0) && [\text{classifica}]\\
 \text{(4)}\quad & 1-0{,}5z=0\ \Rightarrow\ z=2 && [\text{raiz do AR}]\\
 \text{(5)}\quad & \lvert z\rvert=2\gt1\ \Rightarrow\ \text{estacionário} && [\text{AU02 p. 27}]\\

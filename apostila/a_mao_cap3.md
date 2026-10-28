@@ -211,12 +211,15 @@ $$
 \text{(61)}\quad & \text{gráficos: resíduos padronizados, histograma, QQ-plot, FAC} && [\text{AU03 p. 10}]\\
 \text{(62)}\quad & LB(K)=T(T+2)\textstyle\sum_{i=1}^{K}\frac{\widehat\rho_i^2}{T-i}\sim\chi^2_{K-p-q-P-Q}=\chi^2_{K-2} && [\text{AU03 p. 15}]\\
 \text{(63)}\quad & \text{pico nas defasagens 4 ou 8: parte sazonal mal especificada} && [\text{sazonal}]\\
-\text{(64)}\quad & JB=\tfrac{n}{6}\widehat S^2+\tfrac{n}{24}(\widehat K-3)^2\sim\chi^2_2 && [\text{AU03 p. 11–14}]\\
+\text{(64)}\quad & JB=\tfrac{n}{6}\widehat S^2+\tfrac{n}{24}(\widehat K-3)^2\sim\chi^2_2 && [\text{Jarque-Bera}]\\
 \text{(65)}\quad & \text{ARCH-LM e FAC de } \widehat\varepsilon_t^2 && [\text{AU03 p. 19–22}]\\
 \text{(66)}\quad & \text{estabilidade: Chow numa data escolhida antes, CUSUM} && [\text{AU03 p. 25–31}]\\
-\text{(67)}\quad & \widehat\Theta_1\approx-1 \Rightarrow \text{sobrediferenciação sazonal: usar dummies com } D=0 && [(7)\text{–}(8) \text{ na escala 4}]
+\text{(67)}\quad & \widehat\Theta_1\approx-1 \Rightarrow \text{sobrediferenciação sazonal: usar dummies com } D=0 && [(7)\text{–}(8) \text{ na escala 4}]\\
+\text{(68)}\quad & \text{Breusch-Godfrey: } \widehat\varepsilon_t \text{ nas próprias defasagens},\ nR^2\sim\chi^2_m && [\text{AU03 p. 18}]
 \end{aligned}
 $$
+
+A linha (64) é o teste de Jarque-Bera da AU03, p. 11–14.
 
 ---
 
@@ -245,7 +248,7 @@ $$
 1. Expanda em duas etapas, (49)–(51).
 2. Perdem-se 5 observações.
 3. As previsões vêm de (54)–(58): o MA some em $h=5$, e $y_{T+h-4}$ propaga a sazonalidade.
-4. Diagnóstico: as linhas (61)–(67).
+4. Diagnóstico: as linhas (61)–(68).
 
 ## Conferência
 
