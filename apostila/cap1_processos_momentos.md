@@ -56,6 +56,8 @@ São exatamente as três condições da AU01, p. 25: $\mu$ constante, $\gamma_0$
 
 ## Teoria
 
+**O que se procura numa série** (AU01, p. 8): dinâmica, tendência, sazonalidade e ciclos, não linearidade e variância que muda. Esta lista trata de modelos **univariados**, em que só o passado da própria série explica o presente, e não dos multivariados, que trazem outras variáveis (AU01, p. 17–18).
+
 **Processo estocástico** (AU01, p. 21–23): uma coleção $\{y_t\}$ de variáveis aleatórias indexadas pelo tempo. A série observada é **uma** realização dele.
 
 **Estacionariedade de 2ª ordem, ou fraca** (AU01, p. 25). Para todo $t$:
@@ -111,7 +113,7 @@ O formato é o da [folha à mão](../lista_comentada/a_mao_q02_q06.md). A Q2 (dr
 
 ### D1.1 · Passeio com drift: os momentos dependem de $t$ (Q1)
 
-Modelo: $y_t=c+y_{t-1}+u_t$, com $y_0$ fixo e $u_t\sim RB(0,\sigma^2)$ (AU01, p. 29).
+Modelo: $y_t=c+y_{t-1}+u_t$, com $y_0$ fixo e $u_t\sim RB(0,\sigma^2)$ (AU01, p. 29). O caso sem drift, $c=0$ e $y_0=0$, é feito passo a passo na AU01, p. 45–47.
 
 $$
 \begin{aligned}
@@ -214,6 +216,59 @@ $$
 $$
 
 A pista está em (3): $\gamma_k=\sigma_Z^2$ **não vai a zero**. Uma condição suficiente para a ergodicidade na média é $\gamma_k\to0$, ou, mais precisamente, $\sum\lvert\gamma_k\rvert\lt\infty$. Os ARMA estacionários a cumprem.
+
+### D1.6 · Como ler o correlograma: FAC, FACP e a banda (AU01, p. 35–49)
+
+A FAC e a FACP são a "assinatura", ou o DNA, de um processo (AU01, p. 36 e 43): medem a memória e a dependência de $y_t$ em relação às próprias defasagens. A ideia de identificação é comparar o correlograma dos dados, o gráfico das AU01, p. 38 e 42, com as assinaturas teóricas.
+
+$$
+\begin{aligned}
+\text{(1)}\quad & \rho_k=\frac{\operatorname{Cov}(y_t,y_{t-k})}{\sqrt{\operatorname{Var}(y_t)\operatorname{Var}(y_{t-k})}}=\frac{\gamma_k}{\gamma_0} && [\text{AU01 p. 37; estac.}]\\
+\text{(2)}\quad & \lvert\rho_k\rvert\le1 && [\text{Cauchy-Schwarz; AU01 p. 39}]\\
+\text{(3)}\quad & \text{sob RB: } \widehat\rho_k\approx N(0,1/T)\ \Rightarrow\ \text{banda } \pm1{,}96/\sqrt T && [\text{AU01 p. 39}]\\
+\text{(4)}\quad & \phi_{kk}=\operatorname{Corr}(y_t,y_{t-k}\mid y_{t-1},\dots,y_{t-k+1}) && [\text{AU01 p. 40–41}]\\
+\text{(5)}\quad & k=1:\ \phi_{11}=\rho_1 && [\text{regressão de } y_t \text{ em } y_{t-1}]\\
+\text{(6)}\quad & k=2:\ \rho_1=\phi_{21}+\phi_{22}\rho_1,\qquad \rho_2=\phi_{21}\rho_1+\phi_{22} && [\text{AU02 p. 92}]\\
+\text{(7)}\quad & \phi_{21}=\rho_1(1-\phi_{22}) && [\text{1ª equação}]\\
+\text{(8)}\quad & \rho_2=\rho_1^2(1-\phi_{22})+\phi_{22}\ \Rightarrow\ \phi_{22}(1-\rho_1^2)=\rho_2-\rho_1^2 && [(7)\text{ na 2ª}]\\
+\text{(9)}\quad & \phi_{22}=\frac{\rho_2-\rho_1^2}{1-\rho_1^2} && [\text{isola}]\\
+\text{(10)}\quad & \text{AR(1)}:\ \rho_2=\rho_1^2\ \Rightarrow\ \phi_{22}=0:\ \text{a FACP corta} && [\text{AU02 p. 94}]\\
+\text{(11)}\quad & \text{MA(1)}:\ \rho_2=0\ \Rightarrow\ \phi_{22}=-\frac{\rho_1^2}{1-\rho_1^2}\ne0:\ \text{a FACP decai} && [\text{AU02 p. 95}]\\
+\text{(12)}\quad & \text{passeio: } \rho(t,k)=\sqrt{(t-k)/t}\to1 \text{ para } k \text{ fixo} && [\text{D1.1; AU01 p. 48}]
+\end{aligned}
+$$
+
+$$
+\boxed{\phi_{22}=\frac{\rho_2-\rho_1^2}{1-\rho_1^2};\qquad \text{banda } \pm1{,}96/\sqrt T;\qquad \text{passeio: FAC perto de 1 que cai devagar}}
+$$
+
+Em (3), a derivação da banda está no aprofundamento do bloco 2. Em (4), $\phi_{kk}$ é o último coeficiente de um AR($k$) ajustado (AU02, p. 90), e por isso (6) usa o Yule-Walker do AR(2). A FAC "carrega" os efeitos intermediários; a FACP os remove (AU01, p. 39–41). Por isso:
+- o AR($p$) tem FAC que decai e FACP que corta em $p$;
+- o MA($q$), o contrário.
+
+**Números:**
+- no MA(1) com $\theta_1=0{,}5$, $\rho_1=0{,}4$, e (11) dá $\phi_{22}=-0{,}16/0{,}84=-0{,}1905$, igual ao `ARMAacf`;
+- no AR(1) com $\phi=0{,}7$, $\phi_{22}=0$;
+- numa simulação com $T=200$, banda $\pm0{,}139$, como na AU01, p. 49:
+  - a FAC amostral do passeio vale 0,970, 0,876 e 0,763 nas defasagens 1, 5 e 10: decai quase em linha reta;
+  - a do AR(1) com $\phi=0{,}7$ vale 0,639, 0,290 e $-0{,}082$, contra os teóricos 0,7, 0,168 e 0,028: cai rápido e entra na banda.
+
+<!-- conferência numérica
+| chave_R | nota |
+|---|---|
+| ap_c1_phi22_ma | -0,1905 |
+| ap_c1_phi22_ma_r | -0,1905 |
+| ap_c1_phi22_ar_r | 0 |
+| ap_c1_banda200 | 0,139 |
+| ap_c1_facrw1 | 0,970 |
+| ap_c1_facrw5 | 0,876 |
+| ap_c1_facrw10 | 0,763 |
+| ap_c1_facar1 | 0,639 |
+| ap_c1_facar5 | 0,290 |
+| ap_c1_facar10 | -0,082 |
+| ap_c1_facar_teo5 | 0,168 |
+| ap_c1_facar_teo10 | 0,028 |
+-->
 
 ## Exemplo
 

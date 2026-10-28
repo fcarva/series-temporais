@@ -295,7 +295,7 @@ $$
 \end{aligned}
 $$
 
-Com $h\gt1$, os $d_t$ são autocorrelacionados até a defasagem $h-1$, porque o erro de $h$ passos é um MA($h-1$) (D5.3). Então $\widehat V(\bar d)$ precisa de um estimador robusto, do tipo Newey-West.
+Com $h\gt1$, os $d_t$ são autocorrelacionados até a defasagem $h-1$, porque o erro de $h$ passos é um MA($h-1$) (D5.3). Então $\widehat V(\bar d)$ precisa de um estimador robusto, do tipo Newey-West. E o esquema de reestimação importa: com **janela móvel**, a alternativa de Giacomini e White (2006), citada na AU03, p. 51, compara os **métodos** de previsão, incluindo a incerteza da estimação; com janela recursiva, o DM compara os modelos populacionais.
 
 **Exemplo** com dez erros de dois modelos: $\bar d=1{,}46$, $\widehat V(\bar d)=0{,}1581$ e $DM=3{,}67\gt1{,}96$. O modelo 2 prevê significativamente melhor.
 

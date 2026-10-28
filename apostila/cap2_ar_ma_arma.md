@@ -76,7 +76,7 @@ $$
 
 e a FAC **trunca** depois de $q$. No MA(1), $\lvert\rho_1\rvert\le\frac12$ (AU02, p. 35).
 
-**Invertibilidade** (AU02, p. 22–23 e 30–36). O MA é invertível quando as raízes de $\theta(z)=1+\theta_1z+\cdots+\theta_qz^q=0$ estão **fora** do círculo unitário. No MA(1), isso é $\lvert\theta_1\rvert\lt1$, e os pesos são $\pi_j=-(-\theta_1)^j$. Os parâmetros $\theta$ e $1/\theta$ geram a mesma FAC (AU02, p. 34). A invertibilidade escolhe, entre os dois, aquele em que $\varepsilon_t$ é recuperável.
+**Invertibilidade** (AU02, p. 22–23 e 30–36). O MA é invertível quando as raízes de $\theta(z)=1+\theta_1z+\cdots+\theta_qz^q=0$ estão **fora** do círculo unitário. No MA(1), isso é $\lvert\theta_1\rvert\lt1$, e os pesos são $\pi_j=-(-\theta_1)^j$. Os parâmetros $\theta$ e $1/\theta$ geram a mesma FAC (AU02, p. 34). A invertibilidade escolhe, entre os dois, aquele em que $\varepsilon_t$ é recuperável. No MA($q$), a condição também pode ser checada pelos autovalores de uma matriz companheira com $-\theta_1,\dots,-\theta_q$ na primeira linha, como a matriz $F$ do AR (AU02, p. 42).
 
 **AR($p$)** (AU02, p. 25–28 e 37–41). O AR é estacionário quando as raízes de $\phi(z)=1-\phi_1z-\cdots-\phi_pz^p=0$ estão fora do círculo unitário, ou seja, quando $\lvert z_i\rvert\gt1$. Há duas formas equivalentes de escrever a mesma condição (AU02, p. 28):
 - as raízes $\lambda_i=1/z_i$ de $\lambda^p-\phi_1\lambda^{p-1}-\cdots-\phi_p=0$ estão **dentro** do círculo, $\lvert\lambda_i\rvert\lt1$;

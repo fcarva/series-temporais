@@ -40,6 +40,19 @@ registrar("ap_c1_erg_z2", Z[2]); registrar("ap_c1_erg_m2", medias[2])
 registrar("ap_c1_erg_z3", Z[3]); registrar("ap_c1_erg_m3", medias[3])
 registrar("ap_c1_erg_ensemble", mean(stats::rnorm(20000) + stats::rnorm(20000)))
 
+# D1.6: FAC, FACP e banda (AU01, p. 35–49)
+registrar("ap_c1_phi22_ma", -(0.4^2) / (1 - 0.4^2))
+registrar("ap_c1_phi22_ma_r", stats::ARMAacf(ma = 0.5, lag.max = 2, pacf = TRUE)[2])
+registrar("ap_c1_phi22_ar_r", stats::ARMAacf(ar = 0.7, lag.max = 2, pacf = TRUE)[2])
+registrar("ap_c1_banda200", 1.96 / sqrt(200))
+set.seed(41)
+e <- stats::rnorm(200)
+rw <- cumsum(e); ar <- as.numeric(stats::filter(e, 0.7, method = "recursive"))
+a_rw <- stats::acf(rw, lag.max = 10, plot = FALSE)$acf; a_ar <- stats::acf(ar, lag.max = 10, plot = FALSE)$acf
+registrar("ap_c1_facrw1", a_rw[2]); registrar("ap_c1_facrw5", a_rw[6]); registrar("ap_c1_facrw10", a_rw[11])
+registrar("ap_c1_facar1", a_ar[2]); registrar("ap_c1_facar5", a_ar[6]); registrar("ap_c1_facar10", a_ar[11])
+registrar("ap_c1_facar_teo5", 0.7^5); registrar("ap_c1_facar_teo10", 0.7^10)
+
 ## ---- Capítulo 3: integrados, ARIMA e SARIMA ----------------------------------------------
 # sobrediferenciação de um AR(1): w = (1 - L) y, com (1 - phi L) w = (1 - L) e
 rho1_w <- function(phi) -(1 - phi) / 2
