@@ -391,6 +391,8 @@ volume_amao_blocos <- function() {
 # O volume único da P1: tudo por bloco da lista, na ordem de caderno/volume_completo.tsv
 # (fonte de verdade, lida também por autoestudo/avaliar_volume.R). Fora: INPC, Lista 01 e AU06.
 BLOCOS_Q <- list(`1` = 1:4, `2` = 5:8, `3` = 9:12, `4` = 13:14, `5` = 15, `6` = 16)
+# questão da lista -> questão-tipo do guia "não posso errar"
+GUIA_Q <- c(`1` = 1, `3` = 2, `5` = 3, `6` = 4, `7` = 5, `9` = 6, `13` = 7, `14` = 7, `15` = 8, `16` = 9)
 volume_completo <- function() {
   man <- utils::read.delim(file.path(CAD, "volume_completo.tsv"), quote = "", stringsAsFactors = FALSE,
                            encoding = "UTF-8", na.strings = character())
@@ -401,12 +403,13 @@ volume_completo <- function() {
   linhas_mapa <- vapply(1:16, function(q) {
     b <- names(BLOCOS_Q)[vapply(BLOCOS_Q, function(v) q %in% v, logical(1))]
     folha <- if (q %in% c(2, 6)) sprintf("%s, %s", pr(paste0("am", b)), pr(paste0("amq", q))) else pr(paste0("am", b))
-    sprintf("Q%d & %s & %s & %s & %s \\\\", q, pr(paste0("ap", b)), folha, pr(sprintf("lc%02d", q)), pr(paste0("bb", b)))
+    guia <- if (as.character(q) %in% names(GUIA_Q) && "naoerrar" %in% man$rotulo) sprintf("\\pageref{vc:ng%d}", GUIA_Q[[as.character(q)]]) else "--"
+    sprintf("Q%d & %s & %s & %s & %s & %s \\\\", q, guia, pr(paste0("ap", b)), folha, pr(sprintf("lc%02d", q)), pr(paste0("bb", b)))
   }, character(1))
   mapa <- c("# Mapa das questões", "",
-            "Cada questão da lista aparece em quatro camadas, nesta ordem dentro do bloco: o capítulo da apostila (teoria, imagens, perguntas), a folha à mão (a demonstração linha a linha), a nota comentada (slide, livro e caderno) e as variações do banco. A tabela dá a página de cada uma.",
-            "", "```{=latex}", "\\begin{center}\\small", "\\begin{tabular}{lcccc}", "\\toprule",
-            "Questão & Apostila & Folha à mão & Comentada & Banco \\\\", "\\midrule", linhas_mapa,
+            "Cada questão da lista aparece em quatro camadas, nesta ordem dentro do bloco: o capítulo da apostila (teoria, imagens, perguntas), a folha à mão (a demonstração linha a linha), a nota comentada (slide, livro e caderno) e as variações do banco. A tabela dá a página de cada uma. A coluna Guia aponta a questão-tipo do guia \"não posso errar\", que vem logo depois deste mapa: é por ela que se começa.",
+            "", "```{=latex}", "\\begin{center}\\small", "\\begin{tabular}{lccccc}", "\\toprule",
+            "Questão & Guia & Apostila & Folha à mão & Comentada & Banco \\\\", "\\midrule", linhas_mapa,
             "\\bottomrule", "\\end{tabular}", "\\end{center}", "```", "")
   linhas <- c(bloco_latex("\\part{Mapa}"), mapa)
   for (parte in unique(man$parte)) {
@@ -416,6 +419,13 @@ volume_completo <- function() {
       if (identical(man$impar[i], "sim")) linhas <- c(linhas, bloco_latex("\\cleardoublepage"))
       h <- which(grepl("^# ", nota))[1]
       nota <- append(nota, bloco_latex(sprintf("\\label{vc:%s}", man$rotulo[i])), after = h)
+      if (identical(man$fonte[i], "prova/nao_posso_errar.md")) {
+        # um rótulo por questão-tipo, para a coluna Guia do mapa
+        for (k in rev(grep("^## [1-9] · ", nota))) {
+          n <- sub("^## ([1-9]) · .*", "\\1", nota[k])
+          nota <- append(nota, bloco_latex(sprintf("\\label{vc:ng%s}", n)), after = k)
+        }
+      }
       linhas <- c(linhas, nota)
     }
   }
@@ -444,9 +454,19 @@ volume_basico <- function() {
            OPC_IMPRESSAO[!OPC_IMPRESSAO %in% c("--toc", "--toc-depth=1")], passes = 2, impressao = TRUE)
 }
 
+# Não posso errar: as nove questões-tipo, linha a linha, com o sentido de cada passo
+volume_naoerrar <- function() {
+  md <- file.path(BUILD, "naoerrar.md")
+  writeLines(enc2utf8(preparar_nota("prova/nao_posso_errar.md")), md, useBytes = TRUE)
+  capa("Não posso errar", "As nove questões básicas da P1, linha a linha, com o sentido de cada passo",
+       file.path(BUILD, "capa_naoerrar.tex"))
+  compilar("caderno_nao_posso_errar", md, file.path(BUILD, "capa_naoerrar.tex"),
+           OPC_IMPRESSAO[!OPC_IMPRESSAO %in% c("--toc", "--toc-depth=1")], passes = 2, impressao = TRUE)
+}
+
 ## ---- execução ------------------------------------------------------------------------
 alvos <- commandArgs(trailingOnly = TRUE)
-if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao", "basico")
+if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao", "basico", "naoerrar")
 cat("pandoc:  ", PANDOC, "\nlualatex:", LUALATEX, "\n")
 if ("teoria" %in% alvos) volume_teoria()
 if ("lista" %in% alvos) volume_lista()
@@ -462,4 +482,5 @@ if ("apostila" %in% alvos) volume_apostila()
 if ("completo" %in% alvos) volume_completo()
 if ("correcao" %in% alvos) volume_correcao()
 if ("basico" %in% alvos) volume_basico()
+if ("naoerrar" %in% alvos) volume_naoerrar()
 cat("\nPDFs em caderno/pdf/\n")
