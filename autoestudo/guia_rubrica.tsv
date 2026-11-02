@@ -1,0 +1,10 @@
+qt	titulo	lista	bloco	erro_s1
+1	passeio com drift	1	1	0
+2	soma de processos e FAC	3	1	1
+3	raízes, invertibilidade e fator comum	5	2	1
+4	ARMA(1,1)	6	2	1
+5	AR(2) e Yule-Walker	7	2	0
+6	sobrediferenciação	9	3	1
+7	AIC, BIC e MQO	13;14	4	1
+8	previsão	15	5	1
+9	SARIMA	16	6	1

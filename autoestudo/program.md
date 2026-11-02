@@ -138,3 +138,26 @@ O alvo é o que vai para o papel: as fontes de `caderno/volume_completo.tsv`, na
 - citar páginas só para pontuar é descarte na revisão humana.
 
 O log vai para `autoestudo/resultados_volume.tsv`, fora do git.
+
+## Modo guia (o "não posso errar")
+
+O alvo é `prova/nao_posso_errar.md`: nove questões-tipo básicas, resolvidas linha a linha, cada linha com **o que fazer** e **o sentido**.
+
+| Arquivo | Papel |
+|---|---|
+| `autoestudo/guia_rubrica.tsv` | as nove questões-tipo, com a questão da lista, o bloco e se corrigem um erro do S1 |
+| `autoestudo/avaliar_guia.R` | a métrica `nota_guia` |
+
+Por questão-tipo, o avaliador confere:
+- as seis subseções;
+- 8 ou mais linhas numeradas e justificadas;
+- **todo (n) explicado na lista do sentido**;
+- a frase de fecho;
+- 3 ou mais números conferidos em R;
+- as ligações para a nota comentada e a folha à mão;
+- uma variação do banco;
+- quando a régua pede, o erro do S1.
+
+Os critérios globais são as contas do básico, o guia no manifesto do volume e a nota do volume em 99,8 ou mais.
+
+O log vai para `autoestudo/resultados_guia.tsv`, fora do git.
