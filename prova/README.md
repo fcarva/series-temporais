@@ -164,14 +164,86 @@ Cerca de 2h30 a 3h por dia; os simulados levam 1h50 mais 40 minutos de correçã
 | sex 30/10 | bloco 1 (Q1–Q4) | ciclo em Q1, Q3 e Q4; **copiar a folha completa da Q2**; Q6 de cabeça, cronometrada (+1) |
 | sáb 31/10 | blocos 3 e 5 (Q9–Q12, Q15) | ciclo nas cinco questões; Q2 de cabeça (+1); refazer os erros do log de 29/10 (+1) |
 | dom 01/11 | diagnóstico | **Simulado 01** cronometrado, correção pela rubrica e log; blocos 4 e 6 (Q13, Q14, Q16) pelo molde (e) |
-| seg 02/11 | correção do S1 | refazer S1 Q2 b)–d) com o roteiro de quatro movimentos, sem olhar; refazer S1 Q3 a)–c); **S1 Q4, Q5 b)–d) e Q6 a)–b) em 30 minutos, só conta**; ler a [correção do S1](correcao_simulado_01.md) |
-| ter 03/11 | treino | 20 min: camadas 1 e 2 do [básico](basico.md) de memória, numa folha, e conferir; **Simulado 02 em modo prova** (as nove questões-tipo) (3 min de leitura, 25 min de contas curtas, depois as derivações); correção e log; à noite, a Q6 da lista nos quatro movimentos, em até 15 minutos |
-| qua 04/11 | leve | 20 min: camadas 1 a 3 do básico de memória; do Simulado 03, **só** Q3 c), Q4 b)–c) e Q5 a)–b), que são contas; S1 Q2 inteira de cabeça (+3); dormir cedo |
-| **qui 05/11** | **prova** | 10 minutos antes: reler o [básico](basico.md), com o roteiro do ARMA e a ordem contas curtas → derivações → revisão |
+| seg 02/11 | guia, à noite | questões-tipo 4, 7, 8 e 9 do [guia](nao_posso_errar.md); ver a reta final, hora a hora, abaixo |
+| ter 03/11 | o dia todo | **Simulado 02 às 10h**, no horário da prova; correção pelo guia; ver abaixo |
+| qua 04/11 | aula e noite | dúvidas ao professor às 10h; à noite, só consolidação; ver abaixo |
+| **qui 05/11** | **prova às 10h** | ver abaixo |
 
-O Simulado 01 foi feito em 01/11, e a [correção](correcao_simulado_01.md) mostra onde os pontos foram embora. O Simulado 03 completo saiu do plano: não há tempo, e cansaria na véspera.
+O Simulado 01 foi feito em 01/11, e a [correção](correcao_simulado_01.md) mostra onde os pontos foram embora. O Simulado 03 completo saiu do plano: não há tempo, e cansaria na véspera. Dele, ficam só as contas, na terça.
 
 Se sobrar tempo num dia, use o [banco](banco.md) do bloco do dia: cada questão tem uma variação curta com resposta.
+
+### A reta final, hora a hora (02/11 a 05/11)
+
+A lógica é **aprender pelo [guia](nao_posso_errar.md), testar no [Simulado 02](simulado_02.md) no mesmo horário da prova, corrigir pelo guia e consolidar sem matéria nova**. Em cada questão-tipo, o método é sempre o mesmo:
+1. ler o enunciado-tipo e o "Antes de escrever";
+2. **cobrir o resto e tentar no papel**;
+3. conferir linha a linha e, na primeira linha diferente, ler o sentido dela.
+
+**Segunda, 02/11, das 20h30 às 23h: as quatro questões-tipo que mais valem.**
+
+| Hora | O quê |
+|---|---|
+| 20h30–20h45 | [básico](basico.md), camadas 1 e 2, só leitura |
+| 20h45–21h30 | **questão-tipo 4, ARMA(1,1)**, a que travou no S1 |
+| 21h30–21h40 | pausa |
+| 21h40–22h10 | questões-tipo 7 (AIC, BIC e MQO) e 8 (previsão) |
+| 22h10–22h30 | questão-tipo 9 (SARIMA) |
+| 22h30–22h50 | **questão-tipo 4 de novo, em folha branca, em até 15 minutos** |
+| 22h50–23h | o que errou vai para o [log](log_erros.md); dormir. **Não abrir o S2** |
+
+**Terça, 03/11: aprender, testar e corrigir.**
+
+| Hora | O quê |
+|---|---|
+| 8h30–8h50 | camadas 1 e 2 do básico **de memória**, numa folha; conferir |
+| 8h50–9h50 | questões-tipo 6, 2 e 3, cobrindo e tentando |
+| 9h50–10h | pausa |
+| **10h–11h50** | **Simulado 02 em modo prova**: 3 min de leitura; 25 min de contas curtas; derivações; frase de fecho em cada item |
+| 12h–13h30 | almoço e descanso |
+| 13h30–14h30 | correção pelo [gabarito](simulado_02_gabarito.md), por passo; log; coluna S2 do placar |
+| 14h30–16h | **cada item com perda**: a questão-tipo de mesmo número no guia, o sentido das linhas que faltaram, e o item refeito em folha branca |
+| 16h–16h15 | pausa |
+| 16h15–17h15 | questões-tipo 5 e 1, cobrindo e tentando |
+| 17h15–18h | [Simulado 03](simulado_03.md), **só as contas**: Q3 c), Q4 b)–c) e Q5 a)–b) |
+| 18h–19h30 | jantar e descanso |
+| 19h30–20h30 | **questão-tipo 4 de cabeça** (+1 dia) e S1 Q2 de cabeça; conferir |
+| 20h30–21h | as **9 frases de fecho** de memória; conferir no guia |
+| 21h–21h30 | a lista de dúvidas para o professor (abaixo), com as que o S2 levantou |
+| 21h30 | parar |
+
+**Quarta, 04/11: aula, professor e a última consolidação.**
+
+| Hora | O quê |
+|---|---|
+| antes da aula | 20 min: camadas 1 a 3 do básico de memória |
+| **10h, aula** | **levar as dúvidas escritas** |
+| almoço e intervalos | só as seções "Erro que não pode" do guia |
+| 18h–19h | chegar, comer, descansar; nada de matéria |
+| 19h–20h | em folha branca: **questão-tipo 4** (+2 dias) e questão-tipo 5 |
+| 20h–20h45 | contas cronometradas do [banco](banco.md): Q14 A, Q15 A, Q16 A e Q6 A |
+| 20h45–21h15 | refazer só as linhas do log que ainda erra |
+| 21h15–21h45 | o básico inteiro, devagar; as 9 frases de fecho de memória |
+| **até 22h30** | **parar e dormir**: a consolidação acontece no sono, e a prova é às 10h |
+
+**Fica de fora a partir de agora:** o Simulado 04, a verossimilhança exata, os testes de raiz unitária, Beveridge-Nelson, a avaliação de previsões e o trabalho do INPC.
+
+**Quinta, 05/11, prova às 10h.**
+- Acordar às 7h. Às 8h, 15 minutos: o básico, os quatro movimentos do ARMA e a ordem da prova.
+- **Na prova:**
+  1. 3 minutos de leitura, marcando a convenção do MA, o $T$ e o $s$;
+  2. cerca de 25 minutos só de contas curtas;
+  3. as derivações, da mais curta para a mais longa;
+  4. a frase de fecho em cada item.
+
+### Dúvidas para o professor (quarta, 04/11)
+
+1. **Sinal do MA:** a prova usa o $1-\theta B$ da lista ou o $1+\theta_1L$ dos slides? Basta declarar a convenção na primeira linha?
+2. **AIC e BIC:** na forma do R ($-2\ln L+2k$) ou na da AU02, dividida por $T$? O $k$ inclui o $\sigma^2$?
+3. **"Mostre que":** os momentos do ARMA(1,1) precisam ser derivados pelos momentos auxiliares, ou pode-se partir da fórmula de $\gamma_0$?
+4. **SARIMA:** pode cair o cálculo da FAC multiplicativa (pico e satélites), ou basta escrever o modelo e contar parâmetros?
+5. **Consulta:** a prova é sem consulta? Os valores de $\chi^2$ e da normal vêm no enunciado?
+6. As dúvidas que o Simulado 02 levantar na terça.
 
 ## Os simulados
 
