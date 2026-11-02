@@ -112,6 +112,7 @@ Com $y_0=10$, $c=0{,}5$, $\sigma^2=1$, $t=20$ e $k=5$:
 
 ### Treino
 
+- Em modo prova: [Simulado 02, Q1](simulado_02.md), com a correção no [gabarito](simulado_02_gabarito.md).
 - Variação: [banco, Q1](banco.md#q1--momentos-do-passeio-com-drift).
 - Folha à mão: [cap. 1](../apostila/a_mao_cap1.md).
 - Nota comentada: [Q1](../lista_comentada/q01.md). A Q2, com tendência, é a mesma conta mais $\delta\frac{t(t+1)}{2}$.
@@ -191,6 +192,7 @@ $\gamma_3=(9{,}7;\ -5{,}52;\ 1{,}2;\ 0)$, com $\rho_1=-0{,}5691$ e $\rho_2=0{,}1
 
 ### Treino
 
+- Em modo prova: [Simulado 02, Q2](simulado_02.md), com a correção no [gabarito](simulado_02_gabarito.md).
 - Variação: [banco, Q3](banco.md#q3--soma-de-processos-estacionários).
 - Folha à mão: [cap. 1](../apostila/a_mao_cap1.md).
 - Nota comentada: [Q3](../lista_comentada/q03.md).
@@ -275,6 +277,7 @@ $$
 
 ### Treino
 
+- Em modo prova: [Simulado 02, Q3](simulado_02.md), com a correção no [gabarito](simulado_02_gabarito.md).
 - Variação: [banco, Q5](banco.md#q5--classificar-raízes-e-pesos).
 - Folha à mão: [cap. 2](../apostila/a_mao_cap2.md).
 - Nota comentada: [Q5](../lista_comentada/q05.md).
@@ -366,6 +369,7 @@ $\gamma_0=1{,}1406$; $\gamma_1=0{,}3844$; $\gamma_2=0{,}2306$; $\rho_1=0{,}337$;
 
 ### Treino
 
+- Em modo prova: [Simulado 02, Q4](simulado_02.md), com a correção no [gabarito](simulado_02_gabarito.md).
 - Variação: [banco, Q6](banco.md#q6--arma11): refaça com $\phi=0{,}9$ e $\theta=0{,}5$, que dá $\rho_1=0{,}6286$.
 - Folha à mão: [cap. 2](../apostila/a_mao_cap2.md) e a [Q6 completa](../lista_comentada/a_mao_q02_q06.md).
 - Nota comentada: [Q6](../lista_comentada/q06.md).
@@ -438,6 +442,7 @@ $\rho_1=0{,}9375$; $\rho_2=0{,}80625$; $\gamma_0=12{,}9032$, pelos três caminho
 
 ### Treino
 
+- Em modo prova: [Simulado 02, Q5](simulado_02.md), com a correção no [gabarito](simulado_02_gabarito.md).
 - Variação: [banco, Q7](banco.md#q7--ar2-e-yule-walker).
 - Folha à mão: [cap. 2](../apostila/a_mao_cap2.md).
 - Nota comentada: [Q7](../lista_comentada/q07.md).
@@ -515,6 +520,7 @@ $\operatorname{Var}(w)=1{,}3333=\operatorname{Var}(y)$; $\rho_1(w)=-0{,}25$; rai
 
 ### Treino
 
+- Em modo prova: [Simulado 02, Q6](simulado_02.md), com a correção no [gabarito](simulado_02_gabarito.md).
 - Variação: [banco, Q9](banco.md#q9--sobrediferenciação).
 - Folha à mão: [cap. 3](../apostila/a_mao_cap3.md).
 - Nota comentada: [Q9](../lista_comentada/q09.md).
@@ -605,6 +611,7 @@ Os critérios do R são 606,4 e 613,0 para o AR(1); $\widehat\phi=0{,}7$ e $\wid
 
 ### Treino
 
+- Em modo prova: [Simulado 02, Q7](simulado_02.md), com a correção no [gabarito](simulado_02_gabarito.md).
 - Variações: [banco, Q14](banco.md#q14--aic-e-bic) e [banco, Q13](banco.md#q13--mv-condicional-do-ar1).
 - Folha à mão: [cap. 4](../apostila/a_mao_cap4.md).
 - Notas comentadas: [Q13](../lista_comentada/q13.md) e [Q14](../lista_comentada/q14.md).
@@ -702,6 +709,7 @@ O intervalo de 95% é [7,68; 15,52] em $h=1$ e [6,26; 16,30] em $h=2$; a variân
 
 ### Treino
 
+- Em modo prova: [Simulado 02, Q8](simulado_02.md), com a correção no [gabarito](simulado_02_gabarito.md).
 - Variação: [banco, Q15](banco.md#q15--previsão-em-arma).
 - Folha à mão: [cap. 5](../apostila/a_mao_cap5.md).
 - Nota comentada: [Q15](../lista_comentada/q15.md).
@@ -799,6 +807,7 @@ $$
 
 ### Treino
 
+- Em modo prova: [Simulado 02, Q9](simulado_02.md), com a correção no [gabarito](simulado_02_gabarito.md).
 - Variação: [banco, Q16](banco.md#q16--sarima-mensal).
 - Folha à mão: [cap. 6](../apostila/a_mao_cap6.md).
 - Nota comentada: [Q16](../lista_comentada/q16.md).

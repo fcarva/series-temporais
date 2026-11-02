@@ -19,347 +19,505 @@ aliases:
 
 # Simulado 02 — gabarito
 
-Enunciado em [simulado_02.md](simulado_02.md). Números de [prova.R](prova.R). Erros vão para o [log](log_erros.md).
+Enunciado em [simulado_02.md](simulado_02.md). Todos os números saem de [prova.R](prova.R). Cada questão é uma questão-tipo do [guia "não posso errar"](nao_posso_errar.md): se um item travou, refaça a questão-tipo do guia com o mesmo número, cobrindo a resolução, e depois refaça o item aqui.
+
+> [!TIP]
+> **Como se corrigir**
+> Some os pontos **por passo**, pelo que você escreveu, não pelo que sabia. A fórmula geral escrita e aplicada com erro de conta ainda vale o passo da fórmula. Número certo sem fórmula nem justificativa vale metade. Frase de fecho ausente perde o ponto dela, mesmo com a conta certa. Cada passo que faltou vira uma linha no [log de erros](log_erros.md), com a causa.
 
 ---
 
-## Questão 1 (1,5)
+## Questão 1 (1,0) — questão-tipo 1
 
-*Origem na lista:* (lista, Q4): o componente determinístico de Wold no item b) e a invertibilidade como escolha entre $\theta$ e $1/\theta$ no item c).
+*Origem na lista:* (lista, Q1).
 
-### a) O processo harmônico é estacionário (0,4)
+### a) Solução e momentos (0,5)
 
-- $E(z_t)=\cos(\omega t)E(A)+\sin(\omega t)E(B)=0$, para todo $t$.
-- Como $\operatorname{Cov}(A,B)=0$ e $\operatorname{Var}(A)=\operatorname{Var}(B)=\sigma^2$:
-
-$$
-\operatorname{Cov}(z_t,z_{t-k})=\sigma^2\big[\cos(\omega t)\cos(\omega(t-k))+\sin(\omega t)\sin(\omega(t-k))\big]=\sigma^2\cos(\omega k),
-$$
-
-pela identidade $\cos(x-y)=\cos x\cos y+\sin x\sin y$.
-
-**Conclusão:** média constante e autocovariância que só depende de $k$: **estacionário de segunda ordem**. A variância é $\sigma^2$, finita.
-
-### b) Covariâncias e o componente determinístico (0,4)
-
-Com $\omega=\pi/2$: $\operatorname{Cov}(z_t,z_{t-1})=\cos(\pi/2)=0$ e $\operatorname{Cov}(z_t,z_{t-2})=\cos(\pi)=-1$. Uma simulação com 20 mil pares $(A,B)$ dá $-0{,}9996$ para $z_7z_5$, sem depender de $t$.
-
-**Por que é determinístico:** duas observações bastam para resolver $A$ e $B$ e, daí em diante, **todo o futuro é previsto sem erro**. Não há choque novo: o erro de previsão um passo à frente é zero. No Teorema de Wold, $y_t=\sum_j\psi_j\varepsilon_{t-j}+V_t$, esse é o termo $V_t$, previsível linearmente a partir do passado remoto e não correlacionado com os $\varepsilon$. Um processo "puramente não determinístico" é aquele em que $V_t=0$ (lista, Q4a; Hamilton, cap. 4).
-
-### c) Duas representações para a mesma FAC (0,7)
-
-**Convenção:** sinal positivo, $\theta(L)=1+\theta L$.
-
-- $x_t=a_t+0{,}5a_{t-1}$, $\sigma^2=2$: $\gamma_0=(1+0{,}25)\cdot2=2{,}5$, $\gamma_1=0{,}5\cdot2=1$, $\rho_1=0{,}4$.
-- $x^*_t=e_t+2e_{t-1}$, $\sigma^2=0{,}5$: $\gamma_0=(1+4)\cdot0{,}5=2{,}5$, $\gamma_1=2\cdot0{,}5=1$.
-
-Em geral, $\theta$ e $1/\theta$ dão o mesmo $\rho_1=\theta/(1+\theta^2)$. A raiz de $1+0{,}5z$ é $z=-2$, com módulo 2, fora do círculo. A de $1+2z$ tem módulo 0,5, dentro.
-
-**Escolha:** o invertível, $x_t$. Só ele tem uma representação AR($\infty$) convergente, $a_t=\sum_j(-0{,}5)^jx_{t-j}$. Isso permite recuperar os choques a partir dos dados, o que é necessário para a verossimilhança e para a previsão. Fixar a invertibilidade é o que torna o MA **identificado** (lista, Q4c).
+- Somando $y_s-y_{s-1}=0{,}2+u_s$ de 1 a $t$, a soma telescópica dá $y_t=5+0{,}2t+\sum_{s=1}^{t}u_s$.
+- $E(y_t)=5+0{,}2t$ *[F4 na soma finita; RB: $E(u_s)=0$]*.
+- $\operatorname{Var}(y_t)=E\big((\sum_su_s)^2\big)=\sum_sE(u_s^2)=2t$ *[RB: só $i=j$ sobra]*.
+- $\operatorname{Cov}(y_t,y_{t-k})=E\big(\sum_{i\le t}u_i\sum_{j\le t-k}u_j\big)=2(t-k)$ *[os $t-k$ choques comuns]*.
 
 | Rubrica | Pontos |
 |---|---|
-| a) média e $\operatorname{Cov}=\sigma^2\cos(\omega k)$ com a identidade citada | 0,3 |
-| a) conclusão | 0,1 |
-| b) os dois valores | 0,1 |
-| b) previsível sem erro ⇒ termo $V_t$ de Wold | 0,3 |
-| c) convenção declarada e as duas FAC | 0,4 |
-| c) raízes, escolha do invertível e o porquê | 0,3 |
+| Soma telescópica até $y_t=y_0+ct+\sum u_s$ | 0,1 |
+| $E(y_t)$ com o $y_0$ e a hipótese citada | 0,1 |
+| $\operatorname{Var}$ **com o $E$** escrito, pela soma dupla | 0,15 |
+| $\operatorname{Cov}$ pelos choques comuns | 0,15 |
+
+### b) Os números (0,3)
+
+$E(y_{50})=15$; $\operatorname{Var}(y_{50})=100$; $\operatorname{Cov}(y_{50},y_{40})=80$; $\operatorname{Corr}=\sqrt{40/50}=0{,}8944$.
+
+| Rubrica | Pontos |
+|---|---|
+| Os três momentos | 0,15 |
+| A correlação $\sqrt{(t-k)/t}$ | 0,15 |
+
+### c) Estacionariedade (0,2)
+
+**Não é estacionário:** a variância $2t$ depende de $t$, e a média $5+0{,}2t$ também.
+
+| Rubrica | Pontos |
+|---|---|
+| Critério das três condições aplicado | 0,1 |
+| Frase de fecho | 0,1 |
 
 ---
 
-## Questão 2 (2,0)
+## Questão 2 (1,0) — questão-tipo 2
 
-*Origem na lista:* (lista, Q7), com a FACP e os pesos $\psi$ do cap. 2.
+*Origem na lista:* (lista, Q3).
 
-### a) Estacionariedade (0,4)
+### a) A fórmula (0,4)
 
-- Triângulo: $\phi_1+\phi_2=0{,}8\lt1$; $\phi_2-\phi_1=-0{,}2\lt1$; $\lvert\phi_2\rvert=0{,}3\lt1$. As três valem.
-- Raízes de $1-0{,}5z-0{,}3z^2=0$: $z=1{,}1736$ e $z=-2{,}8403$, ambas fora do círculo unitário.
+$$
+\gamma_3(k)=\operatorname{Cov}(3z_{1t}+z_{2t},\ 3z_{1,t-k}+z_{2,t-k})=9\gamma_1(k)+3C_{12}(k)+3C_{21}(k)+\gamma_2(k)=9\gamma_1(k)+\gamma_2(k),
+$$
 
-**Conclusão: estacionário.** Como as raízes são reais, não há ciclo: a FAC decai sem a forma de senoide amortecida.
+porque **$z_1$ e $z_2$ não são correlacionados**, o que zera $C_{12}$ e $C_{21}$. A constante 3 sai ao quadrado.
 
-### b) Yule-Walker (0,5)
+| Rubrica | Pontos |
+|---|---|
+| Os quatro produtos da covariância | 0,15 |
+| Cruzados zerados **citando a hipótese** | 0,15 |
+| O fator 9, e não 3 | 0,1 |
 
-Multiplicando o modelo por $y_{t-k}$, $k\ge1$, e dividindo por $\gamma_0$: $\rho_k=\phi_1\rho_{k-1}+\phi_2\rho_{k-2}$.
+### b) Os números (0,3)
 
-- $k=1$: $\rho_1=\phi_1+\phi_2\rho_1\Rightarrow\rho_1=\frac{\phi_1}{1-\phi_2}=\frac{0{,}5}{0{,}7}=0{,}7143$.
-- $k=2$: $\rho_2=\phi_1\rho_1+\phi_2=0{,}6571$.
-- $k=3$: $\rho_3=\phi_1\rho_2+\phi_2\rho_1=0{,}5429$.
+$\gamma_3(0)=9(1{,}0)+1{,}5=10{,}5$; $\gamma_3(1)=9(0{,}45)+0{,}6=4{,}65$; $\gamma_3(2)=0+0{,}5=0{,}5$; $\gamma_3(3)=0$.
+
+Logo, $\rho_1=4{,}65/10{,}5=0{,}4429$ e $\rho_2=0{,}5/10{,}5=0{,}0476$.
+
+| Rubrica | Pontos |
+|---|---|
+| Os quatro $\gamma_3(k)$ | 0,2 |
+| $\rho_1$ e $\rho_2$ | 0,1 |
+
+### c) Classificação (0,3)
+
+A média é constante e $\gamma_3(k)$ não depende de $t$: **$z_3$ é estacionário**. A FAC é diferente de zero até a defasagem 2 e **corta** depois: **$z_3$ é um MA(2)**. Um AR faria a FAC decair sem zerar.
+
+| Rubrica | Pontos |
+|---|---|
+| Estacionário, pelo critério | 0,1 |
+| **MA(2)**, pelo corte da FAC (ARMA(1,2) vale zero) | 0,2 |
+
+---
+
+## Questão 3 (1,0) — questão-tipo 3
+
+*Origem na lista:* (lista, Q5).
+
+### a) Forma em $B$ (0,2)
+
+$\tilde z_t=(1-0{,}65B+0{,}1B^2)a_t$: $\phi(B)=1$ e $\theta(B)$ de grau 2, logo ARMA(0,2), um MA(2). **Todo MA finito é estacionário**, para quaisquer coeficientes.
+
+| Rubrica | Pontos |
+|---|---|
+| Forma em $B$ e classificação | 0,1 |
+| Estacionário, com o motivo | 0,1 |
+
+### b) Raízes (0,4)
+
+$\theta(x)=0\iff0{,}1x^2-0{,}65x+1=0$, com a variável $x$ (um número, não a série):
+- $\Delta=0{,}4225-0{,}4=0{,}0225$, e $\sqrt\Delta=0{,}15$;
+- $x=(0{,}65\pm0{,}15)/0{,}2$, ou seja, $x_1=4$ e $x_2=2{,}5$;
+- Vieta confere: soma $6{,}5=0{,}65/0{,}1$ e produto $10=1/0{,}1$.
+
+As duas raízes estão fora do círculo: **(i) é invertível**.
+
+| Rubrica | Pontos |
+|---|---|
+| Polinômio na variável $x$, forma padrão | 0,1 |
+| Bhaskara: $\Delta$ e as duas raízes | 0,2 |
+| Conclusão: invertível | 0,1 |
+
+### c) Fator comum (0,4)
+
+Das raízes 4 e 2,5 vêm os fatores $(1-0{,}25B)$ e $(1-0{,}4B)$:
+
+$$
+(1-0{,}25B)\tilde z_t=(1-0{,}25B)(1-0{,}4B)\,a_t\ \Rightarrow\ \tilde z_t=(1-0{,}4B)\,a_t.
+$$
+
+O fator do AR aparece também no MA e cancela: **(ii) é um MA(1)** com $\theta=0{,}4$, e não um ARMA(1,2). Os pesos são $\pi_j=-0{,}4^j$: $-0{,}4$; $-0{,}16$; $-0{,}064$.
+
+| Rubrica | Pontos |
+|---|---|
+| Fatoração pelo inverso das raízes | 0,1 |
+| Cancelamento e "MA(1)" | 0,2 |
+| Os três $\pi_j$ | 0,1 |
+
+---
+
+## Questão 4 (1,5) — questão-tipo 4
+
+*Origem na lista:* (lista, Q6).
+
+### a) Raízes (0,2)
+
+$\phi(x)=1-0{,}5x=0\Rightarrow x=2$; $\theta(x)=1-0{,}2x=0\Rightarrow x=5$. As duas estão fora do círculo: **estacionário e invertível**.
+
+| Rubrica | Pontos |
+|---|---|
+| As duas raízes e a conclusão | 0,2 |
+
+### b) Momentos auxiliares (0,3)
+
+Com o modelo isolado, $z_t=0{,}5z_{t-1}+a_t-0{,}2a_{t-1}$, e a causalidade, $E(z_{t-k}a_t)=0$ para $k\ge1$:
+- multiplicando por $a_t$: $E(z_ta_t)=0+\sigma^2-0=2$;
+- multiplicando por $a_{t-1}$: $E(z_ta_{t-1})=0{,}5E(z_{t-1}a_{t-1})-0{,}2\sigma^2=0{,}5(2)-0{,}2(2)=0{,}6$.
+
+| Rubrica | Pontos |
+|---|---|
+| $E(z_ta_t)=\sigma^2=2$, com a causalidade citada | 0,1 |
+| $E(z_ta_{t-1})=(\phi-\theta)\sigma^2=0{,}6$ | 0,2 |
+
+### c) Autocovariâncias (0,5)
+
+- multiplicando por $z_t$: $\gamma_0=0{,}5\gamma_1+2-0{,}2(0{,}6)=0{,}5\gamma_1+1{,}88$;
+- multiplicando por $z_{t-1}$: $\gamma_1=0{,}5\gamma_0-0{,}2(2)=0{,}5\gamma_0-0{,}4$;
+- substituindo: $\gamma_0=0{,}25\gamma_0-0{,}2+1{,}88$, logo $0{,}75\gamma_0=1{,}68$ e $\gamma_0=2{,}24$;
+- $\gamma_1=0{,}5(2{,}24)-0{,}4=0{,}72$ e $\gamma_2=0{,}5\gamma_1=0{,}36$.
+
+Confere com a fórmula: $\frac{1+0{,}04-0{,}2}{0{,}75}\cdot2=2{,}24$.
+
+| Rubrica | Pontos |
+|---|---|
+| **$\gamma_0=E(z_t^2)$, a variância**, e a equação de $\gamma_0$ | 0,15 |
+| A equação de $\gamma_1$ | 0,1 |
+| Sistema resolvido: $\gamma_0$ e $\gamma_1$ | 0,15 |
+| $\gamma_2$ | 0,1 |
+
+### d) FAC (0,2)
+
+$\rho_1=0{,}72/2{,}24=0{,}3214$. Para $k\ge2$, multiplicando por $z_{t-k}$, os dois choques do modelo, $a_t$ e $a_{t-1}$, são posteriores a $z_{t-k}$ e somem: $\gamma_k=0{,}5\gamma_{k-1}$. Dividindo por $\gamma_0$, **$\rho_k=0{,}5\rho_{k-1}$**.
+
+| Rubrica | Pontos |
+|---|---|
+| $\rho_1$ | 0,1 |
+| O motivo de os choques sumirem para $k\ge2$ | 0,1 |
+
+### e) Pesos (0,3)
+
+$\psi_j=(\phi-\theta)\phi^{j-1}$: 0,3; 0,15; 0,075. $\pi_j=(\phi-\theta)\theta^{j-1}$: 0,3; 0,06; 0,012.
+
+| Rubrica | Pontos |
+|---|---|
+| Os três $\psi_j$ | 0,15 |
+| Os três $\pi_j$ | 0,15 |
+
+---
+
+## Questão 5 (1,0) — questão-tipo 5
+
+*Origem na lista:* (lista, Q7).
+
+### a) Raízes (0,2)
+
+$\phi(x)=1-0{,}3x-0{,}4x^2=0\iff0{,}4x^2+0{,}3x-1=0$. Assim, $\Delta=0{,}09+1{,}6=1{,}69$ e $x=(-0{,}3\pm1{,}3)/0{,}8$, ou seja, $x=1{,}25$ e $x=-2$. Os dois módulos são maiores que 1: **estacionário**. Pelo triângulo: $0{,}3+0{,}4\lt1$, $0{,}4-0{,}3\lt1$ e $\lvert0{,}4\rvert\lt1$.
+
+| Rubrica | Pontos |
+|---|---|
+| Raízes com sinal certo do $\phi_2$ e a conclusão | 0,2 |
+
+### b) Yule-Walker (0,4)
+
+Multiplicando por $y_{t-1}$ e $y_{t-2}$ e dividindo por $\gamma_0$:
+
+$$
+\rho_1=\phi_1+\phi_2\rho_1,\qquad \rho_2=\phi_1\rho_1+\phi_2.
+$$
+
+- $\rho_1=0{,}3/0{,}6=0{,}5$;
+- $\rho_2=0{,}3(0{,}5)+0{,}4=0{,}55$;
+- $\rho_3=0{,}3(0{,}55)+0{,}4(0{,}5)=0{,}365$.
+
+| Rubrica | Pontos |
+|---|---|
+| As duas equações escritas | 0,2 |
+| $\rho_1$, $\rho_2$ e $\rho_3$ | 0,2 |
 
 ### c) Variância (0,4)
 
-Multiplicando por $y_t$: $\gamma_0=\phi_1\gamma_1+\phi_2\gamma_2+\sigma^2$, logo
+Multiplicando por $y_t$, o choque sobrevive com $E(\varepsilon_ty_t)=\sigma^2$: $\gamma_0=\phi_1\gamma_1+\phi_2\gamma_2+\sigma^2$. Daí:
 
 $$
-\gamma_0=\frac{\sigma^2}{1-\phi_1\rho_1-\phi_2\rho_2}=\frac{(1-\phi_2)\sigma^2}{(1+\phi_2)\big[(1-\phi_2)^2-\phi_1^2\big]}=\frac{0{,}7}{1{,}3\cdot0{,}24}=2{,}2436 .
+\gamma_0=\frac{\sigma^2}{1-\phi_1\rho_1-\phi_2\rho_2}=\frac{1}{1-0{,}15-0{,}22}=\frac{1}{0{,}63}=1{,}5873.
 $$
 
-### d) FACP (0,3)
-
-$\phi_{11}=\rho_1=0{,}7143$; $\phi_{22}=\frac{\rho_2-\rho_1^2}{1-\rho_1^2}=0{,}3=\phi_2$; $\phi_{33}=0$. **A FACP de um AR(2) corta depois da defasagem 2**, e o último coeficiente não nulo é o próprio $\phi_2$.
-
-### e) Pesos $\psi$ (0,4)
-
-$\psi_j=\phi_1\psi_{j-1}+\phi_2\psi_{j-2}$, com $\psi_0=1$ e $\psi_{-1}=0$: $\psi_1=0{,}5$, $\psi_2=0{,}25+0{,}3=0{,}55$, $\psi_3=0{,}275+0{,}15=0{,}425$.
+Confere pela fórmula fechada: $\frac{0{,}6}{1{,}4\,(0{,}36-0{,}09)}=1{,}5873$.
 
 | Rubrica | Pontos |
 |---|---|
-| a) desigualdades e raízes, com a conclusão | 0,4 |
-| b) equação geral de YW | 0,2 |
-| b) três valores | 0,3 |
-| c) $\gamma_0$ com a fórmula escrita | 0,4 |
-| d) | 0,3 |
-| e) recursão com $\psi_0=1$ e os três valores | 0,4 |
-
-> [!WARNING]
-> **Erro que custa ponto aqui**
-> Escrever $\rho_2=\phi_2$ ou $\phi_{22}=\rho_2$. Quem é igual a $\phi_2$ é a **FACP** em 2, não a FAC.
+| A equação de $\gamma_0$ com o $\sigma^2$ | 0,2 |
+| O valor | 0,2 |
 
 ---
 
-## Questão 3 (2,0)
+## Questão 6 (1,0) — questão-tipo 6
 
-*Origem na lista:* itens a) e b): (lista, Q11); itens c) e d): (lista, Q10).
+*Origem na lista:* (lista, Q9).
 
-### a) SAR$(1)_4$ (0,7)
+### a) A forma ARMA de $w_t$ (0,4)
 
-O modelo é um AR(1) em "anos": $y_t$ só se liga a $y_{t-4}$, $y_{t-8}$, e assim por diante.
-- $\gamma_0=\sigma^2/(1-\Phi^2)=1/0{,}64=1{,}5625$.
-- $\rho_{4m}=\Phi^m$: $\rho_4=0{,}6$ e $\rho_8=0{,}36$.
-- $\rho_k=0$ fora dos múltiplos de 4, em particular $\rho_1=\rho_3=0$. Multiplicando por $y_{t-1}$: $\gamma_1=\Phi\gamma_3$ e $\gamma_3=\Phi\gamma_1$, logo $\gamma_1(1-\Phi^2)=0$.
-
-A **FACP** tem um único pico, $\phi_{44}=0{,}6$, e é zero no resto. É o AR(1) "esticado" de 1 para 4 (lista, Q11).
-
-### b) O AR(5) restrito (0,6)
-
-$$
-(1-0{,}5B)(1-0{,}6B^4)=1-0{,}5B-0{,}6B^4+0{,}3B^5
-\ \Longrightarrow\
-y_t=0{,}5y_{t-1}+0{,}6y_{t-4}-0{,}3y_{t-5}+\varepsilon_t .
-$$
-
-É um AR(5) com **três restrições**: $\phi_2=\phi_3=0$ e $\phi_5=-\phi_1\phi_4$, isto é, $-0{,}3=-(0{,}5)(0{,}6)$. O AR(5) livre teria 5 coeficientes; o multiplicativo tem 2.
-
-### c) ARIMA(1,1,1) (0,4)
-
-$(1-0{,}4B)(1-B)=1-1{,}4B+0{,}4B^2$, então
-
-$$
-\boxed{y_t=1{,}4y_{t-1}-0{,}4y_{t-2}+a_t-0{,}7a_{t-1}}
-$$
-
-Os coeficientes AR somam 1: é a raiz unitária aparecendo na equação em nível.
-
-### d) A diferença é ARMA(1,1) (0,3)
-
-$(1-0{,}4B)(1-B)y_t=(1-0{,}4B)w_t=(1-0{,}7B)a_t$. A raiz AR é $2{,}5$ e a raiz MA é $1{,}4286$, ambas fora do círculo: **estacionário e invertível**. O ARIMA($p$,1,$q$) é, por definição, um ARMA($p,q$) na diferença (lista, Q10a).
+- Pela definição: $w_t=(0{,}2y_{t-1}+\varepsilon_t)-y_{t-1}=-0{,}8y_{t-1}+\varepsilon_t$.
+- Com o operador: $(1-0{,}2B)y_t=\varepsilon_t$; multiplicando **os dois lados** por $(1-B)$, $(1-B)(1-0{,}2B)y_t=(1-B)\varepsilon_t$, e, como os polinômios comutam, $(1-0{,}2B)w_t=(1-B)\varepsilon_t$.
+- A raiz do MA é $1-x=0\Rightarrow x=1$, **sobre** o círculo: **$w_t$ não é invertível e não tem AR($\infty$)**.
 
 | Rubrica | Pontos |
 |---|---|
-| a) $\gamma_0$, $\rho_4$, $\rho_8$ | 0,3 |
-| a) zeros fora dos múltiplos, com a justificativa | 0,2 |
-| a) FACP | 0,2 |
-| b) produto e equação | 0,3 |
-| b) as três restrições | 0,3 |
-| c) | 0,4 |
-| d) | 0,3 |
+| Derivação pelo operador, sem copiar a forma | 0,2 |
+| Raiz 1 e a conclusão "não invertível, sem AR($\infty$)" | 0,2 |
+
+### b) Os números (0,4)
+
+- $\operatorname{Var}(y_t)=1/(1-0{,}04)=1{,}0417$;
+- $\operatorname{Var}(w_t)=2\gamma_0(1-\phi)=2/(1+\phi)=1{,}6667$;
+- $\rho_1(w)=-(1-\phi)/2=-0{,}4$.
+
+| Rubrica | Pontos |
+|---|---|
+| As duas variâncias | 0,2 |
+| $\rho_1(w)$ | 0,2 |
+
+### c) Consequência (0,2)
+
+Diferenciar **aumentou** a variância, de 1,0417 para 1,6667, e criou $\rho_1=-0{,}4$, perto do $-0{,}5$ do ruído diferenciado. A série já era estacionária: diferenciar foi um erro (sobrediferenciação), que deixa o MA na fronteira e piora a estimação e a previsão.
+
+| Rubrica | Pontos |
+|---|---|
+| Frase de fecho: sobrediferenciação | 0,2 |
 
 ---
 
-## Questão 4 (1,5)
+## Questão 7 (1,0) — questão-tipo 7
 
-*Origem na lista:* itens a) e b): (lista, Q14); item c): (lista, Q13).
+*Origem na lista:* item a): (lista, Q14); item b): (lista, Q13).
 
-### a) Critérios (0,8)
+### a) AIC e BIC (0,6)
 
-$AIC=\frac{-2\ln L+2k}{T}$ e $BIC=\frac{-2\ln L+k\ln T}{T}$ (AU02), com $k$ incluindo $\sigma^2$.
+| Modelo | $k$ | $-2\ln L$ | AIC | BIC |
+|---|---|---|---|---|
+| AR(1) | 2 | 430,0 | 434,0 | **440,02** |
+| AR(2) | 3 | 426,2 | **432,2** | 441,23 |
+| ARMA(1,1) | 3 | 427,2 | 433,2 | 442,23 |
+| ARMA(2,1) | 4 | 424,8 | 432,8 | 444,84 |
 
-| Modelo | $k$ | AIC (R) | BIC (R) | AIC$/T$ | BIC$/T$ |
-|---|---|---|---|---|---|
-| ARMA(1,1) | 3 | 346,8 | 355,162 | **2,890** | **2,960** |
-| AR(2) | 3 | 349,8 | 358,162 | 2,915 | 2,985 |
-| ARMA(2,1) | 4 | 347,6 | 358,750 | 2,897 | 2,990 |
-
-**Os dois critérios escolhem o ARMA(1,1).** Dividir por $T$ não muda a ordenação; só muda a escala.
-
-### b) Razão de verossimilhança (0,4)
-
-- $H_0$: ARMA(1,1), isto é, $\phi_2=0$; $H_1$: ARMA(2,1).
-- $LR=2(\ell_1-\ell_0)=2(-169{,}8+170{,}4)=1{,}2\sim\chi^2(1)$ sob $H_0$.
-- $1{,}2\lt3{,}84$, com $p=0{,}273$: **não se rejeita $H_0$**.
-- **Conclusão:** o segundo coeficiente AR não melhora o ajuste o bastante, e fica o ARMA(1,1), em linha com o BIC.
-
-### c) Exata × condicional (0,3)
-
-A exata acrescenta a densidade de $y_1\sim N\big(0,\sigma^2/(1-\phi^2)\big)$:
-
-$$
-\ell_{ex}=\ell_{cond}-\tfrac12\ln(2\pi)-\tfrac12\ln\frac{\sigma^2}{1-\phi^2}-\frac{(1-\phi^2)y_1^2}{2\sigma^2}.
-$$
-
-Esse termo não é quadrático em $\phi$, então a exata não tem forma fechada. Mas é **uma** parcela contra $T-1$: os dois estimadores são assintoticamente equivalentes (Hamilton, cap. 5).
+**O AIC escolhe o AR(2), e o BIC escolhe o AR(1).** Eles discordam porque a multa por parâmetro do BIC, $\ln150=5{,}01$, é maior que a do AIC, 2. O BIC é consistente; o AIC tende a sobreparametrizar.
 
 | Rubrica | Pontos |
 |---|---|
-| a) fórmulas da AU02 com $k$ correto | 0,2 |
-| a) números e escolha | 0,6 |
-| b) quatro linhas do teste | 0,4 |
-| c) | 0,3 |
+| $k$ com o $\sigma^2$ | 0,1 |
+| Os quatro AIC | 0,2 |
+| Os quatro BIC | 0,2 |
+| As duas escolhas e o motivo | 0,1 |
+
+### b) MV condicional (0,4)
+
+$\widehat\phi=45/90=0{,}5$ e $\widehat\sigma^2=(100-0{,}5\cdot45)/80=77{,}5/80=0{,}96875$. Condicionando em $y_1$, maximizar $\ln L$ em $\phi$ é minimizar a soma de quadrados, isto é, fazer MQO.
+
+| Rubrica | Pontos |
+|---|---|
+| $\widehat\phi$ com a fórmula | 0,2 |
+| $\widehat\sigma^2$ dividindo por $T-1=80$ | 0,2 |
 
 ---
 
-## Questão 5 (1,5)
+## Questão 8 (1,5) — questão-tipo 8
 
-*Origem na lista:* (lista, Q15): item a) é o item (b)–(d) e item b) é o item (e).
+*Origem na lista:* (lista, Q15).
 
-### a) ARMA(1,1) com sinal positivo (1,0)
+### a) Previsões (0,4)
 
-**Convenção:** sinal positivo, $\theta=0{,}4$ entra **somando**.
-
-- $z_{T+1\mid T}=0{,}5z_T+0{,}4\widehat a_T=1+0{,}4=1{,}4$.
-- $z_{T+2\mid T}=0{,}5\cdot1{,}4=0{,}7$ e $z_{T+3\mid T}=0{,}35$: depois do primeiro passo, o MA some e a previsão decai como $\phi^{h-1}$.
-- $\psi_1=\phi+\theta=0{,}9$ e $\psi_2=\phi\psi_1=0{,}45$. Na convenção BJ, seria $\phi-\theta$.
-- $\operatorname{Var}(e_T(h))=\sigma^2\sum_{j=0}^{h-1}\psi_j^2$: $1$; $1{,}81$; $2{,}0125$.
-- IC de 95% para $h=2$: $0{,}7\pm1{,}96\sqrt{1{,}81}=0{,}7\pm2{,}6369$, isto é, $[-1{,}9369;\ 3{,}3369]$.
-
-### b) ARIMA(0,1,1) e suavização exponencial (0,5)
-
-**Convenção:** BJ, $\theta=0{,}7$.
-- $y_{T+1\mid T}=y_T-\theta\widehat a_T=50-1{,}4=48{,}6$.
-- Para $h\ge2$: $y_{T+h\mid T}=y_{T+h-1\mid T}$. **A previsão é 48,6 para todo $h$**.
-
-Como $\widehat a_T=y_T-y_{T\mid T-1}$:
-
-$$
-y_{T+1\mid T}=(1-\theta)y_T+\theta\,y_{T\mid T-1}=\alpha y_T+(1-\alpha)y_{T\mid T-1},\qquad \alpha=1-\theta=0{,}3 .
-$$
-
-Iterando, os pesos das observações passadas são $\alpha(1-\alpha)^j$: $0{,}3$; $0{,}21$; e assim por diante. É a suavização exponencial simples (lista, Q15e).
+Escrevendo o modelo em $T+1$, o choque futuro vira zero: $\widehat y_T(1)=50+0{,}6(5)=53$. Em $T+2$, $y_{T+1}$ vira a sua previsão: $\widehat y_T(2)=50+0{,}6(3)=51{,}8$. Em geral, $\widehat y_T(h)=50+0{,}6^h(55-50)$, o que dá $\widehat y_T(3)=51{,}08$.
 
 | Rubrica | Pontos |
 |---|---|
-| a) convenção declarada e três previsões | 0,3 |
-| a) $\psi_1$, $\psi_2$ e variâncias | 0,4 |
-| a) intervalo | 0,3 |
-| b) previsão constante | 0,2 |
-| b) forma de SES e $\alpha=1-\theta$ | 0,3 |
+| As três previsões | 0,3 |
+| A fórmula geral | 0,1 |
 
-> [!CAUTION]
-> **A troca de convenção é a armadilha da prova**
-> Em 5a, $\psi_1=\phi+\theta$; em 5b, a previsão leva $-\theta\widehat a_T$. Quem resolve tudo na mesma convenção perde os dois itens. A lista faz isso de propósito na Q8.
+### b) Erros (0,3)
+
+$e_T(1)=a_{T+1}$ e $e_T(2)=a_{T+2}+0{,}6a_{T+1}$. Em geral, $e_T(h)=\sum_{j=0}^{h-1}0{,}6^ja_{T+h-j}$: são $h$ choques futuros, um MA($h-1$).
+
+| Rubrica | Pontos |
+|---|---|
+| Os dois erros | 0,15 |
+| A forma MA($h-1$) com $\psi_j=0{,}6^j$ | 0,15 |
+
+### c) Variâncias (0,3)
+
+$\operatorname{Var}(e_T(h))=9\sum_{j\lt h}0{,}36^j$: 9; 12,24; 13,4064.
+
+| Rubrica | Pontos |
+|---|---|
+| A fórmula, com o $\psi_0=1$ | 0,1 |
+| Os três valores | 0,2 |
+
+### d) Intervalos (0,3)
+
+- $h=1$: $53\pm1{,}96(3)=[47{,}12;\ 58{,}88]$;
+- $h=2$: $\sqrt{12{,}24}=3{,}4986$, logo $51{,}8\pm6{,}8572=[44{,}94;\ 58{,}66]$.
+
+| Rubrica | Pontos |
+|---|---|
+| Uso do **desvio-padrão**, não da variância | 0,1 |
+| Os dois intervalos | 0,2 |
+
+### e) Longo prazo (0,2)
+
+$0{,}6^h\to0$: a previsão volta à média, 50, e a variância do erro tende a $\gamma_0=9/(1-0{,}36)=14{,}0625$.
+
+| Rubrica | Pontos |
+|---|---|
+| Os dois limites | 0,2 |
 
 ---
 
-## Questão 6 (1,5)
+## Questão 9 (1,0) — questão-tipo 9
 
-*Origem na lista:* itens a) e b): (lista, Q16); itens c) e d): (lista, Q12), a previsão e o diagnóstico.
+*Origem na lista:* (lista, Q16).
 
-### a) Modelo (0,4)
-
-$$
-(1-\phi B)(1-B^{12})y_t=(1-\Theta B^{12})a_t
-\ \Longrightarrow\
-y_t=\phi y_{t-1}+y_{t-12}-\phi y_{t-13}+a_t-\Theta a_{t-12}.
-$$
-
-### b) Parâmetros e observações (0,2)
-
-São $\phi$, $\Theta$ e $\sigma^2$: 3 parâmetros. Perdem-se $sD=12$ observações; sobram 132.
-
-### c) Previsões (0,4)
+### a) O modelo (0,3)
 
 $$
-\begin{aligned}
-y_{T+1\mid T}&=\phi y_T+y_{T-11}-\phi y_{T-12}-\Theta\widehat a_{T-11},\\
-y_{T+13\mid T}&=\phi\,y_{T+12\mid T}+y_{T+1\mid T}-\phi y_T .
-\end{aligned}
+(1-B)(1-B^4)\,y_t=(1-0{,}5B)(1-0{,}3B^4)\,a_t,\qquad (1-0{,}5B)(1-0{,}3B^4)=1-0{,}5B-0{,}3B^4+0{,}15B^5.
 $$
 
-O termo MA usa resíduos até $\widehat a_T$, o que vale para $h\le12$. Em $h=13$, ele já envolve $a_{T+1}$, cuja esperança é zero. O padrão sazonal de cada mês é carregado pelo $y_{T+h-12}$, ou pela sua previsão.
-
-### d) Ljung-Box (0,5)
-
-- $H_0$: $\rho_1=\dots=\rho_{24}=0$ nos erros; $H_1$: alguma autocorrelação.
-- $Q=T(T+2)\sum_{k=1}^{24}\widehat r_k^2/(T-k)=28{,}5\sim\chi^2(\nu)$, com $\nu=K-p-q-P-Q=24-1-0-0-1=22$.
-- $28{,}5\lt33{,}92$, com $p=0{,}160$: não se rejeita $H_0$.
-- **Conclusão:** os resíduos não mostram autocorrelação até a defasagem 24, e o modelo capturou a dinâmica.
+Assim, $w_t=y_t-y_{t-1}-y_{t-4}+y_{t-5}=a_t-0{,}5a_{t-1}-0{,}3a_{t-4}+0{,}15a_{t-5}$. O termo $+0{,}15B^5$ vem do produto $(-0{,}5)(-0{,}3)$.
 
 | Rubrica | Pontos |
 |---|---|
-| a) | 0,4 |
-| b) | 0,2 |
-| c) | 0,4 |
-| d) $\nu=22$ descontando os parâmetros | 0,2 |
-| d) decisão e conclusão | 0,3 |
+| Os quatro polinômios | 0,1 |
+| A expansão com o termo cruzado positivo | 0,2 |
+
+### b) Contagens (0,2)
+
+São **3 parâmetros**: $\theta$, $\Theta$ e $\sigma^2$; o 0,15 não conta, porque é imposto. Perdem-se $d+sD=1+4=5$ observações: restam **95**.
+
+| Rubrica | Pontos |
+|---|---|
+| Parâmetros | 0,1 |
+| Observações efetivas | 0,1 |
+
+### c) FAC (0,4)
+
+- $\rho_1=-0{,}5/1{,}25=-0{,}4$;
+- $\rho_4=-0{,}3/1{,}09=-0{,}2752$;
+- satélites: $\rho_3=\rho_5=\rho_1\rho_4=0{,}1101$;
+- $\rho_2=\rho_6=0$, porque nenhum par de choques fica àquela distância.
+
+É a assinatura do multiplicativo com $s=4$: pico em 4 e satélites em $4\pm1$.
+
+| Rubrica | Pontos |
+|---|---|
+| $\rho_1$ e $\rho_4$ | 0,2 |
+| Os satélites | 0,1 |
+| Os zeros | 0,1 |
+
+### d) Critério (0,1)
+
+O rival contém o modelo: com $\phi=0$, volta ao original. Compara-se pelo **BIC**, ou pelo **LR** com $\chi^2(1)$ e crítico 3,84, com o mesmo $T$ efetivo.
+
+| Rubrica | Pontos |
+|---|---|
+| BIC ou LR, com o motivo | 0,1 |
+
+---
+
+## Depois de corrigir
+
+1. Some os pontos por questão e compare com o Simulado 01, questão-tipo por questão-tipo.
+2. Para cada item com perda, escreva uma linha no [log](log_erros.md) com a causa (H, A, N, L, R, V, E ou T) e atualize a coluna S2 do placar.
+3. **Na mesma noite**, refaça no papel a questão-tipo do [guia](nao_posso_errar.md) correspondente ao item de maior perda, sem olhar, e confira linha a linha.
 
 <!-- conferência numérica
 | chave_R | nota |
 |---|---|
-| pv_s2_q1_harm_mc | -0,9996 |
-| pv_s2_q1_g0 | 2,5 |
-| pv_s2_q1_g1 | 1 |
-| pv_s2_q1_rho1 | 0,4 |
-| pv_s2_q1_g0_nao_inv | 2,5 |
-| pv_s2_q1_g1_nao_inv | 1 |
-| pv_s2_q1_raiz_inv | 2 |
-| pv_s2_q1_raiz_nao_inv | 0,5 |
-| pv_s2_q2_soma | 0,8 |
-| pv_s2_q2_dif | -0,2 |
-| pv_s2_q2_raiz_pos | 1,1736 |
-| pv_s2_q2_raiz_neg | -2,8403 |
-| pv_s2_q2_rho1 | 0,7143 |
-| pv_s2_q2_rho2 | 0,6571 |
-| pv_s2_q2_rho3 | 0,5429 |
-| pv_s2_q2_g0 | 2,2436 |
-| pv_s2_q2_phi22 | 0,3 |
-| pv_s2_q2_phi33 | 0 |
-| pv_s2_q2_psi1 | 0,5 |
-| pv_s2_q2_psi2 | 0,55 |
-| pv_s2_q2_psi3 | 0,425 |
-| pv_s2_q3_g0 | 1,5625 |
-| pv_s2_q3_rho4 | 0,6 |
-| pv_s2_q3_rho8 | 0,36 |
-| pv_s2_q3_rho1 | 0 |
-| pv_s2_q3_rho3 | 0 |
-| pv_s2_q3_c1 | 0,5 |
-| pv_s2_q3_c4 | 0,6 |
-| pv_s2_q3_c5 | -0,3 |
-| pv_s2_q3_arima_c1 | 1,4 |
-| pv_s2_q3_arima_c2 | -0,4 |
-| pv_s2_q4_aic_arma11 | 346,8 |
-| pv_s2_q4_aic_ar2 | 349,8 |
-| pv_s2_q4_aic_arma21 | 347,6 |
-| pv_s2_q4_bic_arma11 | 355,162 |
-| pv_s2_q4_bic_ar2 | 358,162 |
-| pv_s2_q4_bic_arma21 | 358,750 |
-| pv_s2_q4_aict_arma11 | 2,890 |
-| pv_s2_q4_aict_ar2 | 2,915 |
-| pv_s2_q4_aict_arma21 | 2,897 |
-| pv_s2_q4_bict_arma11 | 2,960 |
-| pv_s2_q4_bict_ar2 | 2,985 |
-| pv_s2_q4_bict_arma21 | 2,990 |
-| pv_s2_q4_ln120 | 4,7875 |
-| pv_s2_q4_lr | 1,2 |
-| pv_s2_q4_lr_p | 0,273 |
-| pv_s2_q4_chi2_1 | 3,84 |
-| pv_s2_q5_f1 | 1,4 |
-| pv_s2_q5_f2 | 0,7 |
-| pv_s2_q5_f3 | 0,35 |
-| pv_s2_q5_psi1 | 0,9 |
-| pv_s2_q5_psi2 | 0,45 |
-| pv_s2_q5_v1 | 1 |
-| pv_s2_q5_v2 | 1,81 |
-| pv_s2_q5_v3 | 2,0125 |
-| pv_s2_q5_meia2 | 2,6369 |
-| pv_s2_q5_li2 | -1,9369 |
-| pv_s2_q5_ls2 | 3,3369 |
-| pv_s2_q5_ses_nivel | 48,6 |
-| pv_s2_q5_ses_alfa | 0,3 |
-| pv_s2_q5_ses_peso2 | 0,21 |
-| pv_s2_q6_perda | 12 |
-| pv_s2_q6_efetivas | 132 |
-| pv_s2_q6_gl | 22 |
-| pv_s2_q6_lb_crit | 33,92 |
-| pv_s2_q6_lb_p | 0,160 |
+| pv_s2_q1_media | 15 |
+| pv_s2_q1_var | 100 |
+| pv_s2_q1_cov | 80 |
+| pv_s2_q1_corr | 0,8944 |
+| pv_s2_q2_g0 | 10,5 |
+| pv_s2_q2_g1 | 4,65 |
+| pv_s2_q2_g2 | 0,5 |
+| pv_s2_q2_g3 | 0 |
+| pv_s2_q2_rho1 | 0,4429 |
+| pv_s2_q2_rho2 | 0,0476 |
+| pv_s2_q3_delta | 0,0225 |
+| pv_s2_q3_z1 | 4 |
+| pv_s2_q3_z2 | 2,5 |
+| pv_s2_q3_soma | 6,5 |
+| pv_s2_q3_prod | 10 |
+| pv_s2_q3_fator_a | 0,25 |
+| pv_s2_q3_fator_b | 0,4 |
+| pv_s2_q3_pi1 | -0,4 |
+| pv_s2_q3_pi2 | -0,16 |
+| pv_s2_q3_pi3 | -0,064 |
+| pv_s2_q4_raiz_ar | 2 |
+| pv_s2_q4_raiz_ma | 5 |
+| pv_s2_q4_aux1 | 2 |
+| pv_s2_q4_aux2 | 0,6 |
+| pv_s2_q4_g0 | 2,24 |
+| pv_s2_q4_g0_formula | 2,24 |
+| pv_s2_q4_g1 | 0,72 |
+| pv_s2_q4_g2 | 0,36 |
+| pv_s2_q4_rho1 | 0,3214 |
+| pv_s2_q4_psi1 | 0,3 |
+| pv_s2_q4_psi2 | 0,15 |
+| pv_s2_q4_psi3 | 0,075 |
+| pv_s2_q4_pi1 | 0,3 |
+| pv_s2_q4_pi2 | 0,06 |
+| pv_s2_q4_pi3 | 0,012 |
+| pv_s2_q5_raiz_pos | 1,25 |
+| pv_s2_q5_raiz_neg | -2 |
+| pv_s2_q5_rho1 | 0,5 |
+| pv_s2_q5_rho2 | 0,55 |
+| pv_s2_q5_rho3 | 0,365 |
+| pv_s2_q5_g0 | 1,5873 |
+| pv_s2_q5_g0_formula | 1,5873 |
+| pv_s2_q5_g0_r | 1,5873 |
+| pv_s2_q6_var_y | 1,0417 |
+| pv_s2_q6_var_w | 1,6667 |
+| pv_s2_q6_var_w_formula | 1,6667 |
+| pv_s2_q6_rho1_w | -0,4 |
+| pv_s2_q6_raiz_ma | 1 |
+| pv_s2_q7_aic_ar1 | 434,0 |
+| pv_s2_q7_aic_ar2 | 432,2 |
+| pv_s2_q7_aic_arma11 | 433,2 |
+| pv_s2_q7_aic_arma21 | 432,8 |
+| pv_s2_q7_bic_ar1 | 440,02 |
+| pv_s2_q7_bic_ar2 | 441,23 |
+| pv_s2_q7_bic_arma11 | 442,23 |
+| pv_s2_q7_bic_arma21 | 444,84 |
+| pv_s2_q7_ln150 | 5,0106 |
+| pv_s2_q7_phi | 0,5 |
+| pv_s2_q7_sqr | 77,5 |
+| pv_s2_q7_s2 | 0,96875 |
+| pv_s2_q8_f1 | 53 |
+| pv_s2_q8_f2 | 51,8 |
+| pv_s2_q8_f3 | 51,08 |
+| pv_s2_q8_v1 | 9 |
+| pv_s2_q8_v2 | 12,24 |
+| pv_s2_q8_v3 | 13,4064 |
+| pv_s2_q8_dp2 | 3,4986 |
+| pv_s2_q8_meia2 | 6,8572 |
+| pv_s2_q8_li1 | 47,12 |
+| pv_s2_q8_ls1 | 58,88 |
+| pv_s2_q8_li2 | 44,94 |
+| pv_s2_q8_ls2 | 58,66 |
+| pv_s2_q8_vinf | 14,0625 |
+| pv_s2_q9_cruzado | 0,15 |
+| pv_s2_q9_npar | 3 |
+| pv_s2_q9_perda | 5 |
+| pv_s2_q9_efetivas | 95 |
+| pv_s2_q9_rho1 | -0,4 |
+| pv_s2_q9_rho4 | -0,2752 |
+| pv_s2_q9_rho3 | 0,1101 |
+| pv_s2_q9_rho5 | 0,1101 |
+| pv_s2_q9_rho2 | 0 |
+| pv_s2_q9_rho6 | 0 |
+| ap_c6_lr_crit | 3,84 |
 -->

@@ -109,87 +109,192 @@ registrar("pv_s1_q6_rho11_formula", th * Th / ((1 + th^2) * (1 + Th^2)))
 registrar("pv_s1_q6_perda", 1 + 12); registrar("pv_s1_q6_efetivas", 180 - 13)
 
 ## ===================================================================================
-## SIMULADO 02 — torções (sinal positivo, AR(2), sazonal trimestral)
+## SIMULADO 02 — as nove questões-tipo do guia "não posso errar", com números novos
+## ===================================================================================
+# a semente é guardada e restaurada: as simulações daqui não mudam os sorteios das seções seguintes
+.semente_s2 <- .Random.seed; set.seed(502)
+
+## Q1: passeio com drift, y0 = 5, c = 0,2, sigma^2 = 2, t = 50, k = 10 ------------------
+y0 <- 5; cc <- 0.2; s2 <- 2; tt <- 50; kk <- 10
+registrar("pv_s2_q1_media", y0 + cc * tt); registrar("pv_s2_q1_var", tt * s2)
+registrar("pv_s2_q1_cov", (tt - kk) * s2); registrar("pv_s2_q1_corr", sqrt((tt - kk) / tt))
+# conferência por simulação: variância entre réplicas de y_50
+sim <- replicate(20000, y0 + cc * tt + sum(stats::rnorm(tt, 0, sqrt(s2))))
+registrar("pv_s2_q1_var_mc", stats::var(sim))
+
+## Q2: z3 = 3 z1 + z2, não correlacionados ---------------------------------------------
+g1 <- c(1.0, 0.45, 0, 0); g2 <- c(1.5, 0.6, 0.5, 0)
+g3 <- 9 * g1 + g2
+registrar("pv_s2_q2_g0", g3[1]); registrar("pv_s2_q2_g1", g3[2]); registrar("pv_s2_q2_g2", g3[3]); registrar("pv_s2_q2_g3", g3[4])
+registrar("pv_s2_q2_rho1", g3[2] / g3[1]); registrar("pv_s2_q2_rho2", g3[3] / g3[1])
+# coerência do enunciado: o espectro de z2 é positivo (uma FAC válida de MA(2))
+w <- seq(0, pi, length.out = 2001)
+registrar("pv_s2_q2_fmin_z2", min(g2[1] + 2 * g2[2] * cos(w) + 2 * g2[3] * cos(2 * w)))
+
+## Q3: raízes do MA(2) 1 - 0,65B + 0,1B^2 e o fator comum (1 - 0,25B) ------------------
+th <- c(0.65, -0.1)                                   # BJ: 1 - 0,65B + 0,1B^2
+registrar("pv_s2_q3_delta", 0.65^2 - 4 * 0.1)
+rz <- sort(modulo_raizes_ma(th))
+registrar("pv_s2_q3_z1", rz[2]); registrar("pv_s2_q3_z2", rz[1])
+registrar("pv_s2_q3_soma", sum(rz)); registrar("pv_s2_q3_prod", prod(rz))
+# (1 - 0,25B) z = (1 - 0,25B)(1 - 0,4B) a  =>  z = (1 - 0,4B) a
+pr <- Re(polyroot(c(1, -0.65, 0.1)))
+registrar("pv_s2_q3_fator_a", 1 / max(pr)); registrar("pv_s2_q3_fator_b", 1 / min(pr))
+pis <- pesos_pi(numeric(0), 0.4, 3)
+registrar("pv_s2_q3_pi1", pis[1]); registrar("pv_s2_q3_pi2", pis[2]); registrar("pv_s2_q3_pi3", pis[3])
+# o modelo com o fator comum tem os mesmos pesos psi do MA(1)
+registrar("pv_s2_q3_dif_psi", max(abs(pesos_psi(0.25, th, 10) - pesos_psi(numeric(0), 0.4, 10))))
+
+## Q4: ARMA(1,1) BJ com phi = 0,5, theta = 0,2, sigma^2 = 2 ---------------------------
+phi <- 0.5; th <- 0.2; s2 <- 2
+g <- acvf_arma(phi, th, s2, lag.max = 2)
+registrar("pv_s2_q4_aux1", s2); registrar("pv_s2_q4_aux2", (phi - th) * s2)
+registrar("pv_s2_q4_g0", g[1]); registrar("pv_s2_q4_g0_formula", (1 + th^2 - 2 * phi * th) / (1 - phi^2) * s2)
+registrar("pv_s2_q4_g1", g[2]); registrar("pv_s2_q4_g2", g[3]); registrar("pv_s2_q4_rho1", g[2] / g[1])
+psi <- pesos_psi(phi, th, 3); pis <- pesos_pi(phi, th, 3)
+registrar("pv_s2_q4_psi1", psi[2]); registrar("pv_s2_q4_psi2", psi[3]); registrar("pv_s2_q4_psi3", psi[4])
+registrar("pv_s2_q4_pi1", pis[1]); registrar("pv_s2_q4_pi2", pis[2]); registrar("pv_s2_q4_pi3", pis[3])
+registrar("pv_s2_q4_raiz_ar", modulo_raizes_ar(phi)); registrar("pv_s2_q4_raiz_ma", modulo_raizes_ma(th))
+
+## Q5: AR(2) com phi1 = 0,3, phi2 = 0,4, sigma^2 = 1 ------------------------------------
+p1 <- 0.3; p2 <- 0.4
+r <- stats::ARMAacf(ar = c(p1, p2), lag.max = 3)
+registrar("pv_s2_q5_rho1", r[2]); registrar("pv_s2_q5_rho2", r[3]); registrar("pv_s2_q5_rho3", r[4])
+registrar("pv_s2_q5_g0", 1 / (1 - p1 * r[2] - p2 * r[3]))
+registrar("pv_s2_q5_g0_formula", (1 - p2) / ((1 + p2) * ((1 - p2)^2 - p1^2)))
+registrar("pv_s2_q5_g0_r", acvf_arma(c(p1, p2), numeric(0), 1, lag.max = 0)[1])
+rz <- Re(polyroot(c(1, -p1, -p2)))
+registrar("pv_s2_q5_raiz_pos", max(rz)); registrar("pv_s2_q5_raiz_neg", min(rz))
+
+## Q6: diferenciar o AR(1) com phi = 0,2 ------------------------------------------------
+phi <- 0.2
+gw <- acvf_arma(phi, 1, 1, lag.max = 2)
+registrar("pv_s2_q6_var_y", 1 / (1 - phi^2))
+registrar("pv_s2_q6_var_w", gw[1]); registrar("pv_s2_q6_var_w_formula", 2 / (1 + phi))
+registrar("pv_s2_q6_rho1_w", gw[2] / gw[1]); registrar("pv_s2_q6_rho1_w_formula", -(1 - phi) / 2)
+registrar("pv_s2_q6_raiz_ma", modulo_raizes_ma(1))
+
+## Q7: AIC e BIC com T = 150 e MV condicional do AR(1) ----------------------------------
+ll <- c(ar1 = -215.0, ar2 = -213.1, arma11 = -213.6, arma21 = -212.4); k <- c(2, 3, 3, 4); n <- 150
+a <- aic(ll, k); b <- bic(ll, k, n)
+for (i in seq_along(ll)) {
+  registrar(paste0("pv_s2_q7_aic_", names(ll)[i]), a[i])
+  registrar(paste0("pv_s2_q7_bic_", names(ll)[i]), b[i])
+}
+registrar("pv_s2_q7_ln150", log(n))
+registrar("pv_s2_q7_escolha_aic", which.min(a)); registrar("pv_s2_q7_escolha_bic", which.min(b))
+sxy <- 45; sxx <- 90; syy <- 100                     # somas de t = 2..T, T = 81
+phi_hat <- sxy / sxx; sqr <- syy - phi_hat * sxy
+registrar("pv_s2_q7_phi", phi_hat); registrar("pv_s2_q7_sqr", sqr); registrar("pv_s2_q7_s2", sqr / 80)
+
+## Q8: previsão do AR(1) com média 50, phi = 0,6, sigma^2 = 9, y_T = 55 ----------------
+mu <- 50; phi <- 0.6; s2 <- 9; yT <- 55
+f <- mu + phi^(1:3) * (yT - mu)
+v <- s2 * cumsum(phi^(2 * (0:2)))
+registrar("pv_s2_q8_f1", f[1]); registrar("pv_s2_q8_f2", f[2]); registrar("pv_s2_q8_f3", f[3])
+registrar("pv_s2_q8_v1", v[1]); registrar("pv_s2_q8_v2", v[2]); registrar("pv_s2_q8_v3", v[3])
+registrar("pv_s2_q8_dp2", sqrt(v[2])); registrar("pv_s2_q8_meia2", 1.96 * sqrt(v[2]))
+registrar("pv_s2_q8_li1", f[1] - 1.96 * sqrt(v[1])); registrar("pv_s2_q8_ls1", f[1] + 1.96 * sqrt(v[1]))
+registrar("pv_s2_q8_li2", f[2] - 1.96 * sqrt(v[2])); registrar("pv_s2_q8_ls2", f[2] + 1.96 * sqrt(v[2]))
+registrar("pv_s2_q8_vinf", s2 / (1 - phi^2))
+yy <- mu + stats::arima.sim(list(ar = phi), n = 400, sd = 3); yy[400] <- yT
+fit <- stats::arima(yy, order = c(1, 0, 0), fixed = c(phi, mu), transform.pars = FALSE)
+registrar("pv_s2_q8_dif_predict", max(abs(stats::predict(fit, n.ahead = 3)$pred - f)))
+
+## Q9: SARIMA(0,1,1)(0,1,1)_4 trimestral, theta = 0,5, Theta = 0,3, T = 100 --------------
+th <- 0.5; Th <- 0.3
+gw <- acvf_arma(numeric(0), c(th, 0, 0, Th, -th * Th), 1, lag.max = 6)
+r <- gw / gw[1]
+registrar("pv_s2_q9_rho1", r[2]); registrar("pv_s2_q9_rho2", r[3]); registrar("pv_s2_q9_rho3", r[4])
+registrar("pv_s2_q9_rho4", r[5]); registrar("pv_s2_q9_rho5", r[6]); registrar("pv_s2_q9_rho6", r[7])
+registrar("pv_s2_q9_rho1_formula", -th / (1 + th^2)); registrar("pv_s2_q9_rho4_formula", -Th / (1 + Th^2))
+registrar("pv_s2_q9_cruzado", th * Th)
+registrar("pv_s2_q9_g0_fator", (1 + th^2) * (1 + Th^2))
+registrar("pv_s2_q9_npar", 3); registrar("pv_s2_q9_perda", 1 + 4); registrar("pv_s2_q9_efetivas", 100 - 5)
+assign(".Random.seed", .semente_s2, envir = .GlobalEnv)
+
+## ===================================================================================
+## SIMULADO 04 — torções (sinal positivo, AR(2), sazonal trimestral)
 ## ===================================================================================
 
 ## Q1: MA(1) com sinal positivo e o par não invertível ----------------------------------
 g <- acvf_arma(numeric(0), 0.5, 2, lag.max = 1, sinal_ma = "r")
-registrar("pv_s2_q1_g0", g[1]); registrar("pv_s2_q1_g1", g[2]); registrar("pv_s2_q1_rho1", g[2] / g[1])
+registrar("pv_s4_q1_g0", g[1]); registrar("pv_s4_q1_g1", g[2]); registrar("pv_s4_q1_rho1", g[2] / g[1])
 g2 <- acvf_arma(numeric(0), 2, 0.5, lag.max = 1, sinal_ma = "r")
-registrar("pv_s2_q1_g0_nao_inv", g2[1]); registrar("pv_s2_q1_g1_nao_inv", g2[2])
-registrar("pv_s2_q1_rho1_nao_inv", g2[2] / g2[1])
-registrar("pv_s2_q1_raiz_inv", modulo_raizes_ma(0.5, "r")); registrar("pv_s2_q1_raiz_nao_inv", modulo_raizes_ma(2, "r"))
+registrar("pv_s4_q1_g0_nao_inv", g2[1]); registrar("pv_s4_q1_g1_nao_inv", g2[2])
+registrar("pv_s4_q1_rho1_nao_inv", g2[2] / g2[1])
+registrar("pv_s4_q1_raiz_inv", modulo_raizes_ma(0.5, "r")); registrar("pv_s4_q1_raiz_nao_inv", modulo_raizes_ma(2, "r"))
 # processo harmônico: Cov(z_t, z_{t-k}) = sigma^2 cos(omega k); com omega = pi/2 e sigma^2 = 1
-registrar("pv_s2_q1_harm_k1", cos(pi / 2 * 1)); registrar("pv_s2_q1_harm_k2", cos(pi / 2 * 2))
+registrar("pv_s4_q1_harm_k1", cos(pi / 2 * 1)); registrar("pv_s4_q1_harm_k2", cos(pi / 2 * 2))
 # Monte Carlo: média de z_t z_{t-2} entre réplicas fica perto de -1, sem depender de t
 A <- stats::rnorm(20000); B <- stats::rnorm(20000)
 z <- function(t) A * cos(pi / 2 * t) + B * sin(pi / 2 * t)
-registrar("pv_s2_q1_harm_mc", mean(z(7) * z(5)))
+registrar("pv_s4_q1_harm_mc", mean(z(7) * z(5)))
 
 ## Q2: AR(2) com phi1 = 0,5, phi2 = 0,3, sigma^2 = 1 ------------------------------------
 p1 <- 0.5; p2 <- 0.3
 g <- acvf_arma(c(p1, p2), numeric(0), 1, lag.max = 3); r <- g / g[1]
-registrar("pv_s2_q2_rho1", r[2]); registrar("pv_s2_q2_rho2", r[3]); registrar("pv_s2_q2_rho3", r[4])
-registrar("pv_s2_q2_g0", g[1])
-registrar("pv_s2_q2_g0_formula", (1 - p2) / ((1 + p2) * ((1 - p2)^2 - p1^2)))
-registrar("pv_s2_q2_phi22", (r[3] - r[2]^2) / (1 - r[2]^2))
-registrar("pv_s2_q2_phi33", stats::ARMAacf(ar = c(p1, p2), lag.max = 3, pacf = TRUE)[3])
+registrar("pv_s4_q2_rho1", r[2]); registrar("pv_s4_q2_rho2", r[3]); registrar("pv_s4_q2_rho3", r[4])
+registrar("pv_s4_q2_g0", g[1])
+registrar("pv_s4_q2_g0_formula", (1 - p2) / ((1 + p2) * ((1 - p2)^2 - p1^2)))
+registrar("pv_s4_q2_phi22", (r[3] - r[2]^2) / (1 - r[2]^2))
+registrar("pv_s4_q2_phi33", stats::ARMAacf(ar = c(p1, p2), lag.max = 3, pacf = TRUE)[3])
 psi <- pesos_psi(c(p1, p2), numeric(0), 3)
-registrar("pv_s2_q2_psi1", psi[2]); registrar("pv_s2_q2_psi2", psi[3]); registrar("pv_s2_q2_psi3", psi[4])
+registrar("pv_s4_q2_psi1", psi[2]); registrar("pv_s4_q2_psi2", psi[3]); registrar("pv_s4_q2_psi3", psi[4])
 rz <- polyroot(c(1, -p1, -p2))
-registrar("pv_s2_q2_raiz_pos", max(Re(rz))); registrar("pv_s2_q2_raiz_neg", min(Re(rz)))
-registrar("pv_s2_q2_soma", p1 + p2); registrar("pv_s2_q2_dif", p2 - p1)
+registrar("pv_s4_q2_raiz_pos", max(Re(rz))); registrar("pv_s4_q2_raiz_neg", min(Re(rz)))
+registrar("pv_s4_q2_soma", p1 + p2); registrar("pv_s4_q2_dif", p2 - p1)
 
 ## Q3: SAR(1)_4, multiplicativo e ARIMA(1,1,1) -----------------------------------------
 Phi <- 0.6
 g <- acvf_arma(c(0, 0, 0, Phi), numeric(0), 1, lag.max = 8); r <- g / g[1]
-registrar("pv_s2_q3_g0", g[1]); registrar("pv_s2_q3_rho4", r[5]); registrar("pv_s2_q3_rho8", r[9])
-registrar("pv_s2_q3_rho1", r[2]); registrar("pv_s2_q3_rho3", r[4])
+registrar("pv_s4_q3_g0", g[1]); registrar("pv_s4_q3_rho4", r[5]); registrar("pv_s4_q3_rho8", r[9])
+registrar("pv_s4_q3_rho1", r[2]); registrar("pv_s4_q3_rho3", r[4])
 # (1 - 0,5B)(1 - 0,6B^4) = 1 - 0,5B - 0,6B^4 + 0,3B^5
 pr <- stats::convolve(c(1, -0.5), rev(c(1, 0, 0, 0, -0.6)), type = "open")
-registrar("pv_s2_q3_c1", -pr[2]); registrar("pv_s2_q3_c4", -pr[5]); registrar("pv_s2_q3_c5", -pr[6])
+registrar("pv_s4_q3_c1", -pr[2]); registrar("pv_s4_q3_c4", -pr[5]); registrar("pv_s4_q3_c5", -pr[6])
 # ARIMA(1,1,1): (1 - 0,4B)(1 - B) y = (1 - 0,7B) a  =>  y_t = 1,4 y_{t-1} - 0,4 y_{t-2} + a_t - 0,7 a_{t-1}
 pr <- stats::convolve(c(1, -0.4), rev(c(1, -1)), type = "open")
-registrar("pv_s2_q3_arima_c1", -pr[2]); registrar("pv_s2_q3_arima_c2", -pr[3])
+registrar("pv_s4_q3_arima_c1", -pr[2]); registrar("pv_s4_q3_arima_c2", -pr[3])
 
 ## Q4: AIC e BIC com T = 120, versão por T da AU02, e teste LR --------------------------
 ll <- c(arma11 = -170.4, ar2 = -171.9, arma21 = -169.8); k <- c(3, 3, 4); n <- 120
 a <- aic(ll, k); b <- bic(ll, k, n)
 for (i in seq_along(ll)) {
-  registrar(paste0("pv_s2_q4_aic_", names(ll)[i]), a[i])
-  registrar(paste0("pv_s2_q4_bic_", names(ll)[i]), b[i])
-  registrar(paste0("pv_s2_q4_aict_", names(ll)[i]), a[i] / n)
-  registrar(paste0("pv_s2_q4_bict_", names(ll)[i]), b[i] / n)
+  registrar(paste0("pv_s4_q4_aic_", names(ll)[i]), a[i])
+  registrar(paste0("pv_s4_q4_bic_", names(ll)[i]), b[i])
+  registrar(paste0("pv_s4_q4_aict_", names(ll)[i]), a[i] / n)
+  registrar(paste0("pv_s4_q4_bict_", names(ll)[i]), b[i] / n)
 }
-registrar("pv_s2_q4_ln120", log(n))
-registrar("pv_s2_q4_lr", 2 * (ll[["arma21"]] - ll[["arma11"]]))
-registrar("pv_s2_q4_lr_p", stats::pchisq(2 * (ll[["arma21"]] - ll[["arma11"]]), 1, lower.tail = FALSE))
-registrar("pv_s2_q4_chi2_1", stats::qchisq(0.95, 1))
+registrar("pv_s4_q4_ln120", log(n))
+registrar("pv_s4_q4_lr", 2 * (ll[["arma21"]] - ll[["arma11"]]))
+registrar("pv_s4_q4_lr_p", stats::pchisq(2 * (ll[["arma21"]] - ll[["arma11"]]), 1, lower.tail = FALSE))
+registrar("pv_s4_q4_chi2_1", stats::qchisq(0.95, 1))
 
 ## Q5: previsão do ARMA(1,1) com sinal positivo e do ARIMA(0,1,1) -----------------------
 phi <- 0.5; th_r <- 0.4; zT <- 2; aT <- 1
 f1 <- phi * zT + th_r * aT; f2 <- phi * f1; f3 <- phi * f2
 psi <- pesos_psi(phi, th_r, 3, sinal_ma = "r"); v <- cumsum(psi^2)
-registrar("pv_s2_q5_f1", f1); registrar("pv_s2_q5_f2", f2); registrar("pv_s2_q5_f3", f3)
-registrar("pv_s2_q5_psi1", psi[2]); registrar("pv_s2_q5_psi2", psi[3])
-registrar("pv_s2_q5_v1", v[1]); registrar("pv_s2_q5_v2", v[2]); registrar("pv_s2_q5_v3", v[3])
-registrar("pv_s2_q5_meia2", 1.96 * sqrt(v[2]))
-registrar("pv_s2_q5_li2", f2 - 1.96 * sqrt(v[2])); registrar("pv_s2_q5_ls2", f2 + 1.96 * sqrt(v[2]))
+registrar("pv_s4_q5_f1", f1); registrar("pv_s4_q5_f2", f2); registrar("pv_s4_q5_f3", f3)
+registrar("pv_s4_q5_psi1", psi[2]); registrar("pv_s4_q5_psi2", psi[3])
+registrar("pv_s4_q5_v1", v[1]); registrar("pv_s4_q5_v2", v[2]); registrar("pv_s4_q5_v3", v[3])
+registrar("pv_s4_q5_meia2", 1.96 * sqrt(v[2]))
+registrar("pv_s4_q5_li2", f2 - 1.96 * sqrt(v[2])); registrar("pv_s4_q5_ls2", f2 + 1.96 * sqrt(v[2]))
 # conferência contra o predict() do R: fixa os parâmetros e força z_T e a_T
 zz <- stats::arima.sim(list(ar = phi, ma = th_r), n = 400)
 fit <- stats::arima(zz, order = c(1, 0, 1), include.mean = FALSE, fixed = c(phi, th_r), transform.pars = FALSE)
 eT <- tail(as.numeric(stats::residuals(fit)), 1); zTr <- tail(as.numeric(zz), 1)
-registrar("pv_s2_q5_dif_predict", abs(stats::predict(fit, n.ahead = 1)$pred[1] - (phi * zTr + th_r * eT)))
+registrar("pv_s4_q5_dif_predict", abs(stats::predict(fit, n.ahead = 1)$pred[1] - (phi * zTr + th_r * eT)))
 # ARIMA(0,1,1) BJ com theta = 0,7: previsão = y_T - theta a_T para todo h; alpha = 1 - theta
 yT <- 50; aT <- 2; th <- 0.7
-registrar("pv_s2_q5_ses_nivel", yT - th * aT); registrar("pv_s2_q5_ses_alfa", 1 - th)
-registrar("pv_s2_q5_ses_peso2", (1 - th) * th)
+registrar("pv_s4_q5_ses_nivel", yT - th * aT); registrar("pv_s4_q5_ses_alfa", 1 - th)
+registrar("pv_s4_q5_ses_peso2", (1 - th) * th)
 
 ## Q6: SARIMA(1,0,0)(0,1,1)_12 e Ljung-Box ---------------------------------------------
-registrar("pv_s2_q6_perda", 12); registrar("pv_s2_q6_efetivas", 144 - 12)
-registrar("pv_s2_q6_gl", 24 - 2)
-registrar("pv_s2_q6_lb_crit", stats::qchisq(0.95, 22))
-registrar("pv_s2_q6_lb_p", stats::pchisq(28.5, 22, lower.tail = FALSE))
+registrar("pv_s4_q6_perda", 12); registrar("pv_s4_q6_efetivas", 144 - 12)
+registrar("pv_s4_q6_gl", 24 - 2)
+registrar("pv_s4_q6_lb_crit", stats::qchisq(0.95, 22))
+registrar("pv_s4_q6_lb_p", stats::pchisq(28.5, 22, lower.tail = FALSE))
 
 ## ===================================================================================
 ## SIMULADO 03 — integrador (V ou F, previsão numérica de SARIMA, identificação)

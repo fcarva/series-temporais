@@ -38,8 +38,8 @@ Os seis erros da P1 de Econometria I, com a ação traduzida para séries tempor
 | questão (Econ. I) | erro | C | treino aqui | ação |
 |---|---|---|---|---|
 | P1, Q1 | $\mathbf X'\mathbf X$, inversa e $\widehat\beta$ em branco | T | S1 Q4b; banco Q14 | fazer os itens de conta antes das demonstrações; cronometrar 5 min |
-| P1, Q2d | efeito marginal sem o termo $2\beta_3EXP$ | A | S1 Q1c ($4\gamma_x$); S2 Q5a ($\psi_1=\phi+\theta$) | escrever a fórmula geral e a convenção antes dos números |
-| P1, Q3c | rejeitou $H_0$ sem calcular $F$ | E | S2 Q4b (LR); S2 Q6d (Ljung-Box) | teste em quatro linhas, com a estatística calculada |
+| P1, Q2d | efeito marginal sem o termo $2\beta_3EXP$ | A | S1 Q1c ($4\gamma_x$); S4 Q5a ($\psi_1=\phi+\theta$) | escrever a fórmula geral e a convenção antes dos números |
+| P1, Q3c | rejeitou $H_0$ sem calcular $F$ | E | S4 Q4b (LR); S4 Q6d (Ljung-Box) | teste em quatro linhas, com a estatística calculada |
 | P1, Q4a | plim em branco | E | S1 Q2b (momentos auxiliares do ARMA) | refazer D02.2 de cabeça até sair em 8 min |
 | P1, Q5 | Gauss-Markov sem a conclusão "semidefinida positiva" | E | S1 Q3a (raiz ⇒ não invertível ⇒ sem AR($\infty$)); S1 Q5a | reler o verbo e fechar com a frase pedida |
 | P1, Q6 | FWL incompleto | E | S3 Q3 (previsão em cadeia) | escrever a equação expandida uma vez e só substituir |
@@ -64,7 +64,7 @@ Os seis erros da P1 de Econometria I, com a ação traduzida para séries tempor
 
 Atualize depois de cada simulado. A causa com mais linhas vira o foco do treino seguinte.
 
-| causa | S1 (01/11) | S2 (02/11) | S3 (03/11) |
+| causa | S1 (01/11) | S2 (03/11) | S3 (04/11) |
 |---|---|---|---|
 | H hipótese | 0 |  |  |
 | A álgebra ou sinal | 1 |  |  |

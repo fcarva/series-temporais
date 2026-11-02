@@ -85,7 +85,7 @@ Nenhuma variação repete os números dos [simulados](README.md#os-três-simulad
 **Resposta.** Porque $\operatorname{Var}(y_t)=\sigma^2\sum\psi_j^2$ precisa ser finita. É a condição de estacionariedade fraca escrita nos pesos.
 
 **Variação C.** Dê um exemplo de componente determinístico.
-**Resposta.** $A\cos(\omega t)+B\sin(\omega t)$, com $A$ e $B$ aleatórios fixados no início: é estacionário e perfeitamente previsível. Ver o Simulado 02, Q1.
+**Resposta.** $A\cos(\omega t)+B\sin(\omega t)$, com $A$ e $B$ aleatórios fixados no início: é estacionário e perfeitamente previsível. Ver o Simulado 04, Q1.
 
 ---
 

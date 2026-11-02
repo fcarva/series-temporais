@@ -35,8 +35,9 @@ O que se sabe da prova: **5 ou 6 questões, de 1h50 a 2h, sem consulta, tiradas 
 | [Q2 e Q6 à mão](../lista_comentada/a_mao_q02_q06.md) | as duas questões escolhidas para treinar no papel, linha a linha, no formato de caderno |
 | [banco.md](banco.md) | as 16 questões da lista em **variações** curtas com resposta: o treino diário |
 | [simulado_01.md](simulado_01.md) · [gabarito](simulado_01_gabarito.md) | próximo da lista, para calibrar o tempo |
-| [simulado_02.md](simulado_02.md) · [gabarito](simulado_02_gabarito.md) | as torções: sinal positivo, AR(2), sazonal trimestral |
+| [simulado_02.md](simulado_02.md) · [gabarito](simulado_02_gabarito.md) | **as nove questões-tipo** do [guia "não posso errar"](nao_posso_errar.md), com números novos |
 | [simulado_03.md](simulado_03.md) · [gabarito](simulado_03_gabarito.md) | integrador: V ou F, previsão numérica de SARIMA, identificação |
+| [simulado_04.md](simulado_04.md) · [gabarito](simulado_04_gabarito.md) | opcional, as torções: sinal positivo, AR(2), sazonal trimestral |
 | [log_erros.md](log_erros.md) | registro dos erros com revisão em +1, +3 e +7 dias |
 | [prova.R](prova.R) | todos os números dos simulados e do banco (id `pv`) |
 | [formulário](../formulario/formulario.md) | todas as fórmulas |
@@ -164,7 +165,7 @@ Cerca de 2h30 a 3h por dia; os simulados levam 1h50 mais 40 minutos de correçã
 | sáb 31/10 | blocos 3 e 5 (Q9–Q12, Q15) | ciclo nas cinco questões; Q2 de cabeça (+1); refazer os erros do log de 29/10 (+1) |
 | dom 01/11 | diagnóstico | **Simulado 01** cronometrado, correção pela rubrica e log; blocos 4 e 6 (Q13, Q14, Q16) pelo molde (e) |
 | seg 02/11 | correção do S1 | refazer S1 Q2 b)–d) com o roteiro de quatro movimentos, sem olhar; refazer S1 Q3 a)–c); **S1 Q4, Q5 b)–d) e Q6 a)–b) em 30 minutos, só conta**; ler a [correção do S1](correcao_simulado_01.md) |
-| ter 03/11 | treino | 20 min: camadas 1 e 2 do [básico](basico.md) de memória, numa folha, e conferir; **Simulado 02 em modo prova** (3 min de leitura, 25 min de contas curtas, depois as derivações); correção e log; à noite, a Q6 da lista nos quatro movimentos, em até 15 minutos |
+| ter 03/11 | treino | 20 min: camadas 1 e 2 do [básico](basico.md) de memória, numa folha, e conferir; **Simulado 02 em modo prova** (as nove questões-tipo) (3 min de leitura, 25 min de contas curtas, depois as derivações); correção e log; à noite, a Q6 da lista nos quatro movimentos, em até 15 minutos |
 | qua 04/11 | leve | 20 min: camadas 1 a 3 do básico de memória; do Simulado 03, **só** Q3 c), Q4 b)–c) e Q5 a)–b), que são contas; S1 Q2 inteira de cabeça (+3); dormir cedo |
 | **qui 05/11** | **prova** | 10 minutos antes: reler o [básico](basico.md), com o roteiro do ARMA e a ordem contas curtas → derivações → revisão |
 
@@ -172,15 +173,17 @@ O Simulado 01 foi feito em 01/11, e a [correção](correcao_simulado_01.md) most
 
 Se sobrar tempo num dia, use o [banco](banco.md) do bloco do dia: cada questão tem uma variação curta com resposta.
 
-## Os três simulados
+## Os simulados
 
-Cada simulado tem 6 questões (uma por bloco), soma 10,0 pontos e cabe em 1h50 com 10 minutos de revisão. Os números não se repetem entre simulados nem com o banco.
+O **Simulado 02** é diferente dos outros: tem **9 questões, uma por questão-tipo** do [guia "não posso errar"](nao_posso_errar.md), na mesma ordem, e testa só o básico que não se pode errar. Cada item travado manda de volta à questão-tipo de mesmo número.
 
-| Bloco | Simulado 01 | Simulado 02 | Simulado 03 |
+Os Simulados 01, 03 e 04 têm 6 questões (uma por bloco). Todos somam 10,0 pontos e cabem em 1h50 com 10 minutos de revisão. Os números não se repetem entre simulados, nem com o banco, nem com o guia.
+
+| Bloco | Simulado 01 | Simulado 03 | Simulado 04 (opcional) |
 |---|---|---|---|
-| 1. Processos | passeio sem drift e soma de processos | processo harmônico; MA(1) com par não invertível | TS × DS |
-| 2. ARMA | ARMA(1,1), BJ | AR(2) completo | V ou F do ARMA(1,1) com sinal positivo |
-| 3. ARIMA e SARIMA | AR(1) sobrediferenciado | SAR(1)$_4$, AR(5) restrito, ARIMA(1,1,1) | previsão numérica do SARIMA$(1,1,0)(0,1,1)_4$ |
-| 4. Estimação | AIC/BIC com $T=200$; MV condicional | AIC/BIC da AU02, LR, MV exata | AIC, BIC e LR entre SARIMA |
-| 5. Previsão | AR(1) com média e o previsor ótimo | ARMA(1,1) com sinal positivo; SES | MA(2): previsão e memória |
-| 6. Aplicação | modelo das companhias aéreas | SARIMA$(1,0,0)(0,1,1)_{12}$ e Ljung-Box | identificação pela FAC amostral |
+| 1. Processos | passeio sem drift e soma de processos | TS × DS | processo harmônico; MA(1) com par não invertível |
+| 2. ARMA | ARMA(1,1), BJ | V ou F do ARMA(1,1) com sinal positivo | AR(2) completo |
+| 3. ARIMA e SARIMA | AR(1) sobrediferenciado | previsão numérica do SARIMA$(1,1,0)(0,1,1)_4$ | SAR(1)$_4$, AR(5) restrito, ARIMA(1,1,1) |
+| 4. Estimação | AIC/BIC com $T=200$; MV condicional | AIC, BIC e LR entre SARIMA | AIC/BIC da AU02, LR, MV exata |
+| 5. Previsão | AR(1) com média e o previsor ótimo | MA(2): previsão e memória | ARMA(1,1) com sinal positivo; SES |
+| 6. Aplicação | modelo das companhias aéreas | identificação pela FAC amostral | SARIMA$(1,0,0)(0,1,1)_{12}$ e Ljung-Box |
