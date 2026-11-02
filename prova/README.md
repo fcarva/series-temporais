@@ -16,6 +16,10 @@ aliases:
 
 # Prova de 05/11/2026: guia de treino
 
+> [!TIP]
+> **Se for ler uma coisa só**
+> O [básico da P1](basico.md), em duas páginas: as seis definições, as contas de uma linha e as três derivações-molde. É o que precisa sair sem pensar.
+
 O que se sabe da prova: **5 ou 6 questões, de 1h50 a 2h, sem consulta, tiradas da lista** "Processos ARMA, ARIMA e SARIMA" (`LST`). A aposta é **uma questão por bloco da lista**, com números e torções novos. Este guia junta quatro coisas:
 1. o mapa de cada bloco para a resolução, a demonstração e o livro;
 2. a estratégia de tempo;
@@ -159,9 +163,9 @@ Cerca de 2h30 a 3h por dia; os simulados levam 1h50 mais 40 minutos de correçã
 | sáb 31/10 | blocos 3 e 5 (Q9–Q12, Q15) | ciclo nas cinco questões; Q2 de cabeça (+1); refazer os erros do log de 29/10 (+1) |
 | dom 01/11 | diagnóstico | **Simulado 01** cronometrado, correção pela rubrica e log; blocos 4 e 6 (Q13, Q14, Q16) pelo molde (e) |
 | seg 02/11 | correção do S1 | refazer S1 Q2 b)–d) com o roteiro de quatro movimentos, sem olhar; refazer S1 Q3 a)–c); **S1 Q4, Q5 b)–d) e Q6 a)–b) em 30 minutos, só conta**; ler a [correção do S1](correcao_simulado_01.md) |
-| ter 03/11 | treino | **Simulado 02 em modo prova** (3 min de leitura, 25 min de contas curtas de todas as questões, depois as derivações); correção e log; à noite, a Q6 da lista de cabeça, em até 15 minutos |
-| qua 04/11 | leve | S1 Q2 inteira de cabeça (+3); do Simulado 03, **só** Q3 c), Q4 b)–c) e Q5 a)–b), que são contas; mínimo de cor; armadilhas (§3); dormir cedo |
-| **qui 05/11** | **prova** | 15 minutos antes: o roteiro de quatro movimentos do ARMA, o mínimo de cor e a ordem contas curtas → derivações → revisão |
+| ter 03/11 | treino | 20 min: camadas 1 e 2 do [básico](basico.md) de memória, numa folha, e conferir; **Simulado 02 em modo prova** (3 min de leitura, 25 min de contas curtas, depois as derivações); correção e log; à noite, a Q6 da lista nos quatro movimentos, em até 15 minutos |
+| qua 04/11 | leve | 20 min: camadas 1 a 3 do básico de memória; do Simulado 03, **só** Q3 c), Q4 b)–c) e Q5 a)–b), que são contas; S1 Q2 inteira de cabeça (+3); dormir cedo |
+| **qui 05/11** | **prova** | 10 minutos antes: reler o [básico](basico.md), com o roteiro do ARMA e a ordem contas curtas → derivações → revisão |
 
 O Simulado 01 foi feito em 01/11, e a [correção](correcao_simulado_01.md) mostra onde os pontos foram embora. O Simulado 03 completo saiu do plano: não há tempo, e cansaria na véspera.
 
