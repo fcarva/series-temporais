@@ -18,7 +18,7 @@
 # Requer pandoc e LuaLaTeX (TeX Live ou MiKTeX).
 #
 # Rodar: Rscript caderno/montar_caderno.R  (Windows: scripts\r.ps1 caderno\montar_caderno.R)
-#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao, amao_blocos, apostila, completo, correcao, basico; sem argumento, tudo
+#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao, amao_blocos, apostila, completo, correcao, basico, naoerrar, simulado02; sem argumento, tudo
 # Saída: caderno/pdf/ (fora do git, exceto o volume 4, o guia, o volume 5 e os simulados,
 #        que vão ao cofre do Obsidian)
 
@@ -315,9 +315,10 @@ volume_prova <- function() {
   partes <- list(
     "Guia da prova" = c("prova/README.md"),
     "Banco de variações da lista" = c("prova/banco.md"),
-    "Simulados" = c("prova/simulado_01.md", "prova/simulado_02.md", "prova/simulado_03.md"),
+    "Simulados" = c("prova/simulado_01.md", "prova/simulado_02.md", "prova/simulado_03.md", "prova/simulado_04.md"),
     "Gabaritos e log de erros" = c("prova/simulado_01_gabarito.md", "prova/simulado_02_gabarito.md",
-                                   "prova/simulado_03_gabarito.md", "prova/log_erros.md"),
+                                   "prova/simulado_03_gabarito.md", "prova/simulado_04_gabarito.md",
+                                   "prova/log_erros.md"),
     "Formulário" = c("formulario/formulario.md")
   )
   md <- file.path(BUILD, "volume5.md"); montar_md(partes, md)
@@ -327,9 +328,10 @@ volume_prova <- function() {
 
 # Só os enunciados, para imprimir e resolver sem ver o gabarito
 volume_simulados <- function() {
-  partes <- list("Simulados" = c("prova/simulado_01.md", "prova/simulado_02.md", "prova/simulado_03.md"))
+  partes <- list("Simulados" = c("prova/simulado_01.md", "prova/simulado_02.md", "prova/simulado_03.md",
+                                 "prova/simulado_04.md"))
   md <- file.path(BUILD, "simulados.md"); montar_md(partes, md)
-  capa("Simulados", "Três provas de 1h50 no formato da lista (sem gabarito)", file.path(BUILD, "capa_sim.tex"))
+  capa("Simulados", "Quatro provas de 1h50 no formato da lista (sem gabarito)", file.path(BUILD, "capa_sim.tex"))
   compilar("caderno_prova_simulados", md, file.path(BUILD, "capa_sim.tex"), OPC_SIMULADOS, passes = 3, impressao = TRUE)
 }
 
@@ -464,9 +466,21 @@ volume_naoerrar <- function() {
            OPC_IMPRESSAO[!OPC_IMPRESSAO %in% c("--toc", "--toc-depth=1")], passes = 2, impressao = TRUE)
 }
 
+# Simulado 02 avulso: o enunciado e o gabarito em PDFs separados, para não ver a resposta
+volume_simulado02 <- function() {
+  sem_toc <- function(o) o[!o %in% c("--toc", "--toc-depth=1")]
+  md <- file.path(BUILD, "simulado02.md"); montar_md(list("Simulado 02" = c("prova/simulado_02.md")), md)
+  capa("Simulado 02", "As nove questões-tipo, com números novos: 1h50, sem consulta", file.path(BUILD, "capa_s2.tex"))
+  compilar("caderno_simulado_02", md, file.path(BUILD, "capa_s2.tex"), sem_toc(OPC_SIMULADOS), passes = 2, impressao = TRUE)
+  md <- file.path(BUILD, "simulado02_gab.md")
+  writeLines(enc2utf8(preparar_nota("prova/simulado_02_gabarito.md")), md, useBytes = TRUE)
+  capa("Simulado 02: gabarito", "Rubrica por passo e o caminho de volta ao guia", file.path(BUILD, "capa_s2g.tex"))
+  compilar("caderno_simulado_02_gabarito", md, file.path(BUILD, "capa_s2g.tex"), sem_toc(OPC_IMPRESSAO), passes = 2, impressao = TRUE)
+}
+
 ## ---- execução ------------------------------------------------------------------------
 alvos <- commandArgs(trailingOnly = TRUE)
-if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao", "basico", "naoerrar")
+if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao", "basico", "naoerrar", "simulado02")
 cat("pandoc:  ", PANDOC, "\nlualatex:", LUALATEX, "\n")
 if ("teoria" %in% alvos) volume_teoria()
 if ("lista" %in% alvos) volume_lista()
@@ -483,4 +497,5 @@ if ("completo" %in% alvos) volume_completo()
 if ("correcao" %in% alvos) volume_correcao()
 if ("basico" %in% alvos) volume_basico()
 if ("naoerrar" %in% alvos) volume_naoerrar()
+if ("simulado02" %in% alvos) volume_simulado02()
 cat("\nPDFs em caderno/pdf/\n")
