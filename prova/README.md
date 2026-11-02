@@ -158,10 +158,12 @@ Cerca de 2h30 a 3h por dia; os simulados levam 1h50 mais 40 minutos de correçã
 | sex 30/10 | bloco 1 (Q1–Q4) | ciclo em Q1, Q3 e Q4; **copiar a folha completa da Q2**; Q6 de cabeça, cronometrada (+1) |
 | sáb 31/10 | blocos 3 e 5 (Q9–Q12, Q15) | ciclo nas cinco questões; Q2 de cabeça (+1); refazer os erros do log de 29/10 (+1) |
 | dom 01/11 | diagnóstico | **Simulado 01** cronometrado, correção pela rubrica e log; blocos 4 e 6 (Q13, Q14, Q16) pelo molde (e) |
-| seg 02/11 | treino | **Simulado 02** e correção; Q6 de cabeça (+3); refazer os itens do log do S1 (+1) |
-| ter 03/11 | treino | **Simulado 03** e correção; Q2 de cabeça (+3); mínimo de cor de memória; refazer as 5 questões que mais aparecem no log |
-| qua 04/11 | leve (1h) | só as perguntas das cadeias socráticas e as armadilhas (§3); esqueletos da Q2 e da Q6; **nada novo**; dormir cedo |
-| **qui 05/11** | **prova** | 15 minutos antes: o mínimo de cor e a regra de ordem (contas curtas → derivações → revisão) |
+| seg 02/11 | correção do S1 | refazer S1 Q2 b)–d) com o roteiro de quatro movimentos, sem olhar; refazer S1 Q3 a)–c); **S1 Q4, Q5 b)–d) e Q6 a)–b) em 30 minutos, só conta**; ler a [correção do S1](correcao_simulado_01.md) |
+| ter 03/11 | treino | **Simulado 02 em modo prova** (3 min de leitura, 25 min de contas curtas de todas as questões, depois as derivações); correção e log; à noite, a Q6 da lista de cabeça, em até 15 minutos |
+| qua 04/11 | leve | S1 Q2 inteira de cabeça (+3); do Simulado 03, **só** Q3 c), Q4 b)–c) e Q5 a)–b), que são contas; mínimo de cor; armadilhas (§3); dormir cedo |
+| **qui 05/11** | **prova** | 15 minutos antes: o roteiro de quatro movimentos do ARMA, o mínimo de cor e a ordem contas curtas → derivações → revisão |
+
+O Simulado 01 foi feito em 01/11, e a [correção](correcao_simulado_01.md) mostra onde os pontos foram embora. O Simulado 03 completo saiu do plano: não há tempo, e cansaria na véspera.
 
 Se sobrar tempo num dia, use o [banco](banco.md) do bloco do dia: cada questão tem uma variação curta com resposta.
 

@@ -48,12 +48,14 @@ Os seis erros da P1 de Econometria I, com a ação traduzida para séries tempor
 
 | data | questão | T/C | erro | ação | revisões (+1 · +3 · +7) |
 |---|---|---|---|---|---|
-| 27/10 | S1 Q2b (exemplo) | C/E | $\gamma_0$ do ARMA(1,1) sem o termo $-2\phi\theta$ | rederivar pelos momentos auxiliares, não pela memória | 28/10 · 30/10 · 03/11 |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
+| 01/11 | S1 Q1c | T/E | classificou como ARMA(1,2) uma FAC que corta em 2 | FAC que corta em $q$ ⇒ MA($q$); AR nunca zera a FAC | 03/11 · 04/11 |
+| 01/11 | S1 Q1a, b | T/V | sem a frase de fecho (não estacionário; FAC que decai devagar) | fechar todo item com a frase do verbo | 03/11 · 04/11 |
+| 01/11 | S1 Q1a | D/N | $\operatorname{Var}=(y_t-\mu)^2$ sem o $E$ | escrever $E(\cdot)$ em toda linha de momento | 03/11 · 04/11 |
+| 01/11 | S1 Q2b | D/N | $\gamma_0=\operatorname{Cov}(z_t,z_{t-1})$: definição trocada, e travou | $\gamma_0=E(z_t^2)$, $\gamma_1=E(z_tz_{t-1})$; roteiro de quatro movimentos | 03/11 · 04/11 |
+| 01/11 | S1 Q2a, Q3a | C/N | raiz do polinômio escrita com a série ($\phi(z_t)$) | variável do polinômio é um número: $\phi(x)=0$ | 03/11 · 04/11 |
+| 01/11 | S1 Q3a | D/A | $y_t-y_{t-1}=\varepsilon_t$ (do passeio) e forma copiada do enunciado | derivar: multiplicar $(1-0{,}5B)y_t=\varepsilon_t$ por $(1-B)$ | 03/11 · 04/11 |
+| 01/11 | S1 Q4a | C/R | modelo escolhido pelo $\ln L$, sem AIC nem BIC | AIC e BIC com $k$ incluindo $\sigma^2$; menor vence | 03/11 · 04/11 |
+| 01/11 | S1 Q4b, Q5, Q6 | C/T | contas curtas em branco (cerca de 3 pontos) | 25 minutos de contas curtas antes das derivações | 03/11 · 04/11 |
 |  |  |  |  |  |  |
 |  |  |  |  |  |  |
 |  |  |  |  |  |  |
@@ -64,11 +66,11 @@ Atualize depois de cada simulado. A causa com mais linhas vira o foco do treino 
 
 | causa | S1 (01/11) | S2 (02/11) | S3 (03/11) |
 |---|---|---|---|
-| H hipótese |  |  |  |
-| A álgebra ou sinal |  |  |  |
-| N notação ou convenção |  |  |  |
-| L leitura |  |  |  |
-| R regra de decisão |  |  |  |
-| V conclusão |  |  |  |
-| E esquecimento |  |  |  |
-| T tempo |  |  |  |
+| H hipótese | 0 |  |  |
+| A álgebra ou sinal | 1 |  |  |
+| N notação ou convenção | 3 |  |  |
+| L leitura | 0 |  |  |
+| R regra de decisão | 1 |  |  |
+| V conclusão | 1 |  |  |
+| E esquecimento | 1 |  |  |
+| T tempo | 1 |  |  |

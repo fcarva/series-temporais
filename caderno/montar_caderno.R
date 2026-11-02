@@ -18,7 +18,7 @@
 # Requer pandoc e LuaLaTeX (TeX Live ou MiKTeX).
 #
 # Rodar: Rscript caderno/montar_caderno.R  (Windows: scripts\r.ps1 caderno\montar_caderno.R)
-#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao, amao_blocos, apostila, completo; sem argumento, tudo
+#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao, amao_blocos, apostila, completo, correcao; sem argumento, tudo
 # Saída: caderno/pdf/ (fora do git, exceto o volume 4, o guia, o volume 5 e os simulados,
 #        que vão ao cofre do Obsidian)
 
@@ -426,9 +426,17 @@ volume_completo <- function() {
   compilar("caderno_p1_completo", md, file.path(BUILD, "capa_completo.tex"), OPC_IMPRESSAO, passes = 3, impressao = TRUE)
 }
 
+# A correção do Simulado 01 (curta, para imprimir)
+volume_correcao <- function() {
+  partes <- list("Correção do Simulado 01" = c("prova/correcao_simulado_01.md"))
+  md <- file.path(BUILD, "correcao.md"); montar_md(partes, md)
+  capa("Simulado 01", "A correção da tentativa de 01/11: onde os pontos foram e o roteiro do ARMA", file.path(BUILD, "capa_correcao.tex"))
+  compilar("caderno_correcao_s1", md, file.path(BUILD, "capa_correcao.tex"), OPC_IMPRESSAO, passes = 2, impressao = TRUE)
+}
+
 ## ---- execução ------------------------------------------------------------------------
 alvos <- commandArgs(trailingOnly = TRUE)
-if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo")
+if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao")
 cat("pandoc:  ", PANDOC, "\nlualatex:", LUALATEX, "\n")
 if ("teoria" %in% alvos) volume_teoria()
 if ("lista" %in% alvos) volume_lista()
@@ -442,4 +450,5 @@ if ("amao" %in% alvos) volume_amao()
 if ("amao_blocos" %in% alvos) volume_amao_blocos()
 if ("apostila" %in% alvos) volume_apostila()
 if ("completo" %in% alvos) volume_completo()
+if ("correcao" %in% alvos) volume_correcao()
 cat("\nPDFs em caderno/pdf/\n")
