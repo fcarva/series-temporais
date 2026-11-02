@@ -19,6 +19,7 @@ aliases:
 > [!TIP]
 > **Se for ler uma coisa só**
 > O [básico da P1](basico.md), em duas páginas: as seis definições, as contas de uma linha e as três derivações-molde. É o que precisa sair sem pensar.
+> Depois, o [guia "não posso errar"](nao_posso_errar.md): as nove questões básicas resolvidas linha a linha, com o sentido de cada passo. É onde se aprende **a fazer**.
 
 O que se sabe da prova: **5 ou 6 questões, de 1h50 a 2h, sem consulta, tiradas da lista** "Processos ARMA, ARIMA e SARIMA" (`LST`). A aposta é **uma questão por bloco da lista**, com números e torções novos. Este guia junta quatro coisas:
 1. o mapa de cada bloco para a resolução, a demonstração e o livro;

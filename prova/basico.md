@@ -16,7 +16,7 @@ aliases:
 
 # O básico da P1: o que precisa sair sem pensar
 
-Esta é a folha para levar consolidada. São três camadas, em ordem de prioridade: **definições, contas de uma linha e três derivações-molde**. Se elas saem sem pensar, a maior parte da prova sai. Os exemplos numéricos são os do [Simulado 01](simulado_01_gabarito.md), para conferir.
+Esta é a folha para levar consolidada. São três camadas, em ordem de prioridade: **definições, contas de uma linha e três derivações-molde**. Se elas saem sem pensar, a maior parte da prova sai. Os exemplos numéricos são os do [Simulado 01](simulado_01_gabarito.md), para conferir. Esta folha diz **o que** saber; o passo a passo de **como fazer**, linha a linha e com o sentido de cada passo, está no [guia "não posso errar"](nao_posso_errar.md).
 
 ## Camada 1: seis definições
 

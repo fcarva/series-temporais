@@ -102,6 +102,8 @@ Depois do sistema:
 > 3. "$\times z_t$ e $\times z_{t-1}$".
 >
 > O resto é álgebra de um sistema 2×2.
+>
+> O mesmo roteiro, com o sentido de cada linha, está na questão-tipo 4 do [guia "não posso errar"](nao_posso_errar.md).
 
 ## 5. A regra de prova que muda a nota
 
