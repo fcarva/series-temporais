@@ -18,7 +18,7 @@
 # Requer pandoc e LuaLaTeX (TeX Live ou MiKTeX).
 #
 # Rodar: Rscript caderno/montar_caderno.R  (Windows: scripts\r.ps1 caderno\montar_caderno.R)
-#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao, amao_blocos, apostila, completo, correcao, basico, naoerrar, simulado02; sem argumento, tudo
+#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao, amao_blocos, apostila, completo, correcao, basico, naoerrar, simulado02, plano; sem argumento, tudo
 # Saída: caderno/pdf/ (fora do git, exceto o volume 4, o guia, o volume 5 e os simulados,
 #        que vão ao cofre do Obsidian)
 
@@ -478,9 +478,22 @@ volume_simulado02 <- function() {
   compilar("caderno_simulado_02_gabarito", md, file.path(BUILD, "capa_s2g.tex"), sem_toc(OPC_IMPRESSAO), passes = 2, impressao = TRUE)
 }
 
+# Plano da reta final em uma página: LaTeX próprio (sem pandoc nem capa), que espelha o README da prova
+volume_plano <- function() {
+  nome <- "caderno_plano_reta_final"
+  file.copy(file.path(CAD, "plano_reta_final.tex"), file.path(BUILD, paste0(nome, ".tex")), overwrite = TRUE)
+  for (p in 1:2) rodar(LUALATEX, c("-interaction=nonstopmode", "-halt-on-error", shQuote(paste0(nome, ".tex"))),
+                       BUILD, paste("lualatex (passada", p, ")"))
+  log <- readLines(file.path(BUILD, paste0(nome, ".log")), warn = FALSE)
+  paginas <- as.integer(sub(".*\\((\\d+) pages?.*", "\\1", grep("Output written on", log, value = TRUE)))
+  if (!identical(paginas, 1L)) stop("o plano precisa caber em uma página; saiu com ", paginas)
+  file.copy(file.path(BUILD, paste0(nome, ".pdf")), file.path(SAIDA, paste0(nome, ".pdf")), overwrite = TRUE)
+  cat(sprintf("  %s.pdf: 1 página\n", nome))
+}
+
 ## ---- execução ------------------------------------------------------------------------
 alvos <- commandArgs(trailingOnly = TRUE)
-if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao", "basico", "naoerrar", "simulado02")
+if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao", "basico", "naoerrar", "simulado02", "plano")
 cat("pandoc:  ", PANDOC, "\nlualatex:", LUALATEX, "\n")
 if ("teoria" %in% alvos) volume_teoria()
 if ("lista" %in% alvos) volume_lista()
@@ -498,4 +511,5 @@ if ("correcao" %in% alvos) volume_correcao()
 if ("basico" %in% alvos) volume_basico()
 if ("naoerrar" %in% alvos) volume_naoerrar()
 if ("simulado02" %in% alvos) volume_simulado02()
+if ("plano" %in% alvos) volume_plano()
 cat("\nPDFs em caderno/pdf/\n")

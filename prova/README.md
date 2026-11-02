@@ -175,6 +175,8 @@ Se sobrar tempo num dia, use o [banco](banco.md) do bloco do dia: cada questão 
 
 ### A reta final, hora a hora (02/11 a 05/11)
 
+A versão de uma página, para imprimir e deixar à vista, é `caderno_plano_reta_final.pdf`, na pasta `caderno/pdf/`.
+
 A lógica é **aprender pelo [guia](nao_posso_errar.md), testar no [Simulado 02](simulado_02.md) no mesmo horário da prova, corrigir pelo guia e consolidar sem matéria nova**. Em cada questão-tipo, o método é sempre o mesmo:
 1. ler o enunciado-tipo e o "Antes de escrever";
 2. **cobrir o resto e tentar no papel**;

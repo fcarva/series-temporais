@@ -1,0 +1,113 @@
+% Plano da reta final da P1 em uma página (LuaLaTeX).
+% Espelha prova/README.md §5 ("A reta final, hora a hora" e "Dúvidas para o professor"):
+% mudou lá, muda aqui. Compilar: Rscript caderno/montar_caderno.R plano
+\documentclass[10pt]{article}
+\usepackage[a4paper,top=1.1cm,bottom=1.1cm,left=1.2cm,right=1.2cm]{geometry}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\setmainfont{Libertinus Serif}
+\setsansfont{Libertinus Sans}
+\setmathfont{Libertinus Math}
+\usepackage{polyglossia}
+\setmainlanguage{brazil}
+\usepackage{multicol}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\setlist{nosep,leftmargin=1.3em}
+\setlength{\parindent}{0pt}
+\setlength{\columnsep}{0.7cm}
+\setlength{\columnseprule}{0.3pt}
+\renewcommand{\arraystretch}{1.12}
+\pagestyle{empty}
+
+\newcommand{\dia}[1]{\par\medskip{\sffamily\bfseries\large #1}\par\smallskip}
+\newcolumntype{H}{>{\raggedright\arraybackslash}p{2.15cm}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newenvironment{horas}{\tabularx{\linewidth}{@{}HY@{}}\toprule
+  \textsf{\bfseries Hora} & \textsf{\bfseries O quê}\\\midrule}{\bottomrule\endtabularx}
+
+\begin{document}
+\fontsize{11pt}{13.4pt}\selectfont
+
+{\sffamily\bfseries\LARGE Reta final da P1}\hfill{\sffamily seg 02/11, 20h30 \textrightarrow{} qui 05/11, prova às 10h}
+
+\smallskip
+\textbf{A lógica:} aprender pelo guia, testar no Simulado 02 no horário da prova, corrigir pelo guia, consolidar sem matéria nova.
+\textbf{Em cada questão-tipo (QT):} (1) ler o enunciado e o “Antes de escrever”; (2) \textbf{cobrir o resto e tentar no papel}; (3) conferir linha a linha e, na primeira linha diferente, ler o sentido dela.
+
+\begin{multicols}{2}\raggedright
+
+\dia{Segunda 02/11 · 20h30–23h}
+\begin{horas}
+20h30–20h45 & básico, camadas 1 e 2, só leitura\\
+20h45–21h30 & \textbf{QT4, ARMA(1,1)}: a que travou no S1\\
+21h30–21h40 & pausa\\
+21h40–22h10 & QT7 (AIC, BIC, MQO) e QT8 (previsão)\\
+22h10–22h30 & QT9 (SARIMA)\\
+22h30–22h50 & \textbf{QT4 de novo, folha branca, até 15 min}\\
+22h50–23h & erros no log; dormir. \textbf{Não abrir o S2}\\
+\end{horas}
+
+\dia{Terça 03/11 · o dia todo}
+\begin{horas}
+8h30–8h50 & camadas 1 e 2 do básico \textbf{de memória}; conferir\\
+8h50–9h50 & QT6, QT2 e QT3, cobrindo e tentando\\
+9h50–10h & pausa\\
+\textbf{10h–11h50} & \textbf{Simulado 02 em modo prova}: 3 min de leitura, 25 min de contas curtas, derivações, frase de fecho\\
+12h–13h30 & almoço e descanso\\
+13h30–14h30 & correção pelo gabarito, por passo; log; placar S2\\
+14h30–16h & \textbf{cada item com perda}: a QT de mesmo número no guia, o sentido das linhas que faltaram, o item refeito em folha branca\\
+16h–16h15 & pausa\\
+16h15–17h15 & QT5 e QT1, cobrindo e tentando\\
+17h15–18h & S3, \textbf{só as contas}: Q3c, Q4b–c, Q5a–b\\
+18h–19h30 & jantar e descanso\\
+19h30–20h30 & \textbf{QT4 de cabeça} (+1 dia) e S1 Q2 de cabeça\\
+20h30–21h & as \textbf{9 frases de fecho} de memória; conferir\\
+21h–21h30 & lista de dúvidas para o professor\\
+21h30 & parar\\
+\end{horas}
+
+\columnbreak
+
+\dia{Quarta 04/11 · aula e noite}
+\begin{horas}
+antes da aula & 20 min: camadas 1 a 3 do básico de memória\\
+\textbf{10h, aula} & \textbf{levar as dúvidas escritas}\\
+intervalos & só as seções “Erro que não pode” do guia\\
+18h–19h & chegar, comer, descansar; nada de matéria\\
+19h–20h & folha branca: \textbf{QT4} (+2 dias) e QT5\\
+20h–20h45 & contas cronometradas do banco: Q14A, Q15A, Q16A, Q6A\\
+20h45–21h15 & refazer só as linhas do log que ainda erra\\
+21h15–21h45 & o básico inteiro, devagar; as 9 frases de fecho\\
+\textbf{até 22h30} & \textbf{parar e dormir}: a consolidação acontece no sono\\
+\end{horas}
+
+\dia{Quinta 05/11 · prova às 10h}
+\textbf{7h} acordar. \textbf{8h}, 15 min: o básico, os quatro movimentos do ARMA e a ordem da prova.
+\begin{enumerate}[label=\textbf{\arabic*.}]
+\item 3 min de leitura: convenção do MA, $T$ e $s$;
+\item cerca de 25 min \textbf{só de contas curtas};
+\item derivações, da mais curta para a mais longa;
+\item \textbf{frase de fecho} em cada item.
+\end{enumerate}
+
+\dia{Dúvidas para o professor (quarta)}
+\begin{enumerate}[label=\arabic*.]
+\item Sinal do MA: $1-\theta B$ da lista ou $1+\theta_1L$ dos slides? Basta declarar na 1ª linha?
+\item AIC e BIC: forma do R ($-2\ln L+2k$) ou da AU02, dividida por $T$? O $k$ inclui $\sigma^2$?
+\item “Mostre que”: derivar os momentos do ARMA(1,1) pelos auxiliares, ou partir da fórmula de $\gamma_0$?
+\item SARIMA: pode cair a FAC multiplicativa (pico e satélites), ou só escrever e contar?
+\item Sem consulta? Os valores de $\chi^2$ e da normal vêm no enunciado?
+\item As dúvidas que o Simulado 02 levantar.
+\end{enumerate}
+
+\dia{Fica de fora}
+Simulado 04, verossimilhança exata, testes de raiz unitária, Beveridge-Nelson, avaliação de previsões, trabalho do INPC.
+
+\end{multicols}
+
+\vfill
+\hrule\smallskip
+{\footnotesize\textbf{Onde está cada coisa} (\texttt{caderno/pdf/}): guia das 9 QT, \texttt{caderno\_nao\_posso\_errar.pdf} · Simulado 02, \texttt{caderno\_simulado\_02.pdf} e \texttt{\_gabarito.pdf} · básico, \texttt{caderno\_basico\_p1.pdf} · tudo, \texttt{caderno\_p1\_completo.pdf} · log, \texttt{prova/log\_erros.md}.}
+\end{document}
