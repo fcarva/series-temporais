@@ -309,7 +309,7 @@ $$
 \text{(3)}\quad & E(z_ta_t)=0{,}6\cdot0+E(a_t^2)-0{,}3\cdot0=1 && [(1)\times a_t;\ (2),\ \text{RB}]\\
 \text{(4)}\quad & E(z_ta_{t-1})=0{,}6E(z_{t-1}a_{t-1})+0-0{,}3E(a_{t-1}^2)=0{,}6-0{,}3=0{,}3 && [(1)\times a_{t-1};\ (3)]\\
 \text{(5)}\quad & \gamma_0=0{,}6E(z_{t-1}z_t)+E(a_tz_t)-0{,}3E(a_{t-1}z_t) && [(1)\times z_t]\\
-\text{(6)}\quad & \gamma_0=0{,}6\gamma_1+1-0{,}3(0{,}3)=0{,}6\gamma_1+0{,}91 && [(3),(4)]\\
+\text{(6)}\quad & \gamma_0=0{,}6\gamma_1+\underbrace{1}_{(3)}-0{,}3\cdot\underbrace{0{,}3}_{(4)}=0{,}6\gamma_1+0{,}91 && [(3),(4);\ \text{estac.}]\\
 \text{(7)}\quad & \gamma_1=0{,}6\gamma_0+E(a_tz_{t-1})-0{,}3E(a_{t-1}z_{t-1})=0{,}6\gamma_0-0{,}3 && [(1)\times z_{t-1};\ (2),(3)]\\
 \text{(8)}\quad & \gamma_0=0{,}6(0{,}6\gamma_0-0{,}3)+0{,}91=0{,}36\gamma_0+0{,}73 && [(7)\text{ em }(6)]\\
 \text{(9)}\quad & \gamma_0=0{,}73/0{,}64=1{,}1406 && [\text{isola}]\\
@@ -329,7 +329,12 @@ $$
 - **(3)** **Primeiro momento auxiliar.** Multiplico por $a_t$ para saber quanto do choque de hoje está em $z_t$: exatamente uma unidade, que dá $\sigma^2=1$.
 - **(4)** **Segundo momento auxiliar.** Multiplico por $a_{t-1}$: o choque de ontem entra em $z_t$ por dois caminhos, via $0{,}6z_{t-1}$, que vale $0{,}6\cdot1$, e via o MA, $-0{,}3$. Daí $\phi-\theta=0{,}3$. É o termo que se esquece.
 - **(5)** Agora multiplico por $z_t$, **porque $\gamma_0=E(z_t^2)$**: quero $z_t\cdot z_t$ do lado esquerdo.
-- **(6)** Substituo os dois auxiliares. Sai uma equação com $\gamma_0$ e $\gamma_1$.
+- **(6)** Substituo os três termos de (5):
+  - $E(z_{t-1}z_t)$ é $\gamma_1$ **por estacionariedade**: a covariância só depende da distância entre as datas, que é 1;
+  - $E(a_tz_t)=1$ vem de (3);
+  - no último termo, o 0,3 **de fora** é o $\theta$ do modelo, e o 0,3 **de dentro** é o auxiliar (4), $\phi-\theta=0{,}6-0{,}3$. Com estes números, os dois coincidem **por acaso**: não decore como $\theta^2$.
+
+  Em geral, $\gamma_0=\phi\gamma_1+\sigma^2-\theta(\phi-\theta)\sigma^2$. No [Simulado 02, Q4](simulado_02.md), com $\theta=0{,}2$, $\phi-\theta=0{,}3$ e $\sigma^2=2$, o último termo vale $0{,}2\cdot0{,}3\cdot2=0{,}12$, e não $\theta^2\sigma^2=0{,}08$. Sai uma equação com $\gamma_0$ e $\gamma_1$.
 - **(7)** Multiplico por $z_{t-1}$, porque $\gamma_1=E(z_tz_{t-1})$. O choque $a_t$ some por (2), e o $a_{t-1}$ dá $-0{,}3\cdot1$ por (3) em $t-1$.
 - **(8)** Tenho duas equações e duas incógnitas: substituo (7) em (6).
 - **(9)** Resolvo $\gamma_0$, que é a variância de $z_t$.
@@ -346,6 +351,7 @@ $$
 
 - **"$\gamma_0=\operatorname{Cov}(z_t,z_{t-1})$"**: foi aqui que o Simulado 01 travou ([correção](correcao_simulado_01.md); [log](log_erros.md)). $\gamma_0$ é a variância.
 - **Esquecer o termo $-2\phi\theta$**, que vem do segundo auxiliar (4), e perder o quadrado de $\theta$, como no caderno de 02/09.
+- **Ler o $0{,}3(0{,}3)$ da linha (6) como $\theta^2$:** o segundo fator é o auxiliar $\phi-\theta$, que aqui vale 0,3 por coincidência.
 - Escrever $\rho_k=\phi^k\rho_1$: o expoente é $k-1$.
 
 ### Confira com números

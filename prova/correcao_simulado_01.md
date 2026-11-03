@@ -87,6 +87,8 @@ $$
 \end{aligned}
 $$
 
+Na linha (3), o $0{,}09$ é $\theta\cdot(\phi-\theta)=0{,}3\cdot0{,}3$: o primeiro fator é o $\theta$ do modelo, e o segundo é o auxiliar (2). Os dois valem 0,3 só por coincidência. **Não é $\theta^2$.**
+
 Depois do sistema:
 - $\rho_1=\gamma_1/\gamma_0=0{,}337$ e $\rho_k=0{,}6\,\rho_{k-1}$ para $k\ge2$;
 - $\psi_j=(\phi-\theta)\phi^{j-1}$: 0,3; 0,18; 0,108;
