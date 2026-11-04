@@ -220,7 +220,7 @@ A lógica é **aprender pelo [guia](nao_posso_errar.md), testar no [Simulado 02]
 | 21h–21h30 | a lista de dúvidas para o professor (abaixo), com as que o S2 levantou |
 | 21h30 | parar |
 
-**Quarta, 04/11: aula, professor e a última consolidação.** Revisto depois do quadro do professor; a versão completa está na [folha do que cai](o_que_cai.md#9-a-noite-de-quarta-e-a-manhã-de-quinta).
+**Quarta, 04/11: aula, professor e a última consolidação.** Revisto depois do quadro do professor; a versão completa está na [folha do que cai](o_que_cai.md#10-a-noite-de-quarta-e-a-manhã-de-quinta).
 
 | Hora | O quê |
 |---|---|
@@ -231,7 +231,7 @@ A lógica é **aprender pelo [guia](nao_posso_errar.md), testar no [Simulado 02]
 | 20h20–20h40 | correção pelo [gabarito](simulado_05_gabarito.md) |
 | 20h40–21h10 | refazer cada item com perda, pelo guia e pela folha |
 | 21h10–21h35 | **a cadeia do Dickey-Fuller**: os cinco passos de memória e os quatro casos da folha |
-| 21h35–22h | desenhar de memória FAC e FACP dos seis padrões; as frases de fecho |
+| 21h35–22h | o SMA(1)$_4$ da folha, à força bruta, em folha branca; os seis desenhos de FAC e FACP de memória |
 | **até 22h30** | **parar e dormir** |
 
 **Fica de fora a partir de agora:** Yule-Walker (riscado no quadro), o Simulado 04, a verossimilhança exata, Phillips-Perron, DF-GLS e KPSS (o **Dickey-Fuller entra**, com a cadeia de decisão), Beveridge-Nelson, a avaliação de previsões e o trabalho do INPC.

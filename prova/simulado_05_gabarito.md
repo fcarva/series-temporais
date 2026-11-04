@@ -213,7 +213,7 @@ O erro de $h$ passos soma $h$ choques futuros, $e_T(h)=\sum_{j=0}^{h-1}\psi_ja_{
 
 ## Questão extra — Dickey-Fuller
 
-*Origem na lista:* (lista, Q10). O passo a passo está na seção 8 da folha [o que cai](o_que_cai.md#8-teste-de-raiz-unitária-a-cadeia-de-decisão-do-dickey-fuller).
+*Origem na lista:* (lista, Q10). O passo a passo está na seção 9 da folha [o que cai](o_que_cai.md#9-teste-de-raiz-unitária-dickey-fuller-linha-a-linha).
 
 **a)** A cadeia, passo a passo:
 1. **Modelo 3** ($H_0$: $\gamma=0$): $-2{,}80\gt-3{,}45$, **não rejeita**.

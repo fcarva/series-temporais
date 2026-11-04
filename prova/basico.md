@@ -79,10 +79,10 @@ No AR(2), os passos 2 e 3 são o Yule-Walker. O roteiro com números está na [c
 
 **Pode ficar de fora:**
 - a verossimilhança exata;
-- Phillips-Perron, DF-GLS e KPSS. **O Dickey-Fuller entra**, com a cadeia de decisão: ver [o que cai](o_que_cai.md#8-teste-de-raiz-unitária-a-cadeia-de-decisão-do-dickey-fuller);
+- Phillips-Perron, DF-GLS e KPSS. **O Dickey-Fuller entra**, com a cadeia de decisão: ver [o que cai](o_que_cai.md#9-teste-de-raiz-unitária-dickey-fuller-linha-a-linha);
 - Beveridge-Nelson;
 - Yule-Walker (riscado no quadro de 04/11);
-- MASE, DM, Winkler e CRPS. **RMSE e MAPE entram**, para interpretar: ver [o que cai](o_que_cai.md#6-interpretar-aic-bic-rmse-e-mape-sem-conta).
+- MASE, DM, Winkler e CRPS. **RMSE e MAPE entram**, para interpretar: ver [o que cai](o_que_cai.md#7-interpretar-aic-bic-rmse-e-mape-linha-a-linha).
 - a matriz $F$.
 
 De Wold, basta o enunciado em uma linha e o AR(1) como exemplo.
