@@ -418,4 +418,94 @@ registrar("pv_b15_v2", sum(pesos_psi(c(0.6, 0.2), numeric(0), 1)^2))
 # Q16: SARIMA(2,1,1)(1,1,1)_12 com T = 240
 registrar("pv_b16_npar", 2 + 1 + 1 + 1 + 1); registrar("pv_b16_efetivas", 240 - 13)
 
+## ===================================================================================
+## O QUE CAI (quadro de 04/11) e SIMULADO 05 — 4 questões de 2,5, sem sorteio
+## ===================================================================================
+
+## Folha "o que cai": montar a FAC ---------------------------------------------------
+phi <- 0.7
+registrar("pv_oc_ar1_g0", 1 / (1 - phi^2))
+registrar("pv_oc_ar1_rho1", phi); registrar("pv_oc_ar1_rho2", phi^2); registrar("pv_oc_ar1_rho3", phi^3)
+r <- stats::ARMAacf(ar = phi, lag.max = 3)
+registrar("pv_oc_ar1_dif_acf", max(abs(r[-1] - phi^(1:3))))
+g <- acvf_arma(0.6, 0.3, 1, lag.max = 3)                    # ARMA(1,1) do S1, BJ
+registrar("pv_oc_arma_rho1", g[2] / g[1]); registrar("pv_oc_arma_rho2", g[3] / g[1])
+registrar("pv_oc_arma_rho3", g[4] / g[1])
+# SMA(1)_4 com Theta = 0,5 (BJ): (1 - 0,5 B^4) a_t
+ma4 <- c(0, 0, 0, -0.5)                                     # convenção do R
+r <- stats::ARMAacf(ma = ma4, lag.max = 12); p <- stats::ARMAacf(ma = ma4, lag.max = 12, pacf = TRUE)
+registrar("pv_oc_sma_rho4", r[5]); registrar("pv_oc_sma_rho4_formula", -0.5 / (1 + 0.25))
+registrar("pv_oc_sma_rho_outros", max(abs(r[-c(1, 5)])))
+registrar("pv_oc_sma_facp4", p[4]); registrar("pv_oc_sma_facp8", p[8]); registrar("pv_oc_sma_facp12", p[12])
+registrar("pv_oc_sma_facp_fora", max(abs(p[-c(4, 8, 12)])))
+registrar("pv_oc_sma_g0", 1 + 0.25)
+
+# Interpretar critérios (exemplo da folha): AR(1) contra ARMA(2,1), números dados
+ex <- data.frame(aic = c(512.3, 509.1), bic = c(519.8, 524.0), rmse = c(0.84, 0.91), mape = c(3.2, 3.5))
+registrar("pv_oc_daic", ex$aic[1] - ex$aic[2]); registrar("pv_oc_dbic", ex$bic[2] - ex$bic[1])
+
+## Figura: os seis padrões de FAC e FACP para desenhar à mão -------------------------
+FIG_PV <- caminho_repo("prova", "figuras")
+salvar_figura(file.path(FIG_PV, "fac_facp_padroes"), function() {
+  graphics::par(mfrow = c(6, 2), mar = c(2.6, 3.6, 3.6, 1), oma = c(0, 0, 1.2, 0))
+  casos <- list(list(nome = "AR(1), φ = 0,7", ar = 0.7, ma = numeric(0)),
+                list(nome = "AR(1), φ = −0,5", ar = -0.5, ma = numeric(0)),
+                list(nome = "MA(1), θ = 0,6 (lista: 1 − 0,6B)", ar = numeric(0), ma = -0.6),
+                list(nome = "ARMA(1,1), φ = 0,6, θ = 0,3 (lista)", ar = 0.6, ma = -0.3),
+                list(nome = "SMA(1)₄, Θ = 0,5 (lista: 1 − 0,5B⁴)", ar = numeric(0), ma = c(0, 0, 0, -0.5)),
+                list(nome = "SAR(1)₄, Φ = 0,6", ar = c(0, 0, 0, 0.6), ma = numeric(0)))
+  for (c in casos) for (col in 1:2) {
+    v <- if (col == 1) stats::ARMAacf(c$ar, c$ma, lag.max = 12)[-1]
+         else stats::ARMAacf(c$ar, c$ma, lag.max = 12, pacf = TRUE)
+    plot(1:12, v, type = "h", xlim = c(0.5, 12.5), lwd = 5, ylim = c(-0.8, 1), xlab = "", xaxt = "n",
+         ylab = if (col == 1) "FAC" else "FACP", col = if (col == 1) CORES$principal else CORES$compara)
+    graphics::axis(1, at = c(1, 4, 8, 12))
+    graphics::abline(h = 0, col = CORES$eixo)
+    titulo_editorial(c$nome, if (col == 1) "FAC teórica" else "FACP teórica")
+  }
+}, largura = 9, altura = 13)
+
+## Simulado 05, Q1: passeio sem drift e z3 = z1 + 2 z2 --------------------------------
+s2 <- 1.5; tt <- 36; kk <- 11
+registrar("pv_s5_q1_var", tt * s2); registrar("pv_s5_q1_cov", (tt - kk) * s2)
+registrar("pv_s5_q1_corr", sqrt((tt - kk) / tt))
+g1 <- c(0.8, 0.3, 0, 0); g2 <- c(1.2, -0.5, 0.2, 0); g3 <- g1 + 4 * g2
+registrar("pv_s5_q1_g0", g3[1]); registrar("pv_s5_q1_g1", g3[2]); registrar("pv_s5_q1_g2", g3[3])
+registrar("pv_s5_q1_g3", g3[4])
+registrar("pv_s5_q1_rho1", g3[2] / g3[1]); registrar("pv_s5_q1_rho2", g3[3] / g3[1])
+w <- seq(0, pi, length.out = 2001)
+registrar("pv_s5_q1_fmin_z2", min(g2[1] + 2 * g2[2] * cos(w) + 2 * g2[3] * cos(2 * w)))
+
+## Simulado 05, Q2: AR(1) com phi = -0,5 e sigma^2 = 3 ---------------------------------
+phi <- -0.5; s2 <- 3
+registrar("pv_s5_q2_raiz", Re(polyroot(c(1, -phi))))
+g <- acvf_arma(phi, numeric(0), s2, lag.max = 3)
+registrar("pv_s5_q2_g0", g[1]); registrar("pv_s5_q2_g1", g[2])
+registrar("pv_s5_q2_rho1", g[2] / g[1]); registrar("pv_s5_q2_rho2", g[3] / g[1]); registrar("pv_s5_q2_rho3", g[4] / g[1])
+p <- stats::ARMAacf(ar = phi, lag.max = 3, pacf = TRUE)
+registrar("pv_s5_q2_facp1", p[1]); registrar("pv_s5_q2_facp2", p[2])
+
+## Simulado 05, Q3: SMA(1)_4 e previsão do SARIMA(0,1,1)(0,1,1)_4 ---------------------
+# SMA(1)_4 com Theta = 0,8 (BJ): (1 - 0,8 B^4) a_t, sigma^2 = 1
+r <- stats::ARMAacf(ma = c(0, 0, 0, -0.8), lag.max = 8)
+registrar("pv_s5_q3_g0", 1 + 0.8^2); registrar("pv_s5_q3_g4", -0.8); registrar("pv_s5_q3_rho4", r[5])
+registrar("pv_s5_q3_rho1", r[2]); registrar("pv_s5_q3_rho8", r[9])
+p <- stats::ARMAacf(ma = c(0, 0, 0, -0.8), lag.max = 12, pacf = TRUE)
+registrar("pv_s5_q3_facp4", p[4]); registrar("pv_s5_q3_facp8", p[8]); registrar("pv_s5_q3_facp12", p[12])
+th <- 0.4; Th <- 0.6
+registrar("pv_s5_q3_cruzado", th * Th)
+# y_t = y_{t-1} + y_{t-4} - y_{t-5} + a_t - 0,4 a_{t-1} - 0,6 a_{t-4} + 0,24 a_{t-5}
+ar_y <- -Re(stats::convolve(c(1, -1), rev(c(1, 0, 0, 0, -1)), type = "open"))[-1]
+registrar("pv_s5_q3_coef_y1", ar_y[1]); registrar("pv_s5_q3_coef_y4", ar_y[4]); registrar("pv_s5_q3_coef_y5", ar_y[5])
+ma_a <- Re(stats::convolve(c(1, -th), rev(c(1, 0, 0, 0, -Th)), type = "open"))
+registrar("pv_s5_q3_ma_a1", ma_a[2]); registrar("pv_s5_q3_ma_a4", ma_a[5]); registrar("pv_s5_q3_ma_a5", ma_a[6])
+registrar("pv_s5_q3_h_max_res", length(ma_a) - 1)
+
+## Simulado 05, Q4: interpretar critérios dados ----------------------------------------
+crit <- data.frame(aic = c(210.4, 209.8, 214.6), bic = c(218.1, 220.3, 225.0),
+                   rmse = c(1.32, 1.35, 1.58), mape = c(2.1, 2.2, 2.6))
+registrar("pv_s5_q4_daic", crit$aic[1] - crit$aic[2]); registrar("pv_s5_q4_dbic", crit$bic[2] - crit$bic[1])
+registrar("pv_s5_q4_esc_aic", which.min(crit$aic)); registrar("pv_s5_q4_esc_bic", which.min(crit$bic))
+registrar("pv_s5_q4_esc_rmse", which.min(crit$rmse)); registrar("pv_s5_q4_esc_mape", which.min(crit$mape))
+
 gravar_resultados("pv")
