@@ -348,6 +348,30 @@ pv_oc_sma_facp8,-0.190476190476
 pv_oc_sma_facp12,-0.0941176470588
 pv_oc_sma_facp_fora,            0
 pv_oc_sma_g0,         1.25
+pv_ob_ar1_raiz,1.42857142857
+pv_ob_ar1_1mphi2,         0.51
+pv_ob_ar1_g1,1.37254901961
+pv_ob_ar1_g2,0.960784313725
+pv_ob_ar1_g3,0.672549019608
+pv_ob_sma_g4,         -0.5
+pv_ob_sma_g_resto,            0
+pv_ob_sma_rho2,         0.16
+pv_ob_sma_1mrho2,         0.84
+pv_ob_sma_f22,-0.190476190476
+pv_ob_sma_f21,-0.47619047619
+pv_ob_sma_num33,-0.0761904761905
+pv_ob_sma_den33,0.809523809524
+pv_ob_sma_f33,-0.0941176470588
+pv_ob_sma_f33_formula,-0.0941176470588
+pv_ob_sma_1m2rho2,         0.68
+pv_ob_sma_rho3,       -0.064
+pv_ob_sar_cruzado,         0.15
+pv_ob_drmse,         0.07
+pv_ob_dmape,          0.3
+pv_ob_ganho,          7.2
+pv_ob_multa_bic,         11.4
+pv_ob_lnT,          5.7
+pv_ob_T,298.867400967
 pv_oc_daic,          3.2
 pv_oc_dbic,          4.2
 pv_df_tau1_5,        -1.95

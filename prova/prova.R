@@ -440,6 +440,31 @@ registrar("pv_oc_sma_facp4", p[4]); registrar("pv_oc_sma_facp8", p[8]); registra
 registrar("pv_oc_sma_facp_fora", max(abs(p[-c(4, 8, 12)])))
 registrar("pv_oc_sma_g0", 1 + 0.25)
 
+# Força bruta da folha "o que cai": todos os números intermediários das derivações
+phi <- 0.7
+registrar("pv_ob_ar1_raiz", 1 / phi); registrar("pv_ob_ar1_1mphi2", 1 - phi^2)
+g <- acvf_arma(phi, numeric(0), 1, lag.max = 3)
+registrar("pv_ob_ar1_g1", g[2]); registrar("pv_ob_ar1_g2", g[3]); registrar("pv_ob_ar1_g3", g[4])
+# SMA(1)_4, Theta = 0,5: autocovariâncias k = 0..8 e a FACP sazonal por Durbin-Levinson
+gs <- acvf_arma(numeric(0), c(0, 0, 0, 0.5), 1, lag.max = 8)
+registrar("pv_ob_sma_g4", gs[5]); registrar("pv_ob_sma_g_resto", max(abs(gs[-c(1, 5)])))
+rho <- gs[5] / gs[1]
+registrar("pv_ob_sma_rho2", rho^2); registrar("pv_ob_sma_1mrho2", 1 - rho^2)
+f22 <- -rho^2 / (1 - rho^2); f21 <- rho - f22 * rho
+registrar("pv_ob_sma_f22", f22); registrar("pv_ob_sma_f21", f21)
+registrar("pv_ob_sma_num33", -f22 * rho); registrar("pv_ob_sma_den33", 1 - f21 * rho)
+registrar("pv_ob_sma_f33", (-f22 * rho) / (1 - f21 * rho)); registrar("pv_ob_sma_f33_formula", rho^3 / (1 - 2 * rho^2))
+registrar("pv_ob_sma_1m2rho2", 1 - 2 * rho^2); registrar("pv_ob_sma_rho3", rho^3)
+# SARIMA(0,1,1)(0,1,1)_4 da folha: theta = 0,3, Theta = 0,5
+registrar("pv_ob_sar_cruzado", 0.3 * 0.5)
+# critérios do exemplo: as diferenças linha a linha
+registrar("pv_ob_drmse", 0.91 - 0.84); registrar("pv_ob_dmape", 3.5 - 3.2)
+# ganho de ajuste do ARMA(2,1) (2 parâmetros a mais): AIC_AR1 - AIC_ARMA = ganho - 2*2
+ganho <- (512.3 - 509.1) + 2 * 2
+registrar("pv_ob_ganho", ganho)
+multa_bic <- ganho + (524.0 - 519.8)                      # BIC_ARMA - BIC_AR1 = 2 ln T - ganho
+registrar("pv_ob_multa_bic", multa_bic); registrar("pv_ob_lnT", multa_bic / 2); registrar("pv_ob_T", exp(multa_bic / 2))
+
 # Interpretar critérios (exemplo da folha): AR(1) contra ARMA(2,1), números dados
 ex <- data.frame(aic = c(512.3, 509.1), bic = c(519.8, 524.0), rmse = c(0.84, 0.91), mape = c(3.2, 3.5))
 registrar("pv_oc_daic", ex$aic[1] - ex$aic[2]); registrar("pv_oc_dbic", ex$bic[2] - ex$bic[1])
