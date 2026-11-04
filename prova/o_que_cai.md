@@ -30,7 +30,7 @@ Na aula de quarta, o professor anunciou o formato e listou os tópicos no quadro
 > - Cai uma questão de **previsão**.
 > - **Yule-Walker foi riscado: não cai.** A questão-tipo 5 do guia fica com prioridade zero.
 >
-> **Anotado também em aula:** usar BIC, RMSE e MAPE; **identificar a ordem pela FAC** (seção 8); e o **teste de raiz unitária de Dickey-Fuller**, com a cadeia de decisão que começa pelo modelo 3 (seção 9).
+> **Anotado também em aula:** usar BIC, RMSE e MAPE; **identificar a ordem pela FAC** (seção 8); e o **teste de raiz unitária de Dickey-Fuller**, com a cadeia de decisão que começa pelo modelo 3 (seções 9 e 10).
 
 ## 1. As quatro questões prováveis
 
@@ -38,7 +38,7 @@ Na aula de quarta, o professor anunciou o formato e listou os tópicos no quadro
 |---|---|---|
 | A. Processos | passeio aleatório; $z_3=z_1+2z_2$ (circulado no quadro); $E$, $V$, $\operatorname{Cov}$; estacionário? | questões-tipo 1 e 2 do [guia](nao_posso_errar.md) |
 | B. ARMA | estacionário pelas raízes de $(1-\phi B)$; **montar a FAC**, com conta e desenho; FAC e FACP | seções 2 e 3; questões-tipo 3 e 4 |
-| C. SARIMA | o SMA(1) sazonal desenhado; a equação de previsão; o $d$ pelo Dickey-Fuller | seções 4, 5 e 9; questão-tipo 9 |
+| C. SARIMA | o SMA(1) sazonal desenhado; a equação de previsão; o $d$ pelo Dickey-Fuller | seções 4, 5, 9 e 10; questão-tipo 9 |
 | D. Ciclo e análise | o ciclo de modelagem; identificar a ordem; interpretar AIC, BIC, RMSE e MAPE; previsão | seções 6, 7 e 8; questão-tipo 8 |
 
 O treino no formato anunciado é o [Simulado 05](simulado_05.md): 4 questões de 2,5, em 1 hora.
@@ -87,7 +87,8 @@ $$
 - **(5)** O auxiliar: quanto do choque de hoje está em $y_t$. O termo com $y_{t-1}$ zera pela causalidade, porque o passado não conhece o choque de hoje.
 - **(6)** Multiplico por $y_t$ **porque $\gamma_0=E(y_t^2)$**. Cada termo vira um momento conhecido: $\gamma_1$ pela estacionariedade e 1 por (5).
 - **(7)** Multiplico por $y_{t-1}$ porque quero $\gamma_1$. O choque $u_t$ é posterior a $y_{t-1}$ e some.
-- **(8)–(9)** Duas equações e duas incógnitas: substituo e isolo. O 0,51 é $1-\phi^2$; a fórmula $\sigma^2/(1-\phi^2)$ sai da conta, não da memória.
+- **(8)** Duas equações e duas incógnitas: substituo (7) em (6), e sobra só $\gamma_0$.
+- **(9)** Isolo. O 0,51 é $1-\phi^2$: a fórmula $\sigma^2/(1-\phi^2)$ sai da conta, não da memória.
 - **(10)** Volto em (7) com o $\gamma_0$.
 - **(11)** Para $\gamma_2$, multiplico por $y_{t-2}$. De novo o choque some, e sobra $0{,}7$ vezes a defasagem anterior.
 - **(12)** O mesmo vale para toda defasagem: $\gamma_k=0{,}7\gamma_{k-1}$.
@@ -106,6 +107,23 @@ Na FACP, uma barra só, de 0,7, em $k=1$. Numa FAC **amostral**, desenhe também
 **Frase de fecho:** "A raiz é 1,43, fora do círculo: o AR(1) é estacionário. $\gamma_0=1{,}9608$ e $\rho_k=0{,}7^k$ (0,7; 0,49; 0,343): **a FAC decai geometricamente e a FACP corta em 1**, a assinatura de um AR(1)."
 
 O ARMA(1,1), com os dois auxiliares, está linha a linha na questão-tipo 4 do [guia](nao_posso_errar.md). Lá, $\rho_1=0{,}337$, e depois $\rho_2=0{,}2022$ e $\rho_3=0{,}1213$.
+
+**Do meu caderno (26/08 e 02/09):**
+- Em 26/08, a variância do AR(1) saiu por outro caminho. Abre-se $E\big((\phi(y_{t-1}-\mu)+\varepsilon_t)^2\big)$ em A + B + C, com $A=\phi^2\gamma_0$ e $C=\sigma^2$. O termo B, $2\phi E\big((y_{t-1}-\mu)\varepsilon_t\big)$, ficou sem conclusão: **ele é zero pela causalidade**, a mesma razão da linha (5). Daí $\gamma_0=\phi^2\gamma_0+\sigma^2$, que é a conta de (8).
+- Em 02/09, $\gamma_k=\phi\gamma_{k-1}$ para $k=1,2,3$ está certo.
+- Não repita o erro do mesmo dia no ARMA(1,1): "$\gamma_k=\phi^k\gamma_1$". O certo é $\phi^{k-1}\gamma_1$.
+
+**Fonte:** AU02, p. 67–68: o AR($p$), multiplicando por $y_{t-k}-\mu$ e tirando a esperança. AU02, p. 90–92: a FACP.
+
+### Tente
+
+$(1-0{,}8B)y_t=u_t$, com $\sigma^2=0{,}36$. Ache a raiz, $\gamma_0$, $\gamma_1$, os três primeiros $\rho_k$ e a FACP.
+
+**Resposta.**
+- A raiz é $1/0{,}8=1{,}25$, fora do círculo.
+- $\gamma_0=0{,}36/(1-0{,}64)=1$ e $\gamma_1=0{,}8$.
+- $\rho_k$: 0,8; 0,64; 0,512.
+- A FACP tem 0,8 em $k=1$ e zero depois.
 
 ## 3. A tabela de consulta: reconhecer pela FAC e pela FACP
 
@@ -171,6 +189,19 @@ $$
 
 **Frase de fecho:** "$\gamma_0=1{,}25$, $\gamma_4=-0{,}5$ e zero no resto, logo $\rho_4=-0{,}4$: **a FAC tem um pico só, em 4**. A FACP tem picos em 4, 8 e 12, de $-0{,}4$, $-0{,}1905$ e $-0{,}0941$, **decaindo**: é a assinatura de um SMA(1)$_4$, o MA(1) na escala sazonal."
 
+**Do meu caderno (20/08):** o $\gamma_1$ do MA(1) foi feito exatamente assim. $E\big((\varepsilon_t+\theta\varepsilon_{t-1})(\varepsilon_{t-1}+\theta\varepsilon_{t-2})\big)$ foi aberto em quatro produtos, sobrou $\theta\sigma^2$, e $\gamma_k=0$ para $k\ge2$. O SMA(1)$_4$ é a mesma força bruta, com 4 no lugar de 1. Lá, o MA estava com o sinal positivo dos slides; aqui está com o da lista.
+
+**Fonte:** AU02, p. 52: o $\gamma_k$ do MA($q$), que zera depois de $q$. AU02, p. 90–92: a FACP como o último coeficiente das equações de Yule-Walker de ordem $k$.
+
+### Tente
+
+Série mensal: $y_t=(1-0{,}4B^{12})a_t$, com $\sigma^2=1$. Ache $\gamma_0$, $\gamma_{12}$, $\rho_{12}$ e a FACP em 12 e 24.
+
+**Resposta.**
+- $\gamma_0=1{,}16$ e $\gamma_{12}=-0{,}4$.
+- $\rho_{12}=-0{,}3448$, e zero no resto.
+- A FACP vale $-0{,}3448$ em 12 e $-\rho^2/(1-\rho^2)=-0{,}135$ em 24, decaindo nos múltiplos de 12.
+
 ## 5. A equação de previsão do SARIMA$(0,1,1)(0,1,1)_4$, à força bruta
 
 **Enunciado.** Uma série trimestral segue SARIMA$(0,1,1)(0,1,1)_4$, com $\theta=0{,}3$ e $\Theta=0{,}5$. Escreva $y_t$ em função do passado e as equações de $\widehat y_T(1)$ até $\widehat y_T(6)$. Diga até que horizonte os resíduos aparecem.
@@ -212,7 +243,8 @@ $$
 - **(6)** Em $T$, conheço $y_T$, $y_{T-3}$, $y_{T-4}$ e os resíduos estimados $\widehat a_T$, $\widehat a_{T-3}$, $\widehat a_{T-4}$. Só $a_{T+1}$ é futuro, e vira 0.
 - **(7)** Agora $T+2$. Aparecem dois futuros: $y_{T+1}$ e os choques $a_{T+2}$ e $a_{T+1}$.
 - **(8)** O $y_{T+1}$ vira a previsão de (6), e os dois choques futuros viram 0. Saem os termos $-0{,}3a_{T+1}$ e $a_{T+2}$.
-- **(9)–(10)** A mesma operação. Em cada passo, os resíduos que sobram são os que ainda são **passado**: em $h=4$, sobram $\widehat a_T$ e $\widehat a_{T-1}$.
+- **(9)** A mesma operação em $T+3$: $y_{T+2}$ vira $\widehat y_T(2)$, e sobram os resíduos que ainda são **passado**, $\widehat a_{T-1}$ e $\widehat a_{T-2}$.
+- **(10)** Em $T+4$, o $y_T$ volta a aparecer como dado, e sobram $\widehat a_T$ e $\widehat a_{T-1}$.
 - **(11)** Em $T+5$, entram $y_{T+4}$ e $y_{T+1}$, que viram previsões, e $y_T$, que é conhecido. Dos choques, só $a_T$ é passado: sobra $+0{,}15\widehat a_T$.
 - **(12)** Em $T+6$, o choque mais antigo do modelo é $a_{T+1}$, que é futuro. Não sobra resíduo nenhum: a previsão só recicla previsões.
 - **(13)** A regra que se escreve: os resíduos aparecem até a maior defasagem do MA, que é $1+s=5$.
@@ -220,6 +252,22 @@ $$
 **Frase de fecho:** "Com $w_t=(1-B)(1-B^4)y_t$, $y_t=y_{t-1}+y_{t-4}-y_{t-5}+a_t-0{,}3a_{t-1}-0{,}5a_{t-4}+0{,}15a_{t-5}$. **$\widehat y_T(1)=y_T+y_{T-3}-y_{T-4}-0{,}3\widehat a_T-0{,}5\widehat a_{T-3}+0{,}15\widehat a_{T-4}$**, e os resíduos entram até $h=5$. A variância do erro, $\sigma^2\sum_{j\lt h}\psi_j^2$, cresce com $h$."
 
 O AR(1) com números, com variâncias e intervalos, está na questão-tipo 8 do [guia](nao_posso_errar.md); a variação no [banco, Q12](banco.md#q12--previsão-do-sarima-trimestral).
+
+**Do meu caderno (26/08):**
+- A previsão do MA(2) começa certa: $E(y_{t+1}\mid T)=c+\theta_1\varepsilon_t+\theta_2\varepsilon_{t-1}$.
+- Estão anotados "origem, informação, horizonte" e o intervalo $\widehat y\pm z_{\alpha/2}\sqrt{MSE}$.
+- O erro a não repetir: na linha de $y_{t+3}$ apareceu um $\theta_3$ num MA(2), misturando horizontes. **Escrever o modelo na data futura primeiro**, como em (5) e (7), impede isso.
+
+**Fonte:** AU02, p. 54–57: origem, informação e horizonte; a previsão do MA; o intervalo e o MSE.
+
+### Tente
+
+SARIMA$(0,1,1)(0,1,1)_{12}$ com $\theta=0{,}2$ e $\Theta=0{,}7$. Escreva $\widehat y_T(1)$ e diga até que horizonte os resíduos aparecem.
+
+**Resposta.**
+- $(1-B)(1-B^{12})=1-B-B^{12}+B^{13}$ e $(1-0{,}2B)(1-0{,}7B^{12})=1-0{,}2B-0{,}7B^{12}+0{,}14B^{13}$.
+- $\widehat y_T(1)=y_T+y_{T-11}-y_{T-12}-0{,}2\widehat a_T-0{,}7\widehat a_{T-11}+0{,}14\widehat a_{T-12}$.
+- Os resíduos aparecem até $h=13$.
 
 ## 6. O ciclo de modelagem de Box-Jenkins
 
@@ -280,6 +328,28 @@ $$
 
 **Frase de fecho:** "O AIC prefere o ARMA(2,1), por 3,2 pontos, mas o BIC prefere o AR(1), por 4,2: o ganho de ajuste de 7,2 não paga os dois parâmetros extras quando a multa é $\ln T\approx5{,}7$ por parâmetro. Fora da amostra, o AR(1) tem RMSE e MAPE menores, o que mostra que o ganho do ARMA(2,1) era sobreajuste. **Escolho o AR(1)**: mais parcimonioso, preferido pelo BIC e melhor na previsão."
 
+**Do meu caderno (10/09):**
+- Está anotado: "Métricas: $\widehat e_{t+h\mid t}=y_{t+h}-\widehat y_{t+h\mid t}$; treino e validação; MAPE, percentual do erro; MAD, na unidade da medida; RMSE; MASE".
+- A definição do erro de previsão é o ponto de partida do RMSE e do MAPE.
+- O par treino e validação é o "fora da amostra" das linhas (6) e (7).
+
+**Fonte:** AU02, p. 98–99: AIC e BIC, com a multa por parâmetro. AU03, p. 45–49: as métricas de previsão pontual.
+
+### Tente
+
+| Modelo | AIC | BIC | RMSE | MAPE |
+|---|---|---|---|---|
+| A | 300,5 | 310,4 | 1,12 | 2,9% |
+| B, com um parâmetro a menos | 301,2 | 306,9 | 1,10 | 2,8% |
+
+Qual modelo cada critério escolhe, e qual você usa?
+
+**Resposta.**
+- O AIC escolhe A, por 0,7: abaixo de 2, é empate.
+- O BIC escolhe B, por 3,5.
+- O RMSE e o MAPE escolhem B.
+- **Fica com B**: empata no AIC, é menor e prevê melhor.
+
 ## 8. Identificar a ordem pela FAC e pela FACP amostrais, linha a linha
 
 **Enunciado.** Com $T=100$, a FAC e a FACP amostrais de uma série estacionária foram:
@@ -326,55 +396,110 @@ Cuidados que valem ponto:
 - barras fora da banda em $s$ e $2s$ são sazonais: leia como na seção 3;
 - uma FAC que fica alta e cai devagar **não tem ordem**: é raiz unitária, e antes é preciso diferenciar (seção 9).
 
+**Do meu caderno (13/08 e 09/09):**
+- Em 13/08, a FAC e a FACP entram como as ferramentas de identificação.
+- Em 09/09 estão os desenhos. No AR(2), a FAC decai e a FACP tem duas barras. No MA(2), a FAC tem duas barras e a FACP decai: é o espelho exato do exemplo desta seção.
+
+**Fonte:** AU02, p. 90: a FACP serve para identificar a ordem $p$ de um AR. AU03, p. 4: com séries reais, as FAC e FACP estimadas nem sempre mostram um padrão claro, e por isso o ciclo é iterativo.
+
+### Tente
+
+Com $T=64$:
+
+| $k$ | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| FAC | 0,61 | 0,40 | 0,22 | 0,15 | 0,08 |
+| FACP | 0,61 | 0,05 | $-0{,}10$ | 0,03 | 0,02 |
+
+Qual é o modelo?
+
+**Resposta.**
+- A banda é $2/\sqrt{64}=0{,}25$.
+- A FAC decai devagar: 0,61 e 0,40 estão fora da banda, e o resto decresce.
+- A FACP tem só 0,61 fora da banda e **corta em 1**.
+- Logo, **AR(1)**.
+
 ## 9. Teste de raiz unitária: Dickey-Fuller, linha a linha
 
-### De onde vem a regressão do teste
+**Enunciado.** Parta de $y_t=a_0+\rho\,y_{t-1}+a_2t+u_t$. Escreva a regressão do teste de Dickey-Fuller na notação do Mattos e na do Enders, diga as hipóteses e explique por que a estatística não segue a $t$ de Student.
+
+### Antes de escrever
+
+- O Mattos (MAT, p. 21–23), a leitura do curso, escreve $\Delta Y_t=a+bt+\lambda Y_{t-1}+u_t$ e chama as três especificações de **opções 1, 2 e 3**. A opção 3 é a que tem intercepto e tendência.
+- O Enders chama de $\gamma$ o mesmo coeficiente e numera os mesmos três **modelos**.
+- Nos dois, o coeficiente é $\rho-1$: $\lambda$ e $\gamma$ são a mesma coisa.
+
+### Linha a linha
 
 $$
 \begin{aligned}
 \text{(1)}\quad & y_t=a_0+\rho\,y_{t-1}+a_2t+u_t && [\text{modelo geral}]\\
 \text{(2)}\quad & y_t-y_{t-1}=a_0+(\rho-1)\,y_{t-1}+a_2t+u_t && [-y_{t-1} \text{ dos dois lados}]\\
-\text{(3)}\quad & \Delta y_t=a_0+\gamma\,y_{t-1}+a_2t+u_t,\quad \gamma=\rho-1 && [\text{modelo 3}]\\
-\text{(4)}\quad & 1-\rho x=0\Rightarrow x=1/\rho;\ \ \rho=1\iff x=1\iff\gamma=0 && [\text{raiz unitária}]\\
-\text{(5)}\quad & H_0:\gamma=0 \ \ (\text{raiz unitária});\quad H_1:\gamma\lt0 \ \ (\text{estacionário}) && [\text{unilateral à esquerda}]\\
-\text{(6)}\quad & \tau=\widehat\gamma/ep(\widehat\gamma):\ \text{sob } H_0, \text{ distribuição de Dickey-Fuller} && [\text{críticos mais negativos}]\\
-\text{(7)}\quad & \text{modelo 2: } a_2=0;\quad \text{modelo 1: } a_0=a_2=0 && [\text{restrições}]
+\text{(3)}\quad & \Delta y_t=a_0+\gamma\,y_{t-1}+a_2t+u_t,\quad \gamma=\rho-1 && [\text{Enders: modelo 3}]\\
+\text{(4)}\quad & \Delta Y_t=a+bt+\lambda Y_{t-1}+u_t,\quad \lambda=\rho-1 && [\text{MAT, p. 23: opção 3}]\\
+\text{(5)}\quad & 1-\rho x=0\Rightarrow x=1/\rho;\ \ \rho=1\iff x=1\iff\gamma=\lambda=0 && [\text{raiz unitária}]\\
+\text{(6)}\quad & -1\lt\rho\lt1\iff-2\lt\rho-1\lt0\iff-2\lt\lambda\lt0 && [\text{subtrai 1}]\\
+\text{(7)}\quad & H_0:\gamma=0 \ (\text{raiz unitária});\quad H_1:\gamma\lt0 && [\text{unilateral}]\\
+\text{(8)}\quad & \tau=\widehat\gamma/ep(\widehat\gamma):\ \text{sob } H_0, \text{ distribuição de Dickey-Fuller} && [\text{críticos próprios}]\\
+\text{(9)}\quad & \text{modelo 2: } a_2=0;\quad \text{modelo 1: } a_0=a_2=0 && [\text{restrições}]
 \end{aligned}
 $$
 
-**O sentido de cada linha:**
-- **(1)** O modelo mais geral: constante, um AR(1) e tendência.
-- **(2)** Subtraio $y_{t-1}$ dos dois lados. Do lado direito, $\rho y_{t-1}-y_{t-1}=(\rho-1)y_{t-1}$.
-- **(3)** Dou nome ao coeficiente: $\gamma=\rho-1$. Esta é a regressão que se estima por MQO.
-- **(4)** A raiz do polinômio AR é $1/\rho$. Raiz unitária é $\rho=1$, que é o mesmo que $\gamma=0$. É por isso que se testa $\gamma$.
-- **(5)** A nula é a raiz unitária. A alternativa é só $\gamma\lt0$: um $\gamma$ positivo seria explosivo e não interessa.
-- **(6)** A estatística é o $t$ de sempre, mas, sob $H_0$, $y_{t-1}$ é um passeio, e a distribuição não é $t$ de Student: os críticos são de tabela própria e mais negativos.
-- **(7)** Os modelos 2 e 1 são o 3 com a tendência, ou a tendência e a constante, zeradas.
+### O sentido de cada linha
 
-**Valores críticos a 5%, para $T=100$** (no ADF, acrescentam-se defasagens de $\Delta y$, escolhidas pelo BIC, e os críticos não mudam):
+- **(1)** O modelo mais geral: constante, um AR(1) e tendência.
+- **(2)** Subtraio $y_{t-1}$ dos dois lados. À direita, $\rho y_{t-1}-y_{t-1}$ vira $(\rho-1)y_{t-1}$.
+- **(3)** Dou nome ao coeficiente, $\gamma=\rho-1$. Esta é a regressão que se estima por MQO.
+- **(4)** É a mesma regressão na notação do Mattos, com $\lambda$, $a$ e $b$. Se a prova escrever $\lambda$, nada muda.
+- **(5)** A raiz do polinômio AR é $1/\rho$. "Raiz unitária" é $\rho=1$, que é o mesmo que $\gamma=0$. É por isso que se testa $\gamma$, e não $\rho$.
+- **(6)** A alternativa do Mattos, $-2\lt\lambda\lt0$, é só a estacionariedade $\lvert\rho\rvert\lt1$ com 1 subtraído de cada lado.
+- **(7)** A nula é a raiz unitária. A alternativa olha só para a esquerda: um $\gamma\gt0$ seria explosivo e não interessa.
+- **(8)** A estatística é o $t$ de sempre, mas, sob $H_0$, $y_{t-1}$ é um passeio, e a distribuição muda. Os críticos são da tabela de Dickey-Fuller, mais negativos que os da $t$.
+- **(9)** Os modelos 2 e 1 são o modelo 3 com a tendência, ou com a tendência e a constante, zeradas.
+
+**Frase de fecho:** "Subtraindo $y_{t-1}$ dos dois lados, o teste vira a regressão de $\Delta y_t$ em $y_{t-1}$. Testar a raiz unitária $\rho=1$ é testar $\gamma=0$ ($\lambda=0$ no Mattos) contra $\gamma\lt0$, com $\tau$ comparado aos críticos de Dickey-Fuller, não aos da $t$."
+
+**Do meu caderno (19/08):** está escrito "$y_t=\alpha+y_{t-1}+\alpha_2t+\varepsilon_t$", com $\alpha_2t$ marcado como "tendência determinística" e, logo abaixo, "teste de raiz unitária". É a linha (1) com $\rho=1$: o modelo 3 **sob $H_0$**. Para testar, é preciso deixar $\rho$ livre e reescrever como em (3).
+
+**Fonte:** MAT, p. 19–25: o teste DF; as opções 1, 2 e 3 nas p. 21–23; o ADF na p. 24; os passos de implementação na p. 25. Os críticos são os tabulados por Dickey e Fuller (1981) e MacKinnon (1996).
+
+**Valores críticos a 5%, para $T=100$** (no ADF, acrescentam-se defasagens de $\Delta y$ e os críticos não mudam):
 
 | Estatística | $\tau_\tau$ (modelo 3) | $\phi_3$: $\gamma=a_2=0$ | $\tau_\mu$ (modelo 2) | $\phi_1$: $a_0=\gamma=0$ | $\tau$ (modelo 1) | normal |
 |---|---|---|---|---|---|---|
 | crítico | $-3{,}45$ | 6,49 | $-2{,}89$ | 4,71 | $-1{,}95$ | $-1{,}65$ |
 | rejeita se | menor | maior | menor | maior | menor | menor |
 
-### A cadeia, começando pelo modelo 3
+**Os críticos dependem de $T$.** No INPC, com amostra maior, eles são $-3{,}42$, $-2{,}87$ e $-1{,}95$, com $\phi_3=6{,}30$ e $\phi_1=4{,}61$. Na prova, use os do enunciado.
 
-**Por que começar pelo 3.** É o mais geral. Se a série tem tendência e o modelo a omite, o teste quase nunca rejeita, e uma série estacionária em torno de tendência parece ter raiz unitária. Começa-se com tudo, e só se tira um termo depois de testar que ele não pertence ao modelo.
+**A cadeia, começando pelo modelo 3**, ao lado dos passos do Mattos (MAT, p. 25):
 
-1. **Modelo 3, $\tau_\tau$ contra $-3{,}45$.** Se for menor, rejeita: sem raiz unitária, pare. Se não, vá ao passo 2.
-2. **$\phi_3$ contra 6,49**, com $H_0$: $\gamma=a_2=0$. Se for maior, a tendência fica: teste $\gamma$ com a normal ($-1{,}65$) e pare. Se não, tire a tendência e vá ao passo 3.
-3. **Modelo 2, $\tau_\mu$ contra $-2{,}89$.** Se for menor, rejeita e pare. Se não, vá ao passo 4.
-4. **$\phi_1$ contra 4,71**, com $H_0$: $a_0=\gamma=0$. Se for maior, há drift: teste $\gamma$ com a normal e pare. Se não, vá ao passo 5.
-5. **Modelo 1, $\tau$ contra $-1{,}95$.** Se for menor, rejeita: estacionária com média zero. Se não, há raiz unitária.
+| Passo | Cadeia (Enders) | Passos do MAT |
+|---|---|---|
+| 1 | Modelo 3: se $\tau_\tau\lt-3{,}45$, rejeita e pare | escolher a opção pelo gráfico; na dúvida, a **opção 3**, a mais geral |
+| 2 | $\phi_3\gt6{,}49$? Se sim, a tendência fica: teste $\gamma$ com a normal e pare. Se não, tire a tendência | defasagens de $\Delta y$: acrescentar uma a uma enquanto o Schwarz cai |
+| 3 | Modelo 2: se $\tau_\mu\lt-2{,}89$, rejeita e pare | calcular $\tau$ na equação final |
+| 4 | $\phi_1\gt4{,}71$? Se sim, há drift: teste $\gamma$ com a normal e pare | comparar $\tau$ com o crítico: menor rejeita; maior ou igual não rejeita |
+| 5 | Modelo 1: se $\tau\lt-1{,}95$, rejeita; senão, há raiz unitária | se não rejeitou, diferenciar e repetir tudo em $\Delta y$, até rejeitar |
+
+**Por que começar pelo 3.** É o mais geral. Se a série tem tendência e o modelo a omite, o teste quase nunca rejeita, e uma série estacionária em torno de tendência parece ter raiz unitária. O mesmo vale para a constante: é o que acontece no INPC, na seção 10.
 
 **Depois da cadeia:**
 - se ficou raiz unitária, diferencie e repita em $\Delta y_t$; o número de diferenças até rejeitar é o $d$;
 - se rejeitou no modelo 3, a série é estacionária em torno de tendência (TS): tira-se a tendência, **não se diferencia**, para não sobrediferenciar (questão-tipo 6).
 
-### Quatro casos: tente antes de olhar a resolução
+### Tente
 
-Todos com $T=100$ e a 5%.
+Num modelo 2, com $T=100$, o MQO deu $\widehat\rho=0{,}93$ e $ep(\widehat\gamma)=0{,}025$. Ache $\widehat\gamma$ e $\tau_\mu$ e decida a 5%.
+
+**Resposta.**
+- $\widehat\gamma=0{,}93-1=-0{,}07$, e $\tau_\mu=-0{,}07/0{,}025=-2{,}8$.
+- $-2{,}8\gt-2{,}89$: **não rejeita**, por pouco. Segue para o passo 4.
+- Com o crítico da $t$, de $-1{,}65$, teria rejeitado. É por isso que a tabela de Dickey-Fuller importa.
+
+## 10. Dickey-Fuller: os casos e o INPC, linha a linha
+
+**Enunciado.** Percorra a cadeia, a 5%, em cada caso abaixo, e diga se há raiz unitária e o que fazer com a série. Nos casos 1 a 4, $T=100$. O último é a série do seu trabalho do INPC, com os críticos do enunciado.
 
 | Caso | Modelo 3 | Modelo 2 | Modelo 1 |
 |---|---|---|---|
@@ -382,46 +507,101 @@ Todos com $T=100$ e a 5%.
 | 2 | $\tau_\tau=-4{,}30$ | — | — |
 | 3 | $\tau_\tau=-2{,}40$; $\phi_3=3{,}2$ | $\tau_\mu=-3{,}30$ | — |
 | 4 | $\tau_\tau=-1{,}90$; $\phi_3=2{,}5$ | $\tau_\mu=-1{,}20$; $\phi_1=6{,}10$; $t=-1{,}20$ | — |
+| INPC | $\tau_\tau=-7{,}15$ (crítico $-3{,}42$); $t$ da tendência $=-1{,}44$; $\phi_3=25{,}60$ (crítico 6,30) | $\tau_\mu=-7{,}00$ (crítico $-2{,}87$); $t$ da constante $=5{,}46$; $\phi_1=24{,}48$ (crítico 4,61) | $\tau=-1{,}61$ (crítico $-1{,}95$) |
 
-**Caso 1, linha a linha:**
+No INPC, diga também o que aconteceria se o teste começasse pelo modelo 1.
+
+### Antes de escrever
+
+- Para os $\tau$, rejeita-se a raiz unitária quando a estatística é **menor** que o crítico.
+- Para os $\phi$, rejeita-se quando é **maior**.
+- Cada linha é uma comparação e a decisão que sai dela. Nunca pule do modelo 3 para o 1 sem passar pelo $\phi_3$ e pelo modelo 2.
+
+### Linha a linha
+
+**Caso 1**
 
 $$
 \begin{aligned}
 \text{(1)}\quad & -2{,}10\gt-3{,}45\ \Rightarrow\ \text{não rejeita } \gamma=0 && [\text{passo 1}]\\
-\text{(2)}\quad & 2{,}9\lt6{,}49\ \Rightarrow\ \text{não rejeita } \gamma=a_2=0:\ \text{tira a tendência} && [\text{passo 2}]\\
+\text{(2)}\quad & 2{,}9\lt6{,}49\ \Rightarrow\ \text{tira a tendência} && [\text{passo 2}]\\
 \text{(3)}\quad & -1{,}70\gt-2{,}89\ \Rightarrow\ \text{não rejeita} && [\text{passo 3}]\\
-\text{(4)}\quad & 3{,}1\lt4{,}71\ \Rightarrow\ \text{não rejeita } a_0=\gamma=0:\ \text{tira a constante} && [\text{passo 4}]\\
-\text{(5)}\quad & -0{,}80\gt-1{,}95\ \Rightarrow\ \text{não rejeita: raiz unitária, sem drift} && [\text{passo 5}]\\
-\text{(6)}\quad & \Delta y:\ -6{,}20\lt-3{,}45\ \Rightarrow\ \text{rejeita: } \Delta y \text{ estacionária} && [\text{repete a cadeia}]\\
+\text{(4)}\quad & 3{,}1\lt4{,}71\ \Rightarrow\ \text{tira a constante} && [\text{passo 4}]\\
+\text{(5)}\quad & -0{,}80\gt-1{,}95\ \Rightarrow\ \text{raiz unitária, sem drift} && [\text{passo 5}]\\
+\text{(6)}\quad & \Delta y:\ -6{,}20\lt-3{,}45\ \Rightarrow\ \Delta y \text{ estacionária} && [\text{repete em } \Delta y]\\
 \text{(7)}\quad & y\sim I(1),\ d=1:\ \text{passeio aleatório} && [(5),(6)]
 \end{aligned}
 $$
 
-**Caso 2:** $-4{,}30\lt-3{,}45$, então rejeita no passo 1. Não há raiz unitária. Como a regressão tinha tendência, a série é **estacionária em torno de tendência**: tira-se a tendência por regressão em $t$, sem diferenciar.
+**Casos 2 a 4**
 
-**Caso 3:**
-- $-2{,}40\gt-3{,}45$: não rejeita no passo 1;
-- $3{,}2\lt6{,}49$: tira a tendência (passo 2);
-- $-3{,}30\lt-2{,}89$: **rejeita** no passo 3.
+$$
+\begin{aligned}
+\text{(8)}\quad & \text{caso 2: } -4{,}30\lt-3{,}45\ \Rightarrow\ \text{rejeita no passo 1} && [\text{passo 1}]\\
+\text{(9)}\quad & \text{sem raiz unitária, com tendência: TS; não diferenciar} && [\text{conclusão}]\\
+\text{(10)}\quad & \text{caso 3: } -2{,}40\gt-3{,}45;\ \ 3{,}2\lt6{,}49\ \Rightarrow\ \text{modelo 2} && [\text{passos 1 e 2}]\\
+\text{(11)}\quad & -3{,}30\lt-2{,}89\ \Rightarrow\ \text{rejeita: estacionária, média}\ne0 && [\text{passo 3}]\\
+\text{(12)}\quad & \text{caso 4: } -1{,}90\gt-3{,}45;\ \ 2{,}5\lt6{,}49;\ \ -1{,}20\gt-2{,}89 && [\text{passos 1 a 3}]\\
+\text{(13)}\quad & 6{,}10\gt4{,}71\ \Rightarrow\ \text{o drift fica} && [\text{passo 4}]\\
+\text{(14)}\quad & t=-1{,}20\gt-1{,}65\ \Rightarrow\ \text{raiz unitária com drift; diferenciar} && [\text{normal}]
+\end{aligned}
+$$
 
-Não há raiz unitária: a série é estacionária, com média diferente de zero, porque a constante ficou.
+**INPC**
 
-**Caso 4:**
-- $-1{,}90\gt-3{,}45$: não rejeita;
-- $2{,}5\lt6{,}49$: tira a tendência;
-- $-1{,}20\gt-2{,}89$: não rejeita;
-- $6{,}10\gt4{,}71$: **rejeita** $a_0=\gamma=0$, então o drift fica;
-- com drift, $\gamma$ se testa com a normal: $-1{,}20\gt-1{,}65$, não rejeita.
+$$
+\begin{aligned}
+\text{(15)}\quad & -7{,}15\lt-3{,}42\ \Rightarrow\ \text{rejeita no passo 1: sem raiz unitária} && [\text{modelo 3}]\\
+\text{(16)}\quad & t_{\text{tend}}=-1{,}44\ (p=0{,}15)\ \Rightarrow\ \text{a tendência não é significativa} && [\text{normal}]\\
+\text{(17)}\quad & \phi_3=25{,}60\gt6{,}30:\ \text{cai porque } \gamma\ne0, \text{ não porque } a_2\ne0 && [\text{leitura do } \phi_3]\\
+\text{(18)}\quad & \text{modelo 2: } -7{,}00\lt-2{,}87;\ \ t_{\text{const}}=5{,}46 && [\text{a constante fica}]\\
+\text{(19)}\quad & \phi_1=24{,}48\gt4{,}61 && [\text{confirma}]\\
+\text{(20)}\quad & \text{modelo 1 sozinho: } -1{,}61\gt-1{,}95\ \Rightarrow\ \text{não rejeitaria} && [\text{armadilha}]\\
+\text{(21)}\quad & y\sim I(0) \text{ com média}\ne0:\ d=0 && [\text{conclusão}]
+\end{aligned}
+$$
 
-**Raiz unitária com drift**: um passeio com drift, que se diferencia.
+### O sentido de cada linha
 
-**O sentido de cada comparação:**
-- um $\tau$ **menor** que o crítico significa um $\widehat\gamma$ negativo demais para ser zero: a série volta para a média, sem raiz unitária;
-- um $\phi$ **maior** que o crítico significa que o termo determinístico testado (a tendência, no $\phi_3$; a constante, no $\phi_1$) pertence ao modelo e não pode ser retirado.
+- **(1)** O modelo mais geral não rejeita. Ainda não dá para concluir nada: pode ser falta de poder por excesso de termos.
+- **(2)** O $\phi_3$ testa, junto, raiz unitária e tendência nula. Não rejeitar diz que a tendência pode sair.
+- **(3)** Sem a tendência, o modelo 2 também não rejeita.
+- **(4)** O $\phi_1$ diz que a constante também pode sair.
+- **(5)** No modelo 1, sem nenhum termo determinístico, ainda não rejeita: há raiz unitária, e é um passeio sem drift.
+- **(6)** Repito a cadeia na série diferenciada. Agora rejeita: uma diferença basta.
+- **(7)** O número de diferenças até rejeitar é o $d$. Aqui, $d=1$.
+- **(8)** O caso 2 rejeita já no modelo 3. A cadeia para no primeiro passo.
+- **(9)** Rejeitou com tendência no modelo: a série é estacionária em torno de uma tendência. Diferenciar seria sobrediferenciar; o certo é tirar a tendência.
+- **(10)** No caso 3, o modelo 3 não rejeita e o $\phi_3$ manda tirar a tendência.
+- **(11)** No modelo 2, rejeita. A série é estacionária, e a constante ficou: a média não é zero.
+- **(12)** No caso 4, os três primeiros passos não rejeitam.
+- **(13)** O $\phi_1$ rejeita: a constante pertence ao modelo, isto é, há drift.
+- **(14)** Com drift, o $\gamma$ se testa com a normal. Não rejeita: é um passeio com drift, que se diferencia.
+- **(15)** No INPC, o modelo 3 rejeita com folga. A cadeia já poderia parar aqui.
+- **(16)** Mesmo assim, olho a tendência: com $p=0{,}15$, ela não pertence ao modelo, e o modelo final é o 2.
+- **(17)** A armadilha do $\phi_3$: ele testa as duas coisas juntas. Rejeitar quer dizer que **pelo menos uma** é falsa; aqui, é a raiz unitária que cai, como mostra (16).
+- **(18)** No modelo 2, a rejeição se repete, e a constante é fortemente significativa.
+- **(19)** O $\phi_1$ confirma: a raiz unitária e a constante nula não se sustentam juntas.
+- **(20)** Se tivesse começado pelo modelo 1, que força a regressão a passar pela origem, o teste leria o desvio da média 0,5 como persistência e não rejeitaria. É exatamente o erro que começar pelo modelo 3 evita.
+- **(21)** O INPC é estacionário em torno de uma média positiva. Não se diferencia: $d=0$.
 
-**Frase de fecho:** "Como $\tau=\dots$ é maior que o crítico $\dots$, não rejeito $H_0$: a série tem raiz unitária e deve ser diferenciada." Ou: "é menor, rejeito $H_0$: a série não tem raiz unitária."
+**Frase de fecho:** "Partindo do modelo 3, $\tau_\tau=-7{,}15\lt-3{,}42$: rejeito a raiz unitária. A tendência não é significativa, e no modelo 2, $\tau_\mu=-7{,}00\lt-2{,}87$, com constante significativa. **O INPC é estacionário em torno de uma média positiva, $d=0$.** O modelo 1, sozinho, não rejeitaria ($-1{,}61\gt-1{,}95$), porque omite a constante."
 
-## 10. A noite de quarta e a manhã de quinta
+**Do meu caderno (19/08):** "teste de raiz unitária" aparece logo abaixo de "termo de tendência determinística". É essa a pergunta do passo 2: o $\phi_3$ decide se a tendência determinística fica na regressão.
+
+**Fonte:** MAT, p. 25: começar pela opção 3 em caso de dúvida e reaplicar o teste na série diferenciada. O caso real é a questão 2 do relatório do INPC (`trabalho_inpc/relatorio.md`).
+
+### Tente
+
+$T=100$, a 5%. O modelo 3 deu $\tau_\tau=-3{,}10$ e $\phi_3=7{,}20$, e o $t$ de $\widehat\gamma$, lido na normal, é $-3{,}10$. Há raiz unitária?
+
+**Resposta.**
+- $-3{,}10\gt-3{,}45$: não rejeita no passo 1.
+- $7{,}20\gt6{,}49$: a tendência fica, e o $\gamma$ se testa com a normal.
+- $-3{,}10\lt-1{,}65$: rejeita.
+- **Não há raiz unitária**: a série é estacionária em torno de tendência, e não se diferencia.
+
+## 11. A noite de quarta e a manhã de quinta
 
 | Hora | O quê |
 |---|---|
@@ -430,7 +610,7 @@ Não há raiz unitária: a série é estacionária, com média diferente de zero
 | 19h20–20h20 | **[Simulado 05](simulado_05.md)**, 4 × 2,5, em 1 hora, sem consulta |
 | 20h20–20h40 | correção pelo [gabarito](simulado_05_gabarito.md) |
 | 20h40–21h10 | refazer cada item com perda, pelo guia e por esta folha |
-| 21h10–21h35 | **a cadeia do Dickey-Fuller** (seção 9): os cinco passos de memória e os quatro casos, cobrindo as resoluções |
+| 21h10–21h35 | **a cadeia do Dickey-Fuller** (seções 9 e 10): os cinco passos de memória; os casos e o INPC, cobrindo as resoluções |
 | 21h35–22h | o SMA(1)$_4$ da seção 4, à força bruta, em folha branca; os seis desenhos da seção 3 de memória |
 | **até 22h30** | **parar e dormir** |
 
@@ -490,4 +670,35 @@ Não há raiz unitária: a série é estacionária, com média diferente de zero
 | pv_df_caso2 | 1 |
 | pv_df_caso3 | 1 |
 | pv_df_caso4 | 2 |
+| pv_ot_ar1_raiz | 1,25 |
+| pv_ot_ar1_g0 | 1 |
+| pv_ot_ar1_g1 | 0,8 |
+| pv_ot_ar1_rho2 | 0,64 |
+| pv_ot_ar1_rho3 | 0,512 |
+| pv_ot_sma_g0 | 1,16 |
+| pv_ot_sma_g12 | -0,4 |
+| pv_ot_sma_rho12 | -0,3448 |
+| pv_ot_sma_facp12 | -0,3448 |
+| pv_ot_sma_facp24 | -0,135 |
+| pv_ot_sar_cruzado | 0,14 |
+| pv_ot_sar_hmax | 13 |
+| pv_ot_daic | 0,7 |
+| pv_ot_dbic | 3,5 |
+| pv_ot_banda64 | 0,25 |
+| pv_ot_df_gamma | -0,07 |
+| pv_ot_df_tau | -2,8 |
+| pv_ot_df_caso | 1 |
+| inpc_adf_y_t_tau | -7,15 |
+| inpc_adf_y_t_c5 | -3,42 |
+| inpc_adf_y_t_tend_t | -1,44 |
+| inpc_adf_y_t_tend_p | 0,15 |
+| inpc_adf_y_t_phi3 | 25,60 |
+| inpc_adf_c5_phi3 | 6,30 |
+| inpc_adf_y_c_tau | -7,00 |
+| inpc_adf_y_c_c5 | -2,87 |
+| inpc_adf_y_c_const_t | 5,46 |
+| inpc_adf_y_c_phi1 | 24,48 |
+| inpc_adf_c5_phi1 | 4,61 |
+| inpc_adf_y_n_tau | -1,61 |
+| inpc_adf_y_n_c5 | -1,95 |
 -->

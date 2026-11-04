@@ -220,7 +220,7 @@ A lógica é **aprender pelo [guia](nao_posso_errar.md), testar no [Simulado 02]
 | 21h–21h30 | a lista de dúvidas para o professor (abaixo), com as que o S2 levantou |
 | 21h30 | parar |
 
-**Quarta, 04/11: aula, professor e a última consolidação.** Revisto depois do quadro do professor; a versão completa está na [folha do que cai](o_que_cai.md#10-a-noite-de-quarta-e-a-manhã-de-quinta).
+**Quarta, 04/11: aula, professor e a última consolidação.** Revisto depois do quadro do professor; a versão completa está na [folha do que cai](o_que_cai.md#11-a-noite-de-quarta-e-a-manhã-de-quinta).
 
 | Hora | O quê |
 |---|---|
