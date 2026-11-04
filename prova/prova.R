@@ -465,6 +465,19 @@ registrar("pv_ob_ganho", ganho)
 multa_bic <- ganho + (524.0 - 519.8)                      # BIC_ARMA - BIC_AR1 = 2 ln T - ganho
 registrar("pv_ob_multa_bic", multa_bic); registrar("pv_ob_lnT", multa_bic / 2); registrar("pv_ob_T", exp(multa_bic / 2))
 
+# Os "Tente" da folha "o que cai": números novos, sem repetir o S5 nem o guia
+phi <- 0.8; g <- acvf_arma(phi, numeric(0), 0.36, lag.max = 3)
+registrar("pv_ot_ar1_raiz", 1 / phi); registrar("pv_ot_ar1_g0", g[1]); registrar("pv_ot_ar1_g1", g[2])
+registrar("pv_ot_ar1_rho2", g[3] / g[1]); registrar("pv_ot_ar1_rho3", g[4] / g[1])
+gs <- acvf_arma(numeric(0), c(rep(0, 11), 0.4), 1, lag.max = 24)
+registrar("pv_ot_sma_g0", gs[1]); registrar("pv_ot_sma_g12", gs[13]); registrar("pv_ot_sma_rho12", gs[13] / gs[1])
+p12 <- stats::ARMAacf(ma = c(rep(0, 11), -0.4), lag.max = 24, pacf = TRUE)
+registrar("pv_ot_sma_facp12", p12[12]); registrar("pv_ot_sma_facp24", p12[24])
+registrar("pv_ot_sar_cruzado", 0.2 * 0.7); registrar("pv_ot_sar_hmax", 12 + 1)
+registrar("pv_ot_daic", 301.2 - 300.5); registrar("pv_ot_dbic", 310.4 - 306.9)
+registrar("pv_ot_banda64", 2 / sqrt(64))
+registrar("pv_ot_df_gamma", 0.93 - 1); registrar("pv_ot_df_tau", (0.93 - 1) / 0.025)
+
 # Interpretar critérios (exemplo da folha): AR(1) contra ARMA(2,1), números dados
 ex <- data.frame(aic = c(512.3, 509.1), bic = c(519.8, 524.0), rmse = c(0.84, 0.91), mape = c(3.2, 3.5))
 registrar("pv_oc_daic", ex$aic[1] - ex$aic[2]); registrar("pv_oc_dbic", ex$bic[2] - ex$bic[1])
@@ -492,6 +505,7 @@ registrar("pv_df_caso2", cadeia_df(-4.30))
 registrar("pv_df_caso3", cadeia_df(-2.40, 3.2, NA, -3.30))
 registrar("pv_df_caso4", cadeia_df(-1.90, 2.5, NA, -1.20, 6.10, -1.20))
 registrar("pv_df_caso1_dif", cadeia_df(-6.20))                 # Delta y do caso 1: rejeita, então y ~ I(1)
+registrar("pv_ot_df_caso", cadeia_df(-3.10, 7.20, -3.10))      # Tente da folha: phi3 significativo, normal rejeita
 # Simulado 05, questão extra: rejeita só no modelo 1; e a variante com tau_tau = -3,90
 registrar("pv_s5_extra_a", cadeia_df(-2.80, 4.10, NA, -2.20, 2.60, NA, -2.30))
 registrar("pv_s5_extra_b", cadeia_df(-3.90))
