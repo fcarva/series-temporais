@@ -18,7 +18,7 @@
 # Requer pandoc e LuaLaTeX (TeX Live ou MiKTeX).
 #
 # Rodar: Rscript caderno/montar_caderno.R  (Windows: scripts\r.ps1 caderno\montar_caderno.R)
-#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao, amao_blocos, apostila, completo, correcao, basico, naoerrar, simulado02, plano; sem argumento, tudo
+#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao, amao_blocos, apostila, completo, correcao, basico, naoerrar, simulado02, plano, quadro; sem argumento, tudo
 # Saída: caderno/pdf/ (fora do git, exceto o volume 4, o guia, o volume 5 e os simulados,
 #        que vão ao cofre do Obsidian)
 
@@ -315,9 +315,11 @@ volume_prova <- function() {
   partes <- list(
     "Guia da prova" = c("prova/README.md"),
     "Banco de variações da lista" = c("prova/banco.md"),
-    "Simulados" = c("prova/simulado_01.md", "prova/simulado_02.md", "prova/simulado_03.md", "prova/simulado_04.md"),
+    "Simulados" = c("prova/simulado_01.md", "prova/simulado_02.md", "prova/simulado_03.md", "prova/simulado_04.md",
+                    "prova/simulado_05.md"),
     "Gabaritos e log de erros" = c("prova/simulado_01_gabarito.md", "prova/simulado_02_gabarito.md",
                                    "prova/simulado_03_gabarito.md", "prova/simulado_04_gabarito.md",
+                                   "prova/simulado_05_gabarito.md",
                                    "prova/log_erros.md"),
     "Formulário" = c("formulario/formulario.md")
   )
@@ -329,9 +331,9 @@ volume_prova <- function() {
 # Só os enunciados, para imprimir e resolver sem ver o gabarito
 volume_simulados <- function() {
   partes <- list("Simulados" = c("prova/simulado_01.md", "prova/simulado_02.md", "prova/simulado_03.md",
-                                 "prova/simulado_04.md"))
+                                 "prova/simulado_04.md", "prova/simulado_05.md"))
   md <- file.path(BUILD, "simulados.md"); montar_md(partes, md)
-  capa("Simulados", "Quatro provas de 1h50 no formato da lista (sem gabarito)", file.path(BUILD, "capa_sim.tex"))
+  capa("Simulados", "Cinco provas no formato da lista (sem gabarito)", file.path(BUILD, "capa_sim.tex"))
   compilar("caderno_prova_simulados", md, file.path(BUILD, "capa_sim.tex"), OPC_SIMULADOS, passes = 3, impressao = TRUE)
 }
 
@@ -409,7 +411,7 @@ volume_completo <- function() {
     sprintf("Q%d & %s & %s & %s & %s & %s \\\\", q, guia, pr(paste0("ap", b)), folha, pr(sprintf("lc%02d", q)), pr(paste0("bb", b)))
   }, character(1))
   mapa <- c("# Mapa das questões", "",
-            "Cada questão da lista aparece em quatro camadas, nesta ordem dentro do bloco: o capítulo da apostila (teoria, imagens, perguntas), a folha à mão (a demonstração linha a linha), a nota comentada (slide, livro e caderno) e as variações do banco. A tabela dá a página de cada uma. A coluna Guia aponta a questão-tipo do guia \"não posso errar\", que vem logo depois deste mapa: é por ela que se começa.",
+            "Cada questão da lista aparece em quatro camadas, nesta ordem dentro do bloco: o capítulo da apostila (teoria, imagens, perguntas), a folha à mão (a demonstração linha a linha), a nota comentada (slide, livro e caderno) e as variações do banco. A tabela dá a página de cada uma. A coluna Guia aponta a questão-tipo do guia \"não posso errar\". Logo depois deste mapa vêm a folha do que cai, com o quadro do professor de 04/11, e o guia: é por eles que se começa.",
             "", "```{=latex}", "\\begin{center}\\small", "\\begin{tabular}{lccccc}", "\\toprule",
             "Questão & Guia & Apostila & Folha à mão & Comentada & Banco \\\\", "\\midrule", linhas_mapa,
             "\\bottomrule", "\\end{tabular}", "\\end{center}", "```", "")
@@ -466,16 +468,34 @@ volume_naoerrar <- function() {
            OPC_IMPRESSAO[!OPC_IMPRESSAO %in% c("--toc", "--toc-depth=1")], passes = 2, impressao = TRUE)
 }
 
-# Simulado 02 avulso: o enunciado e o gabarito em PDFs separados, para não ver a resposta
-volume_simulado02 <- function() {
+# Simulado avulso: o enunciado e o gabarito em PDFs separados, para não ver a resposta
+volume_simulado_avulso <- function(n, subtitulo, sub_gab = "Rubrica por passo e o caminho de volta ao material") {
   sem_toc <- function(o) o[!o %in% c("--toc", "--toc-depth=1")]
-  md <- file.path(BUILD, "simulado02.md"); montar_md(list("Simulado 02" = c("prova/simulado_02.md")), md)
-  capa("Simulado 02", "As nove questões-tipo, com números novos: 1h50, sem consulta", file.path(BUILD, "capa_s2.tex"))
-  compilar("caderno_simulado_02", md, file.path(BUILD, "capa_s2.tex"), sem_toc(OPC_SIMULADOS), passes = 2, impressao = TRUE)
-  md <- file.path(BUILD, "simulado02_gab.md")
-  writeLines(enc2utf8(preparar_nota("prova/simulado_02_gabarito.md")), md, useBytes = TRUE)
-  capa("Simulado 02: gabarito", "Rubrica por passo e o caminho de volta ao guia", file.path(BUILD, "capa_s2g.tex"))
-  compilar("caderno_simulado_02_gabarito", md, file.path(BUILD, "capa_s2g.tex"), sem_toc(OPC_IMPRESSAO), passes = 2, impressao = TRUE)
+  nn <- sprintf("%02d", n); titulo <- paste("Simulado", nn)
+  md <- file.path(BUILD, paste0("simulado", nn, ".md"))
+  montar_md(setNames(list(sprintf("prova/simulado_%s.md", nn)), titulo), md)
+  capa(titulo, subtitulo, file.path(BUILD, paste0("capa_s", nn, ".tex")))
+  compilar(paste0("caderno_simulado_", nn), md, file.path(BUILD, paste0("capa_s", nn, ".tex")),
+           sem_toc(OPC_SIMULADOS), passes = 2, impressao = TRUE)
+  md <- file.path(BUILD, paste0("simulado", nn, "_gab.md"))
+  writeLines(enc2utf8(preparar_nota(sprintf("prova/simulado_%s_gabarito.md", nn))), md, useBytes = TRUE)
+  capa(paste0(titulo, ": gabarito"), sub_gab, file.path(BUILD, paste0("capa_s", nn, "g.tex")))
+  compilar(paste0("caderno_simulado_", nn, "_gabarito"), md, file.path(BUILD, paste0("capa_s", nn, "g.tex")),
+           sem_toc(OPC_IMPRESSAO), passes = 2, impressao = TRUE)
+}
+volume_simulado02 <- function()
+  volume_simulado_avulso(2, "As nove questões-tipo, com números novos: 1h50, sem consulta",
+                         "Rubrica por passo e o caminho de volta ao guia")
+
+# O que cai (quadro de 04/11): a folha e o Simulado 05, no formato anunciado de 4 questões de 2,5
+volume_quadro <- function() {
+  md <- file.path(BUILD, "o_que_cai.md")
+  writeLines(enc2utf8(preparar_nota("prova/o_que_cai.md")), md, useBytes = TRUE)
+  capa("O que cai na P1", "O quadro do professor (04/11): quatro questões de 2,5 e onde treinar cada uma",
+       file.path(BUILD, "capa_quadro.tex"))
+  compilar("caderno_o_que_cai", md, file.path(BUILD, "capa_quadro.tex"),
+           OPC_IMPRESSAO[!OPC_IMPRESSAO %in% c("--toc", "--toc-depth=1")], passes = 2, impressao = TRUE)
+  volume_simulado_avulso(5, "O formato anunciado: 4 questões de 2,5, em 1 hora, sem consulta")
 }
 
 # Plano da reta final em uma página: LaTeX próprio (sem pandoc nem capa), que espelha o README da prova
@@ -493,7 +513,7 @@ volume_plano <- function() {
 
 ## ---- execução ------------------------------------------------------------------------
 alvos <- commandArgs(trailingOnly = TRUE)
-if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao", "basico", "naoerrar", "simulado02", "plano")
+if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao", "basico", "naoerrar", "simulado02", "plano", "quadro")
 cat("pandoc:  ", PANDOC, "\nlualatex:", LUALATEX, "\n")
 if ("teoria" %in% alvos) volume_teoria()
 if ("lista" %in% alvos) volume_lista()
@@ -511,5 +531,6 @@ if ("correcao" %in% alvos) volume_correcao()
 if ("basico" %in% alvos) volume_basico()
 if ("naoerrar" %in% alvos) volume_naoerrar()
 if ("simulado02" %in% alvos) volume_simulado02()
+if ("quadro" %in% alvos) volume_quadro()
 if ("plano" %in% alvos) volume_plano()
 cat("\nPDFs em caderno/pdf/\n")
