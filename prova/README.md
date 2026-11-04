@@ -16,6 +16,10 @@ aliases:
 
 # Prova de 05/11/2026: guia de treino
 
+> [!IMPORTANT]
+> **O professor anunciou o formato (04/11)**
+> **4 questões de 2,5.** AIC e BIC para interpretar; uma questão de previsão; Yule-Walker não cai. A folha [o que cai](o_que_cai.md) organiza o quadro em quatro questões prováveis, e o [Simulado 05](simulado_05.md) treina esse formato em 1 hora.
+
 > [!TIP]
 > **Se for ler uma coisa só**
 > O [básico da P1](basico.md), em duas páginas: as seis definições, as contas de uma linha e as três derivações-molde. É o que precisa sair sem pensar.
@@ -38,6 +42,8 @@ O que se sabe da prova: **5 ou 6 questões, de 1h50 a 2h, sem consulta, tiradas 
 | [simulado_02.md](simulado_02.md) · [gabarito](simulado_02_gabarito.md) | **as nove questões-tipo** do [guia "não posso errar"](nao_posso_errar.md), com números novos |
 | [simulado_03.md](simulado_03.md) · [gabarito](simulado_03_gabarito.md) | integrador: V ou F, previsão numérica de SARIMA, identificação |
 | [simulado_04.md](simulado_04.md) · [gabarito](simulado_04_gabarito.md) | opcional, as torções: sinal positivo, AR(2), sazonal trimestral |
+| [simulado_05.md](simulado_05.md) · [gabarito](simulado_05_gabarito.md) | **o formato anunciado em 04/11**: 4 questões de 2,5, em 1 hora |
+| [o_que_cai.md](o_que_cai.md) | o quadro do professor (04/11): as quatro questões prováveis, montar e desenhar a FAC, previsão, ciclo e interpretação de critérios |
 | [log_erros.md](log_erros.md) | registro dos erros com revisão em +1, +3 e +7 dias |
 | [prova.R](prova.R) | todos os números dos simulados e do banco (id `pv`) |
 | [formulário](../formulario/formulario.md) | todas as fórmulas |
@@ -214,21 +220,20 @@ A lógica é **aprender pelo [guia](nao_posso_errar.md), testar no [Simulado 02]
 | 21h–21h30 | a lista de dúvidas para o professor (abaixo), com as que o S2 levantou |
 | 21h30 | parar |
 
-**Quarta, 04/11: aula, professor e a última consolidação.**
+**Quarta, 04/11: aula, professor e a última consolidação.** Revisto depois do quadro do professor; a versão completa está na [folha do que cai](o_que_cai.md#7-a-noite-de-quarta-e-a-manhã-de-quinta).
 
 | Hora | O quê |
 |---|---|
-| antes da aula | 20 min: camadas 1 a 3 do básico de memória |
-| **10h, aula** | **levar as dúvidas escritas** |
-| almoço e intervalos | só as seções "Erro que não pode" do guia |
+| 10h, aula | o professor anunciou o formato: 4 × 2,5 (ver o topo) |
 | 18h–19h | chegar, comer, descansar; nada de matéria |
-| 19h–20h | em folha branca: **questão-tipo 4** (+2 dias) e questão-tipo 5 |
-| 20h–20h45 | contas cronometradas do [banco](banco.md): Q14 A, Q15 A, Q16 A e Q6 A |
-| 20h45–21h15 | refazer só as linhas do log que ainda erra |
-| 21h15–21h45 | o básico inteiro, devagar; as 9 frases de fecho de memória |
-| **até 22h30** | **parar e dormir**: a consolidação acontece no sono, e a prova é às 10h |
+| 19h–19h20 | ler a [folha do que cai](o_que_cai.md) |
+| 19h20–20h20 | **[Simulado 05](simulado_05.md)**, 4 × 2,5, em 1 hora |
+| 20h20–20h40 | correção pelo [gabarito](simulado_05_gabarito.md) |
+| 20h40–21h20 | refazer cada item com perda, pelo guia e pela folha |
+| 21h20–21h50 | desenhar de memória FAC e FACP dos seis padrões; as frases de fecho |
+| **até 22h30** | **parar e dormir** |
 
-**Fica de fora a partir de agora:** o Simulado 04, a verossimilhança exata, os testes de raiz unitária, Beveridge-Nelson, a avaliação de previsões e o trabalho do INPC.
+**Fica de fora a partir de agora:** Yule-Walker (riscado no quadro), o Simulado 04, a verossimilhança exata, os testes de raiz unitária, Beveridge-Nelson, a avaliação de previsões e o trabalho do INPC.
 
 **Quinta, 05/11, prova às 10h.**
 - Acordar às 7h. Às 8h, 15 minutos: o básico, os quatro movimentos do ARMA e a ordem da prova.

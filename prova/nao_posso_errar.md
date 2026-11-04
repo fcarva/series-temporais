@@ -19,6 +19,10 @@ aliases:
 
 # Não posso errar: as questões básicas, linha a linha
 
+> [!NOTE]
+> **Depois do quadro de 04/11**
+> A prova terá **4 questões de 2,5**. Yule-Walker foi riscado: a **questão-tipo 5 não cai**. O que o quadro pede além deste guia (montar e desenhar a FAC, o SMA sazonal, a equação de previsão, o ciclo de modelagem e a interpretação de AIC, BIC, RMSE e MAPE) está na folha [o que cai](o_que_cai.md).
+
 Este guia pega as **nove questões-tipo** que mais caem e que dão os pontos mais seguros. Cada uma vem resolvida como no caderno: cada linha numerada, com o motivo entre colchetes. Logo abaixo vem **o sentido de cada linha**: o que ela faz, por que é necessária e o que prepara. É o que falta para não travar: saber **por que** se escreve aquela linha.
 
 **Como usar:**
@@ -383,6 +387,9 @@ $\gamma_0=1{,}1406$; $\gamma_1=0{,}3844$; $\gamma_2=0{,}2306$; $\rho_1=0{,}337$;
 ---
 
 ## 5 · AR(2): Yule-Walker e a variância
+
+> [!WARNING]
+> **Não cai:** Yule-Walker foi riscado no quadro de 04/11. Pule esta questão-tipo.
 
 **Enunciado-tipo** (lista, Q7; o exemplo do caderno). Para $y_t=1{,}5y_{t-1}-0{,}6y_{t-2}+\varepsilon_t$, com $\sigma^2=1$: escreva as equações de Yule-Walker, obtenha $\rho_1$ e $\rho_2$ e calcule $\gamma_0$.
 

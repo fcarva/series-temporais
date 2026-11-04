@@ -81,7 +81,8 @@ No AR(2), os passos 2 e 3 são o Yule-Walker. O roteiro com números está na [c
 - a verossimilhança exata;
 - os detalhes dos testes de raiz unitária;
 - Beveridge-Nelson;
-- a avaliação de previsões (MASE, DM, Winkler, CRPS);
+- Yule-Walker (riscado no quadro de 04/11);
+- MASE, DM, Winkler e CRPS. **RMSE e MAPE entram**, para interpretar: ver [o que cai](o_que_cai.md#6-interpretar-aic-bic-rmse-e-mape-sem-conta).
 - a matriz $F$.
 
 De Wold, basta o enunciado em uma linha e o AR(1) como exemplo.
