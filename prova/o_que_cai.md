@@ -27,6 +27,8 @@ Na aula de quarta, o professor anunciou o formato e listou os tópicos no quadro
 > - AIC e BIC caem para **interpretar**, não necessariamente para calcular. RMSE e MAPE entram junto.
 > - Cai uma questão de **previsão**.
 > - **Yule-Walker foi riscado: não cai.** A questão-tipo 5 do guia fica com prioridade zero.
+>
+> **Anotado também em aula:** usar BIC, RMSE e MAPE; **identificar a ordem pela FAC** (seção 7); e o **teste de raiz unitária de Dickey-Fuller**, com a cadeia de decisão que começa pelo modelo 3 (seção 8).
 
 ## 1. As quatro questões prováveis
 
@@ -34,8 +36,8 @@ Na aula de quarta, o professor anunciou o formato e listou os tópicos no quadro
 |---|---|---|
 | A. Processos | passeio aleatório; $z_3=z_1+2z_2$ (circulado no quadro); $E$, $V$, $\operatorname{Cov}$; estacionário? | questões-tipo 1 e 2 do [guia](nao_posso_errar.md) |
 | B. ARMA | estacionário pelas raízes de $(1-\phi B)$; **montar a FAC**, com conta e desenho; FAC e FACP | questões-tipo 3 e 4; seções 2 e 3 abaixo |
-| C. SARIMA | o SMA(1) sazonal desenhado; a equação de previsão | questão-tipo 9; seções 3 e 4 abaixo |
-| D. Ciclo e análise | o ciclo de modelagem; interpretar AIC, BIC, RMSE e MAPE; previsão | questão-tipo 8; seções 5 e 6 abaixo |
+| C. SARIMA | o SMA(1) sazonal desenhado; a equação de previsão; o $d$ pelo Dickey-Fuller | questão-tipo 9; seções 3, 4 e 8 abaixo |
+| D. Ciclo e análise | o ciclo de modelagem; identificar a ordem; raiz unitária; interpretar AIC, BIC, RMSE e MAPE; previsão | questão-tipo 8; seções 5 a 8 abaixo |
 
 O treino no formato anunciado é o [Simulado 05](simulado_05.md): 4 questões de 2,5, em 1 hora.
 
@@ -148,7 +150,92 @@ A variância do erro é $\sigma^2\sum_{j\lt h}\psi_j^2$ e cresce com $h$, porque
 
 É esse o formato: **o que cada critério escolhe, por quanto, por que discordam e a decisão**.
 
-## 7. A noite de quarta e a manhã de quinta
+## 7. Identificar a ordem pela FAC e pela FACP amostrais
+
+Na prova, a FAC e a FACP vêm **estimadas**, com ruído. A ordem sai de quatro passos:
+1. Calcule a banda: $\pm2/\sqrt T$. Com $T=100$, é $\pm0{,}2$.
+2. Na FAC, conte as defasagens **fora da banda** até a primeira que entra e fica dentro: esse é o candidato a $q$.
+3. Na FACP, faça o mesmo: é o candidato a $p$.
+4. Decida pelo formato: a que **corta** dá a ordem; a que **decai** diz qual é o outro lado. Se as duas decaem, proponha um ARMA(1,1) e compare candidatos pelo BIC.
+
+**Exemplo**, com $T=100$ e banda $\pm0{,}2$:
+
+| $k$ | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| FAC | 0,48 | 0,25 | 0,07 | $-0{,}05$ | 0,03 |
+| FACP | 0,48 | $-0{,}26$ | 0,15 | $-0{,}09$ | 0,04 |
+
+A FAC tem duas barras fora da banda (0,48 e 0,25) e depois **corta**. A FACP **decai**, alternando o sinal. Logo, **MA(2)**.
+
+Cuidados que valem ponto:
+- uma barra isolada fora da banda numa defasagem alta, como 9, sem padrão, é ruído: com 20 defasagens, espera-se uma fora por acaso a 5%;
+- uma barra fora da banda em $s$, $2s$ é sazonal: leia como na seção 3;
+- uma FAC que fica alta e cai devagar **não tem ordem**: é raiz unitária. Antes de identificar, diferencie (seção 8).
+
+## 8. Teste de raiz unitária: a cadeia de decisão do Dickey-Fuller
+
+**A ideia.** Escreva $y_t=\rho\,y_{t-1}+u_t$ como $\Delta y_t=\gamma\,y_{t-1}+u_t$, com $\gamma=\rho-1$.
+- **$H_0$: $\gamma=0$**, raiz unitária: a série é não estacionária e precisa de diferença.
+- **$H_1$: $\gamma\lt0$**, sem raiz unitária.
+
+A estatística é o $t$ de $\widehat\gamma$, que aqui se chama $\tau$. Sob $H_0$, ela **não segue a $t$ de Student**: os valores críticos são os de Dickey-Fuller, mais negativos.
+
+**Os três modelos** (no ADF, acrescente $\sum_i\beta_i\Delta y_{t-i}$ a cada um, para os resíduos ficarem ruído branco):
+
+| Modelo | Regressão | Teste de $\gamma=0$ | Teste conjunto |
+|---|---|---|---|
+| 3: constante e tendência | $\Delta y_t=a_0+\gamma y_{t-1}+a_2t+u_t$ | $\tau_\tau$ | $\phi_3$: $\gamma=a_2=0$ |
+| 2: só constante | $\Delta y_t=a_0+\gamma y_{t-1}+u_t$ | $\tau_\mu$ | $\phi_1$: $a_0=\gamma=0$ |
+| 1: nada | $\Delta y_t=\gamma y_{t-1}+u_t$ | $\tau$ | — |
+
+**Valores críticos a 5%**, para $T=100$:
+
+| $\tau_\tau$ (modelo 3) | $\tau_\mu$ (modelo 2) | $\tau$ (modelo 1) | $\phi_3$ | $\phi_1$ |
+|---|---|---|---|---|
+| $-3{,}45$ | $-2{,}89$ | $-1{,}95$ | 6,49 | 4,71 |
+
+**A regra de decisão:**
+- para os $\tau$: **rejeita $H_0$ se a estatística for menor (mais negativa) que o crítico**;
+- para os $\phi$: rejeita se a estatística for **maior** que o crítico.
+
+Rejeitar $H_0$ quer dizer **não há raiz unitária**.
+
+**Por que começar pelo modelo 3.** É o mais geral. Se a série tem tendência e o modelo a omite, o teste quase nunca rejeita, e uma série estacionária em torno de tendência parece ter raiz unitária. Por isso, começa-se com tudo e só se tira um termo determinístico depois de testar que ele não pertence ao modelo.
+
+**A cadeia, passo a passo:**
+1. **Estime o modelo 3 e compare $\tau_\tau$ com $-3{,}45$.**
+   - Se $\tau_\tau\lt-3{,}45$: **rejeita**, não há raiz unitária. Pare.
+   - Se não: passo 2.
+2. **A tendência pertence ao modelo? Use $\phi_3$**, com $H_0$: $\gamma=a_2=0$.
+   - Se $\phi_3\gt6{,}49$: a tendência está lá. Teste $\gamma=0$ de novo, agora com a **normal** (crítico $-1{,}65$). Se rejeitar, não há raiz unitária; se não, há raiz unitária, com tendência. Pare.
+   - Se não: tire a tendência e vá ao passo 3.
+3. **Estime o modelo 2 e compare $\tau_\mu$ com $-2{,}89$.**
+   - Se $\tau_\mu\lt-2{,}89$: **rejeita**. Pare.
+   - Se não: passo 4.
+4. **A constante pertence ao modelo? Use $\phi_1$**, com $H_0$: $a_0=\gamma=0$.
+   - Se $\phi_1\gt4{,}71$: há drift. Teste $\gamma=0$ com a **normal** e decida. Pare.
+   - Se não: passo 5.
+5. **Estime o modelo 1 e compare $\tau$ com $-1{,}95$.**
+   - Se $\tau\lt-1{,}95$: rejeita, e a série é estacionária com média zero.
+   - Se não: **raiz unitária**, um passeio sem drift.
+
+**Depois da cadeia:**
+- **Se ficou raiz unitária:** diferencie e repita a cadeia em $\Delta y_t$. O número de diferenças até rejeitar é o $d$ do ARIMA.
+- **Se rejeitou no modelo 3:** a série é estacionária em torno de tendência (TS). Tira-se a tendência por regressão, **não se diferencia**: diferenciar seria a sobrediferenciação da questão-tipo 6.
+- **No ADF:** o número de defasagens de $\Delta y$ é escolhido pelo BIC, ou até os resíduos virarem ruído branco. Os valores críticos são os mesmos.
+
+**Quatro casos para treinar**, com $T=100$ e 5%:
+
+| Caso | Estatísticas | Caminho | Conclusão |
+|---|---|---|---|
+| 1 | $\tau_\tau=-2{,}10$; $\phi_3=2{,}9$; $\tau_\mu=-1{,}70$; $\phi_1=3{,}1$; $\tau=-0{,}80$ | passos 1, 2, 3, 4 e 5, sem rejeitar nenhum | **raiz unitária**, passeio sem drift. Em $\Delta y$, $\tau_\tau=-6{,}20$ rejeita: $y\sim I(1)$, $d=1$ |
+| 2 | $\tau_\tau=-4{,}30$ | rejeita no passo 1 | **sem raiz unitária**: estacionária em torno de tendência; não diferenciar |
+| 3 | $\tau_\tau=-2{,}40$; $\phi_3=3{,}2$; $\tau_\mu=-3{,}30$ | passo 2 tira a tendência; passo 3 rejeita | **sem raiz unitária**: estacionária com média diferente de zero |
+| 4 | $\tau_\tau=-1{,}90$; $\phi_3=2{,}5$; $\tau_\mu=-1{,}20$; $\phi_1=6{,}10$; $t=-1{,}20$ | passo 4: drift presente; com a normal, $-1{,}20\gt-1{,}65$ | **raiz unitária com drift**: passeio com drift; diferenciar |
+
+**A frase de fecho:** "Como $\tau=\dots$ é maior que o crítico $\dots$, não rejeito $H_0$: a série tem raiz unitária e deve ser diferenciada" (ou: "é menor, rejeito $H_0$: a série não tem raiz unitária").
+
+## 9. A noite de quarta e a manhã de quinta
 
 | Hora | O quê |
 |---|---|
@@ -156,8 +243,9 @@ A variância do erro é $\sigma^2\sum_{j\lt h}\psi_j^2$ e cresce com $h$, porque
 | 19h–19h20 | ler esta folha inteira |
 | 19h20–20h20 | **[Simulado 05](simulado_05.md)**, 4 × 2,5, em 1 hora, sem consulta |
 | 20h20–20h40 | correção pelo [gabarito](simulado_05_gabarito.md) |
-| 20h40–21h20 | refazer cada item com perda, pelo guia e por esta folha |
-| 21h20–21h50 | desenhar de memória FAC e FACP dos seis padrões da seção 3; as frases de fecho |
+| 20h40–21h10 | refazer cada item com perda, pelo guia e por esta folha |
+| 21h10–21h35 | **a cadeia do Dickey-Fuller** (seção 8): escrever os cinco passos de memória e resolver os quatro casos cobrindo a coluna da conclusão |
+| 21h35–22h | desenhar de memória FAC e FACP dos seis padrões da seção 3; as frases de fecho |
 | **até 22h30** | **parar e dormir** |
 
 **Quinta, antes da prova:** 15 minutos com esta folha e com o [básico](basico.md). Na prova: leitura de 3 minutos, contas curtas primeiro, derivações depois e a frase de fecho em cada item.
@@ -180,4 +268,16 @@ A variância do erro é $\sigma^2\sum_{j\lt h}\psi_j^2$ e cresce com $h$, porque
 | pv_oc_daic | 3,2 |
 | pv_oc_dbic | 4,2 |
 | pv_s5_q3_h_max_res | 5 |
+| pv_oc_banda100 | 0,2 |
+| pv_df_tau3_5 | -3,45 |
+| pv_df_tau2_5 | -2,89 |
+| pv_df_tau1_5 | -1,95 |
+| pv_df_phi3_5 | 6,49 |
+| pv_df_phi1_5 | 4,71 |
+| pv_df_normal_5 | -1,645 |
+| pv_df_caso1 | 2 |
+| pv_df_caso2 | 1 |
+| pv_df_caso3 | 1 |
+| pv_df_caso4 | 2 |
+| pv_df_caso1_dif | 1 |
 -->

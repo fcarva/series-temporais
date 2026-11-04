@@ -18,7 +18,7 @@ aliases:
 
 > [!IMPORTANT]
 > **O professor anunciou o formato (04/11)**
-> **4 questões de 2,5.** AIC e BIC para interpretar; uma questão de previsão; Yule-Walker não cai. A folha [o que cai](o_que_cai.md) organiza o quadro em quatro questões prováveis, e o [Simulado 05](simulado_05.md) treina esse formato em 1 hora.
+> **4 questões de 2,5.** AIC e BIC para interpretar; uma questão de previsão; Yule-Walker não cai. Anotado também: RMSE e MAPE, a ordem pela FAC e o **teste de Dickey-Fuller**, com a cadeia que começa pelo modelo 3. A folha [o que cai](o_que_cai.md) organiza o quadro em quatro questões prováveis, e o [Simulado 05](simulado_05.md) treina esse formato em 1 hora.
 
 > [!TIP]
 > **Se for ler uma coisa só**
@@ -220,7 +220,7 @@ A lógica é **aprender pelo [guia](nao_posso_errar.md), testar no [Simulado 02]
 | 21h–21h30 | a lista de dúvidas para o professor (abaixo), com as que o S2 levantou |
 | 21h30 | parar |
 
-**Quarta, 04/11: aula, professor e a última consolidação.** Revisto depois do quadro do professor; a versão completa está na [folha do que cai](o_que_cai.md#7-a-noite-de-quarta-e-a-manhã-de-quinta).
+**Quarta, 04/11: aula, professor e a última consolidação.** Revisto depois do quadro do professor; a versão completa está na [folha do que cai](o_que_cai.md#9-a-noite-de-quarta-e-a-manhã-de-quinta).
 
 | Hora | O quê |
 |---|---|
@@ -229,11 +229,12 @@ A lógica é **aprender pelo [guia](nao_posso_errar.md), testar no [Simulado 02]
 | 19h–19h20 | ler a [folha do que cai](o_que_cai.md) |
 | 19h20–20h20 | **[Simulado 05](simulado_05.md)**, 4 × 2,5, em 1 hora |
 | 20h20–20h40 | correção pelo [gabarito](simulado_05_gabarito.md) |
-| 20h40–21h20 | refazer cada item com perda, pelo guia e pela folha |
-| 21h20–21h50 | desenhar de memória FAC e FACP dos seis padrões; as frases de fecho |
+| 20h40–21h10 | refazer cada item com perda, pelo guia e pela folha |
+| 21h10–21h35 | **a cadeia do Dickey-Fuller**: os cinco passos de memória e os quatro casos da folha |
+| 21h35–22h | desenhar de memória FAC e FACP dos seis padrões; as frases de fecho |
 | **até 22h30** | **parar e dormir** |
 
-**Fica de fora a partir de agora:** Yule-Walker (riscado no quadro), o Simulado 04, a verossimilhança exata, os testes de raiz unitária, Beveridge-Nelson, a avaliação de previsões e o trabalho do INPC.
+**Fica de fora a partir de agora:** Yule-Walker (riscado no quadro), o Simulado 04, a verossimilhança exata, Phillips-Perron, DF-GLS e KPSS (o **Dickey-Fuller entra**, com a cadeia de decisão), Beveridge-Nelson, a avaliação de previsões e o trabalho do INPC.
 
 **Quinta, 05/11, prova às 10h.**
 - Acordar às 7h. Às 8h, 15 minutos: o básico, os quatro movimentos do ARMA e a ordem da prova.

@@ -211,6 +211,30 @@ O erro de $h$ passos soma $h$ choques futuros, $e_T(h)=\sum_{j=0}^{h-1}\psi_ja_{
 
 ---
 
+## Questão extra — Dickey-Fuller
+
+*Origem na lista:* (lista, Q10). O passo a passo está na seção 8 da folha [o que cai](o_que_cai.md#8-teste-de-raiz-unitária-a-cadeia-de-decisão-do-dickey-fuller).
+
+**a)** A cadeia, passo a passo:
+1. **Modelo 3** ($H_0$: $\gamma=0$): $-2{,}80\gt-3{,}45$, **não rejeita**.
+2. **$\phi_3$** ($H_0$: $\gamma=a_2=0$): $4{,}10\lt6{,}49$, **não rejeita**. A tendência não pertence ao modelo; tira-se.
+3. **Modelo 2:** $-2{,}20\gt-2{,}89$, **não rejeita**.
+4. **$\phi_1$** ($H_0$: $a_0=\gamma=0$): $2{,}60\lt4{,}71$, **não rejeita**. A constante também sai.
+5. **Modelo 1:** $-2{,}30\lt-1{,}95$, **rejeita**.
+
+**Conclusão:** não há raiz unitária. A série é estacionária com média zero e **não deve ser diferenciada**: diferenciá-la seria sobrediferenciar.
+
+**b)** $-3{,}90\lt-3{,}45$: rejeita já no passo 1. Não há raiz unitária, e a série é **estacionária em torno de uma tendência determinística** (TS). Remove-se a tendência por regressão em $t$, em vez de diferenciar.
+
+| Rubrica (se valesse 2,5) | Pontos |
+|---|---|
+| Começar pelo modelo 3 e saber o motivo | 0,4 |
+| Em cada passo, a hipótese e a regra (para $\tau$, rejeita se menor; para $\phi$, se maior) | 1,0 |
+| Conclusão de a), sem diferenciar | 0,5 |
+| b): TS, tirar a tendência | 0,6 |
+
+---
+
 ## Depois de corrigir
 
 1. Some por questão. Cada uma vale 2,5, como na prova.
@@ -255,4 +279,7 @@ O erro de $h$ passos soma $h$ choques futuros, $e_T(h)=\sum_{j=0}^{h-1}\psi_ja_{
 | pv_s5_q3_h_max_res | 5 |
 | pv_s5_q4_daic | 0,6 |
 | pv_s5_q4_dbic | 2,2 |
+| pv_s5_extra_a | 1 |
+| pv_s5_extra_b | 1 |
+| pv_df_tau1_5 | -1,95 |
 -->

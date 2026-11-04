@@ -65,3 +65,15 @@ b) Três modelos foram ajustados a uma série trimestral. AIC e BIC vêm da esti
 Sem calcular nenhum critério, interprete a tabela: qual modelo cada medida escolhe, por que AIC e BIC discordam e qual modelo você usaria para prever. **(1,1)**
 
 c) Por que o intervalo de previsão fica mais largo à medida que o horizonte $h$ aumenta? **(0,4)**
+
+## Questão extra (fora dos 10 pontos, 10 minutos) — Dickey-Fuller
+
+Uma série com $T=100$ foi testada a 5%, seguindo a cadeia que começa pelo modelo com constante e tendência. Os valores críticos são: $\tau_\tau=-3{,}45$; $\phi_3=6{,}49$; $\tau_\mu=-2{,}89$; $\phi_1=4{,}71$; $\tau=-1{,}95$.
+
+| Modelo 3 | Modelo 2 | Modelo 1 |
+|---|---|---|
+| $\tau_\tau=-2{,}80$; $\phi_3=4{,}10$ | $\tau_\mu=-2{,}20$; $\phi_1=2{,}60$ | $\tau=-2{,}30$ |
+
+a) Percorra a cadeia, dizendo em cada passo qual hipótese testa, o que decide e por quê. A série tem raiz unitária? Deve ser diferenciada?
+
+b) E se o modelo 3 tivesse dado $\tau_\tau=-3{,}90$? O que se conclui, e o que se faz com a série?
