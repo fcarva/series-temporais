@@ -444,6 +444,35 @@ registrar("pv_oc_sma_g0", 1 + 0.25)
 ex <- data.frame(aic = c(512.3, 509.1), bic = c(519.8, 524.0), rmse = c(0.84, 0.91), mape = c(3.2, 3.5))
 registrar("pv_oc_daic", ex$aic[1] - ex$aic[2]); registrar("pv_oc_dbic", ex$bic[2] - ex$bic[1])
 
+## Dickey-Fuller: valores críticos tabulados (T = 100) e a cadeia de decisão --------------
+# os críticos vêm da tabela que o urca embute (Dickey e Fuller, 1981); são os mesmos para qualquer série de T = 100
+yy_df <- cumsum(stats::rnorm(100))
+cv <- lapply(c(none = "none", drift = "drift", trend = "trend"),
+             function(t) urca::ur.df(yy_df, type = t, lags = 0)@cval)
+registrar("pv_df_tau1_5", cv$none["tau1", "5pct"]); registrar("pv_df_tau1_1", cv$none["tau1", "1pct"])
+registrar("pv_df_tau2_5", cv$drift["tau2", "5pct"]); registrar("pv_df_tau2_1", cv$drift["tau2", "1pct"])
+registrar("pv_df_tau3_5", cv$trend["tau3", "5pct"]); registrar("pv_df_tau3_1", cv$trend["tau3", "1pct"])
+registrar("pv_df_phi1_5", cv$drift["phi1", "5pct"]); registrar("pv_df_phi3_5", cv$trend["phi3", "5pct"])
+registrar("pv_df_normal_5", stats::qnorm(0.05))
+# a cadeia (começa pelo modelo 3): devolve 1 = sem raiz unitária, 2 = raiz unitária
+cadeia_df <- function(tau3, phi3 = NA, t_norm3 = NA, tau2 = NA, phi1 = NA, t_norm2 = NA, tau1 = NA) {
+  if (tau3 < cv$trend["tau3", "5pct"]) return(1)
+  if (phi3 > cv$trend["phi3", "5pct"]) return(if (t_norm3 < stats::qnorm(0.05)) 1 else 2)
+  if (tau2 < cv$drift["tau2", "5pct"]) return(1)
+  if (phi1 > cv$drift["phi1", "5pct"]) return(if (t_norm2 < stats::qnorm(0.05)) 1 else 2)
+  if (tau1 < cv$none["tau1", "5pct"]) 1 else 2
+}
+registrar("pv_df_caso1", cadeia_df(-2.10, 2.9, NA, -1.70, 3.1, NA, -0.80))
+registrar("pv_df_caso2", cadeia_df(-4.30))
+registrar("pv_df_caso3", cadeia_df(-2.40, 3.2, NA, -3.30))
+registrar("pv_df_caso4", cadeia_df(-1.90, 2.5, NA, -1.20, 6.10, -1.20))
+registrar("pv_df_caso1_dif", cadeia_df(-6.20))                 # Delta y do caso 1: rejeita, então y ~ I(1)
+# Simulado 05, questão extra: rejeita só no modelo 1; e a variante com tau_tau = -3,90
+registrar("pv_s5_extra_a", cadeia_df(-2.80, 4.10, NA, -2.20, 2.60, NA, -2.30))
+registrar("pv_s5_extra_b", cadeia_df(-3.90))
+# identificar a ordem: banda de 2/sqrt(T) com T = 100
+registrar("pv_oc_banda100", 2 / sqrt(100))
+
 ## Figura: os seis padrões de FAC e FACP para desenhar à mão -------------------------
 FIG_PV <- caminho_repo("prova", "figuras")
 salvar_figura(file.path(FIG_PV, "fac_facp_padroes"), function() {
