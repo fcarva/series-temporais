@@ -549,9 +549,19 @@ volume_vespera <- function() {
   cat(sprintf("  %s.pdf: 1 página\n", nome))
 }
 
+# A P1 de 05/11: a resolução completa, com rubrica para se corrigir
+volume_p1 <- function() {
+  md <- file.path(BUILD, "p1_resolucao.md")
+  writeLines(enc2utf8(preparar_nota("prova/p1_resolucao.md")), md, useBytes = TRUE)
+  capa("P1 de 05/11", "A resolução completa, passo a passo, com rubrica para se corrigir",
+       file.path(BUILD, "capa_p1.tex"))
+  compilar("caderno_p1_resolucao", md, file.path(BUILD, "capa_p1.tex"),
+           OPC_IMPRESSAO[!OPC_IMPRESSAO %in% c("--toc", "--toc-depth=1")], passes = 2, impressao = TRUE)
+}
+
 ## ---- execução ------------------------------------------------------------------------
 alvos <- commandArgs(trailingOnly = TRUE)
-if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao", "basico", "naoerrar", "simulado02", "plano", "quadro", "auditoria", "correcao5", "vespera")
+if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao", "basico", "naoerrar", "simulado02", "plano", "quadro", "auditoria", "correcao5", "vespera", "p1")
 cat("pandoc:  ", PANDOC, "\nlualatex:", LUALATEX, "\n")
 if ("teoria" %in% alvos) volume_teoria()
 if ("lista" %in% alvos) volume_lista()
@@ -573,5 +583,6 @@ if ("quadro" %in% alvos) volume_quadro()
 if ("auditoria" %in% alvos) volume_auditoria()
 if ("correcao5" %in% alvos) volume_correcao5()
 if ("vespera" %in% alvos) volume_vespera()
+if ("p1" %in% alvos) volume_p1()
 if ("plano" %in% alvos) volume_plano()
 cat("\nPDFs em caderno/pdf/\n")

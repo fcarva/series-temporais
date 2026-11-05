@@ -17,6 +17,10 @@ aliases:
 # Prova de 05/11/2026: guia de treino
 
 > [!IMPORTANT]
+> **P1 feita (05/11)**
+> A [resolução completa da P1](p1_resolucao.md) traz cada questão linha a linha, com uma rubrica por passo para estimar a nota.
+
+> [!IMPORTANT]
 > **Manhã da prova (05/11)**
 > A [revisão final](revisao_final.md) organiza tudo pelo critério do quadro, com os moldes, os 10 erros, as cinco conferências e o roteiro de 45 minutos. O cartão de uma página é `caderno_cartao_prova.pdf`, na pasta `caderno/pdf/`.
 
