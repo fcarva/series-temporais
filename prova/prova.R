@@ -576,4 +576,40 @@ registrar("pv_s5_q4_daic", crit$aic[1] - crit$aic[2]); registrar("pv_s5_q4_dbic"
 registrar("pv_s5_q4_esc_aic", which.min(crit$aic)); registrar("pv_s5_q4_esc_bic", which.min(crit$bic))
 registrar("pv_s5_q4_esc_rmse", which.min(crit$rmse)); registrar("pv_s5_q4_esc_mape", which.min(crit$mape))
 
+## ===================================================================================
+## P1 REAL (05/11) — resolução conferida, sem sorteio
+## ===================================================================================
+
+## Q1 d): (1 - phi B)(1 - B)(1 - Phi B^12) y_t, conferido com phi = 0,5 e Phi = 0,4
+ph <- 0.5; Ph <- 0.4
+lado_ar <- Re(stats::convolve(stats::convolve(c(1, -ph), rev(c(1, -1)), type = "open"),
+                              rev(c(1, rep(0, 11), -Ph)), type = "open"))
+coef_y <- -lado_ar[-1]                                   # y_t = sum coef_y[j] y_{t-j} + MA
+registrar("pv_p1_q1_c1", coef_y[1]); registrar("pv_p1_q1_c2", coef_y[2]); registrar("pv_p1_q1_c12", coef_y[12])
+registrar("pv_p1_q1_c13", coef_y[13]); registrar("pv_p1_q1_c14", coef_y[14])
+registrar("pv_p1_q1_resto", max(abs(coef_y[3:11])))
+
+## Q2: y_t = 0,8 y_{t-1} + e_t - 0,3 e_{t-1} - 0,1 e_{t-2}; coeficientes de sigma^2
+registrar("pv_p1_q2_raiz_ar", 1 / 0.8)
+rz <- sort(Re(polyroot(c(1, -0.3, -0.1))))
+registrar("pv_p1_q2_raiz_ma_neg", rz[1]); registrar("pv_p1_q2_raiz_ma_pos", rz[2])
+registrar("pv_p1_q2_delta", 0.3^2 + 4 * 0.1)
+psi <- pesos_psi(0.8, c(0.3, 0.1), 2)                    # BJ: 1 - 0,3B - 0,1B^2
+registrar("pv_p1_q2_aux1", psi[2]); registrar("pv_p1_q2_aux2", psi[3])
+g <- acvf_arma(0.8, c(0.3, 0.1), 1, lag.max = 3)
+registrar("pv_p1_q2_g0", g[1]); registrar("pv_p1_q2_g1", g[2]); registrar("pv_p1_q2_g2", g[3]); registrar("pv_p1_q2_g3", g[4])
+registrar("pv_p1_q2_rho1", g[2] / g[1]); registrar("pv_p1_q2_rho2", g[3] / g[1]); registrar("pv_p1_q2_rho3", g[4] / g[1])
+registrar("pv_p1_q2_c0", 1 - 0.3 * psi[2] - 0.1 * psi[3])          # 0,82: constante da equação de gamma_0
+registrar("pv_p1_q2_c1", -0.3 - 0.1 * psi[2])                       # -0,35: constante da equação de gamma_1
+
+## Q3: z = x + 2 v, x AR(1) com phi = 0,5, v RB(0,1) independente
+gx <- acvf_arma(0.5, numeric(0), 1, lag.max = 3)
+gz <- gx; gz[1] <- gz[1] + 4
+registrar("pv_p1_q3_gx0", gx[1]); registrar("pv_p1_q3_gz0", gz[1]); registrar("pv_p1_q3_gz1", gz[2])
+registrar("pv_p1_q3_gz2", gz[3]); registrar("pv_p1_q3_gz3", gz[4]); registrar("pv_p1_q3_rho1", gz[2] / gz[1])
+
+## Q4: a cadeia do Dickey-Fuller com as estatísticas da prova
+registrar("pv_p1_q4_decisao", cadeia_df(-2.10, 2.40, NA, -1.20, 5.80, -1.20))
+registrar("pv_p1_q4_normal", stats::qnorm(0.05))
+
 gravar_resultados("pv")
