@@ -17,6 +17,10 @@ aliases:
 # Prova de 05/11/2026: guia de treino
 
 > [!IMPORTANT]
+> **Manhã da prova (05/11)**
+> A [revisão final](revisao_final.md) organiza tudo pelo critério do quadro, com os moldes, os 10 erros, as cinco conferências e o roteiro de 45 minutos. O cartão de uma página é `caderno_cartao_prova.pdf`, na pasta `caderno/pdf/`.
+
+> [!IMPORTANT]
 > **Última leitura antes da prova (05/11)**
 > A [correção do Simulado 05](correcao_simulado_05.md) traz os gaps e o resgate de SARIMA e Box-Jenkins. A [auditoria final](auditoria_final.md) cruza o quadro, as quatro questões prováveis e a lista Q1–Q16, com o fio de leitura de cada questão e os 30 minutos antes da prova.
 

@@ -1,0 +1,98 @@
+% Cartão de uma página para os 15 minutos antes da prova (LuaLaTeX).
+% Espelha prova/revisao_final.md: mudou lá, muda aqui. Compilar: Rscript caderno/montar_caderno.R vespera
+\documentclass[10pt]{article}
+\usepackage[a4paper,top=1.0cm,bottom=1.0cm,left=1.1cm,right=1.1cm]{geometry}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\setmainfont{Libertinus Serif}
+\setsansfont{Libertinus Sans}
+\setmathfont{Libertinus Math}
+\usepackage{polyglossia}
+\setmainlanguage{brazil}
+\usepackage{multicol}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\setlist{nosep,leftmargin=1.2em}
+\setlength{\parindent}{0pt}
+\setlength{\columnsep}{0.6cm}
+\setlength{\columnseprule}{0.3pt}
+\renewcommand{\arraystretch}{1.08}
+\pagestyle{empty}
+\newcommand{\bloco}[1]{\par\smallskip{\sffamily\bfseries #1}\par\vspace{1pt}}
+
+\begin{document}
+\fontsize{10.6pt}{12.8pt}\selectfont
+
+{\sffamily\bfseries\Large Cartão da P1}\hfill{\sffamily 4 questões de 2,5 \textperiodcentered{} leia SAR ou SMA \textperiodcentered{} 15 min por questão}
+
+\begin{multicols}{2}\raggedright
+
+\bloco{A. Processos (Q1–Q3)}
+$y_t=y_0+\sum_{s\le t}u_s$; $V(y_t)=E\big((\sum u_s)^2\big)=t\sigma^2$; $\operatorname{Cov}=(t-k)\sigma^2$ $\Rightarrow$ \textbf{não estacionário}.\\
+$z_3=z_1+2z_2$: 4 termos, cruzados zeram (\emph{não correlacionados}), $\gamma_3=\gamma_1+4\gamma_2$; $\rho_k=\gamma_k/\gamma_0$ \textbf{de $z_3$}; FAC corta em 2 $\Rightarrow$ \textbf{MA(2)}.
+
+\bloco{B. ARMA (Q5, Q6)}
+Raiz de um \textbf{número}: $1-\phi x=0\Rightarrow x=1/\phi$ (com sinal), $\lvert x\rvert>1$.\\
+AR(1): $\times y_t$: $\gamma_0=\phi\gamma_1+\sigma^2$; $\times y_{t-1}$: $\gamma_1=\phi\gamma_0$ (choque de hoje $\perp$ passado) $\Rightarrow\gamma_0=\sigma^2/(1-\phi^2)$, $\rho_k=\phi^k$.\\
+\textbf{Desenho:} barras com números; $\phi<0$ alterna; FACP: um pico em 1.\\
+ARMA(1,1): $\times a_t$, $\times a_{t-1}$, $\times z_t$, $\times z_{t-1}$; $\rho_k=\phi\rho_{k-1}$ a partir de $\rho_1$.
+
+\bloco{C. SARIMA (Q11, Q12, Q16)}
+\textbf{SMA}$_s$: $\gamma_k=E\big((a_t-\Theta a_{t-s})(a_{t-k}-\Theta a_{t-s-k})\big)$: $\gamma_0=(1+\Theta^2)\sigma^2$, $\gamma_s=-\Theta\sigma^2$, zero no resto. FAC: \textbf{um pico em $s$}; FACP: $s,2s,3s$ decaindo.\\
+\textbf{SAR}$_s$: o espelho: FAC $\Phi^m$ em $s,2s,\dots$; FACP um pico em $s$.\\
+Perdas $d+sD$; parâmetros $p+q+P+Q+1$ (o $+1$ é $\sigma^2$).\\
+\textbf{Previsão:} expandir os produtos; escrever em $T+h$; conhecido fica, choque futuro $\to0$, $y$ futuro $\to\widehat y$.\\
+\textbf{Isolar troca o sinal:} $(0,1,1)(0,1,1)_4$: $y_t=y_{t-1}+y_{t-4}-y_{t-5}+a_t-\theta a_{t-1}-\Theta a_{t-4}+\theta\Theta a_{t-5}$; resíduos até $h=5$. Em $(1,1,0)(0,1,1)_4$: até $h=4$.
+
+\bloco{D. Ciclo e análise (Q10, Q14, Q16)}
+\textbf{I}dentificação (DF $\to d$; FAC/FACP $\to p,q$) $\to$ \textbf{E}stimação (MV; AIC, BIC) $\to$ \textbf{D}iagnóstico (Ljung-Box) $\to$ \textbf{P}revisão (RMSE, MAPE). Falhou o D: volta ao I.\\
+Critérios: menor vence; diferença $<2$ é empate; AIC multa 2, BIC multa $\ln T$; fora da amostra pesa mais; parcimônia.\\
+Ordem: banda $\pm2/\sqrt T$; a última barra fora antes do corte.
+
+\columnbreak
+
+\bloco{Dickey-Fuller (começa no modelo 3), 5\%, $T=100$}
+\begin{tabularx}{\linewidth}{@{}lXl@{}}\toprule
+Passo & Estatística e crítico & Se rejeitar\\\midrule
+1 & modelo 3: $\tau_\tau$ vs $-3{,}45$ & sem raiz; pare\\
+2 & $\phi_3$ vs $6{,}49$ (maior rejeita) & tendência fica; normal\\
+3 & modelo 2: $\tau_\mu$ vs $-2{,}89$ & sem raiz; pare\\
+4 & $\phi_1$ vs $4{,}71$ (maior rejeita) & drift fica; normal\\
+5 & modelo 1: $\tau$ vs $-1{,}95$ & sem raiz\\\bottomrule
+\end{tabularx}\\
+$\tau$ \textbf{menor} (à esquerda) que o crítico rejeita. Não rejeitou: diferencie e repita ($d$).
+
+\bloco{Reconhecer}
+\begin{tabularx}{\linewidth}{@{}lXX@{}}\toprule
+Modelo & FAC & FACP\\\midrule
+AR($p$) & decai & corta em $p$\\
+MA($q$) & corta em $q$ & decai\\
+ARMA & decai & decai\\
+passeio & decai muito devagar & —\\
+SMA$_s$ & um pico em $s$ & $s,2s,3s$ decaindo\\
+SAR$_s$ & $s,2s,3s$ decaindo & um pico em $s$\\\bottomrule
+\end{tabularx}
+
+\bloco{Os 10 erros que não voltam}
+\begin{enumerate}[label=\arabic*.]
+\item $\gamma_0=E(y_t^2)$ é a variância.
+\item Raiz de um número $x$, com sinal: $1+0{,}5x=0\Rightarrow x=-2$.
+\item $E(\cdot)$ em toda linha de momento.
+\item $\rho_k=\gamma_k/\gamma_0$ do mesmo processo; $\lvert\rho\rvert\le1$.
+\item Choque mais novo que o $y$: esperança zero.
+\item AR corta na FACP; MA corta na FAC.
+\item $\tau$ menor rejeita; $\phi$ contra o próprio crítico.
+\item Isolar troca o sinal; confira cada coeficiente.
+\item Frase de fecho em todo item.
+\item 15 min por questão; itens curtos primeiro.
+\end{enumerate}
+
+\bloco{As cinco conferências de 10 segundos}
+$\lvert\rho\rvert\le1$ \textperiodcentered{} AR(1): $\rho_1=\phi$ \textperiodcentered{} Vieta: soma $-b/a$, produto $c/a$ \textperiodcentered{} sinal ao isolar \textperiodcentered{} $\tau$ na reta.
+
+\bloco{Frases de fecho}
+``Var depende de $t$: não estacionário.'' \textperiodcentered{} ``FAC corta em $q$: MA($q$).'' \textperiodcentered{} ``Raiz fora do círculo: estacionário.'' \textperiodcentered{} ``Resíduos até a maior defasagem do MA.'' \textperiodcentered{} ``$\tau$ maior que o crítico: raiz unitária; diferenciar.''
+
+\end{multicols}
+\end{document}

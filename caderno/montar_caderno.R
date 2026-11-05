@@ -530,9 +530,28 @@ volume_correcao5 <- function() {
            OPC_IMPRESSAO[!OPC_IMPRESSAO %in% c("--toc", "--toc-depth=1")], passes = 2, impressao = TRUE)
 }
 
+# Véspera da prova: a revisão final (pandoc) e o cartão de uma página (LaTeX próprio)
+volume_vespera <- function() {
+  md <- file.path(BUILD, "revisao_final.md")
+  writeLines(enc2utf8(preparar_nota("prova/revisao_final.md")), md, useBytes = TRUE)
+  capa("Revisão final", "A manhã da prova, pelo critério do quadro: moldes, erros e conferências",
+       file.path(BUILD, "capa_revisao.tex"))
+  compilar("caderno_revisao_final", md, file.path(BUILD, "capa_revisao.tex"),
+           OPC_IMPRESSAO[!OPC_IMPRESSAO %in% c("--toc", "--toc-depth=1")], passes = 2, impressao = TRUE)
+  nome <- "caderno_cartao_prova"
+  file.copy(file.path(CAD, "cartao_prova.tex"), file.path(BUILD, paste0(nome, ".tex")), overwrite = TRUE)
+  for (p in 1:2) rodar(LUALATEX, c("-interaction=nonstopmode", "-halt-on-error", shQuote(paste0(nome, ".tex"))),
+                       BUILD, paste("lualatex (passada", p, ")"))
+  log <- readLines(file.path(BUILD, paste0(nome, ".log")), warn = FALSE)
+  paginas <- as.integer(sub(".*\\((\\d+) pages?.*", "\\1", grep("Output written on", log, value = TRUE)))
+  if (!identical(paginas, 1L)) stop("o cartão precisa caber em uma página; saiu com ", paginas)
+  file.copy(file.path(BUILD, paste0(nome, ".pdf")), file.path(SAIDA, paste0(nome, ".pdf")), overwrite = TRUE)
+  cat(sprintf("  %s.pdf: 1 página\n", nome))
+}
+
 ## ---- execução ------------------------------------------------------------------------
 alvos <- commandArgs(trailingOnly = TRUE)
-if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao", "basico", "naoerrar", "simulado02", "plano", "quadro", "auditoria", "correcao5")
+if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao", "basico", "naoerrar", "simulado02", "plano", "quadro", "auditoria", "correcao5", "vespera")
 cat("pandoc:  ", PANDOC, "\nlualatex:", LUALATEX, "\n")
 if ("teoria" %in% alvos) volume_teoria()
 if ("lista" %in% alvos) volume_lista()
@@ -553,5 +572,6 @@ if ("simulado02" %in% alvos) volume_simulado02()
 if ("quadro" %in% alvos) volume_quadro()
 if ("auditoria" %in% alvos) volume_auditoria()
 if ("correcao5" %in% alvos) volume_correcao5()
+if ("vespera" %in% alvos) volume_vespera()
 if ("plano" %in% alvos) volume_plano()
 cat("\nPDFs em caderno/pdf/\n")
