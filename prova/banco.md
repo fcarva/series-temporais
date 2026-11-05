@@ -24,7 +24,7 @@ A prova sai da lista: **5 ou 6 questões, uma por bloco**. O professor raramente
 - onde está a resolução completa no repositório;
 - o capítulo dos livros que cobre o tema.
 
-Nenhuma variação repete os números dos [simulados](README.md#os-três-simulados), que ficam para o treino cronometrado. Todos os números saem de [prova.R](prova.R).
+Nenhuma variação repete os números dos [simulados](README.md#os-simulados), que ficam para o treino cronometrado. Todos os números saem de [prova.R](prova.R).
 
 > [!TIP]
 > **Como usar**

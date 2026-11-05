@@ -17,6 +17,10 @@ aliases:
 # Prova de 05/11/2026: guia de treino
 
 > [!IMPORTANT]
+> **Última leitura antes da prova (05/11)**
+> A [auditoria final](auditoria_final.md) cruza o quadro, as quatro questões prováveis e a lista Q1–Q16, com o fio de leitura de cada questão e os 30 minutos antes da prova.
+
+> [!IMPORTANT]
 > **O professor anunciou o formato (04/11)**
 > **4 questões de 2,5.** AIC e BIC para interpretar; uma questão de previsão; Yule-Walker não cai. Anotado também: RMSE e MAPE, a ordem pela FAC e o **teste de Dickey-Fuller**, com a cadeia que começa pelo modelo 3. A folha [o que cai](o_que_cai.md) organiza o quadro em quatro questões prováveis, e o [Simulado 05](simulado_05.md) treina esse formato em 1 hora.
 

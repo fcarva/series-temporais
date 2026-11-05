@@ -18,7 +18,7 @@
 # Requer pandoc e LuaLaTeX (TeX Live ou MiKTeX).
 #
 # Rodar: Rscript caderno/montar_caderno.R  (Windows: scripts\r.ps1 caderno\montar_caderno.R)
-#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao, amao_blocos, apostila, completo, correcao, basico, naoerrar, simulado02, plano, quadro; sem argumento, tudo
+#        argumentos opcionais: teoria, lista, trabalho, lista01, guia, prova, simulados, comentada, amao, amao_blocos, apostila, completo, correcao, basico, naoerrar, simulado02, plano, quadro, auditoria; sem argumento, tudo
 # Saída: caderno/pdf/ (fora do git, exceto o volume 4, o guia, o volume 5 e os simulados,
 #        que vão ao cofre do Obsidian)
 
@@ -511,9 +511,19 @@ volume_plano <- function() {
   cat(sprintf("  %s.pdf: 1 página\n", nome))
 }
 
+# Auditoria final: o quadro, as quatro questões e a lista, ligados pelo fio
+volume_auditoria <- function() {
+  md <- file.path(BUILD, "auditoria.md")
+  writeLines(enc2utf8(preparar_nota("prova/auditoria_final.md")), md, useBytes = TRUE)
+  capa("Auditoria final", "O quadro, as quatro questões e a lista, com o fio de leitura de cada uma",
+       file.path(BUILD, "capa_auditoria.tex"))
+  compilar("caderno_auditoria_final", md, file.path(BUILD, "capa_auditoria.tex"),
+           OPC_IMPRESSAO[!OPC_IMPRESSAO %in% c("--toc", "--toc-depth=1")], passes = 2, impressao = TRUE)
+}
+
 ## ---- execução ------------------------------------------------------------------------
 alvos <- commandArgs(trailingOnly = TRUE)
-if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao", "basico", "naoerrar", "simulado02", "plano", "quadro")
+if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao", "basico", "naoerrar", "simulado02", "plano", "quadro", "auditoria")
 cat("pandoc:  ", PANDOC, "\nlualatex:", LUALATEX, "\n")
 if ("teoria" %in% alvos) volume_teoria()
 if ("lista" %in% alvos) volume_lista()
@@ -532,5 +542,6 @@ if ("basico" %in% alvos) volume_basico()
 if ("naoerrar" %in% alvos) volume_naoerrar()
 if ("simulado02" %in% alvos) volume_simulado02()
 if ("quadro" %in% alvos) volume_quadro()
+if ("auditoria" %in% alvos) volume_auditoria()
 if ("plano" %in% alvos) volume_plano()
 cat("\nPDFs em caderno/pdf/\n")

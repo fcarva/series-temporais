@@ -125,6 +125,8 @@ $(1-0{,}8B)y_t=u_t$, com $\sigma^2=0{,}36$. Ache a raiz, $\gamma_0$, $\gamma_1$,
 - $\rho_k$: 0,8; 0,64; 0,512.
 - A FACP tem 0,8 em $k=1$ e zero depois.
 
+**Na lista:** Q6 ([nota comentada](../lista_comentada/q06.md)), para a FAC do ARMA, e Q9 ([nota comentada](../lista_comentada/q09.md)), para o AR(1).
+
 ## 3. A tabela de consulta: reconhecer pela FAC e pela FACP
 
 | Modelo | FAC | FACP |
@@ -202,6 +204,29 @@ Série mensal: $y_t=(1-0{,}4B^{12})a_t$, com $\sigma^2=1$. Ache $\gamma_0$, $\ga
 - $\rho_{12}=-0{,}3448$, e zero no resto.
 - A FACP vale $-0{,}3448$ em 12 e $-\rho^2/(1-\rho^2)=-0{,}135$ em 24, decaindo nos múltiplos de 12.
 
+### Da lista (Q11): o SAR(1)$_4$, o espelho do SMA
+
+O quadro desenhou o SMA(1)$_4$, mas a lista pede o **SAR(1)$_4$**, $y_t=\Phi y_{t-4}+\varepsilon_t$. É o AR(1) com 4 no lugar de 1. Com $\Phi=0{,}7$ e $\sigma^2=1$:
+
+$$
+\begin{aligned}
+\text{(a)}\quad & \gamma_0=E\big((\Phi y_{t-4}+\varepsilon_t)^2\big)=\Phi^2\gamma_0+\sigma^2 && [\text{caus.: o cruzado zera}]\\
+\text{(b)}\quad & \gamma_0=\sigma^2/(1-\Phi^2)=1/0{,}51=1{,}9608 && [\text{isola}]\\
+\text{(c)}\quad & \gamma_k=\Phi\,\gamma_{k-4},\ k\ge1 && [\times y_{t-k};\ \text{caus.}]\\
+\text{(d)}\quad & \gamma_4=\Phi\gamma_0,\ \gamma_8=\Phi^2\gamma_0\ \Rightarrow\ \rho_4=0{,}7,\ \rho_8=0{,}49 && [\rho_{4m}=\Phi^m]\\
+\text{(e)}\quad & \gamma_1=\Phi\gamma_3,\ \gamma_3=\Phi\gamma_1\Rightarrow\gamma_1(1-\Phi^2)=0\Rightarrow\gamma_1=\gamma_3=0 && [\gamma_{-j}=\gamma_j]\\
+\text{(f)}\quad & \gamma_2=\Phi\gamma_2\Rightarrow\gamma_2=0;\ \ \text{FACP: } \phi_{44}=0{,}7,\ \phi_{88}=0 && [\text{fora dos múltiplos}]
+\end{aligned}
+$$
+
+- **(a)–(b)** É a conta da seção 2, com $y_{t-4}$ no lugar de $y_{t-1}$.
+- **(c)–(d)** A recursão pula de 4 em 4: a FAC só existe nos múltiplos de 4 e decai geometricamente.
+- **(e)–(f)** Fora dos múltiplos, a recursão força zero. A FACP tem um pico só, em 4.
+
+É o **espelho do SMA**. No SAR, a FAC decai em 4, 8, 12 e a FACP tem um pico só, em 4. No SMA, é o contrário. O AR(5) restrito do multiplicativo e a demonstração completa estão em [Q11 comentada](../lista_comentada/q11.md).
+
+**Na lista:** Q11 ([nota comentada](../lista_comentada/q11.md)) e Q16 (c) ([nota comentada](../lista_comentada/q16.md)).
+
 ## 5. A equação de previsão do SARIMA$(0,1,1)(0,1,1)_4$, à força bruta
 
 **Enunciado.** Uma série trimestral segue SARIMA$(0,1,1)(0,1,1)_4$, com $\theta=0{,}3$ e $\Theta=0{,}5$. Escreva $y_t$ em função do passado e as equações de $\widehat y_T(1)$ até $\widehat y_T(6)$. Diga até que horizonte os resíduos aparecem.
@@ -269,6 +294,32 @@ SARIMA$(0,1,1)(0,1,1)_{12}$ com $\theta=0{,}2$ e $\Theta=0{,}7$. Escreva $\wideh
 - $\widehat y_T(1)=y_T+y_{T-11}-y_{T-12}-0{,}2\widehat a_T-0{,}7\widehat a_{T-11}+0{,}14\widehat a_{T-12}$.
 - Os resíduos aparecem até $h=13$.
 
+### Da lista (Q12): SARIMA$(1,1,0)(0,1,1)_4$
+
+A Q12 da lista troca o MA comum por um **AR comum**: $(1-\phi B)(1-B)(1-B^4)y_t=(1-\Theta B^4)a_t$. O molde é o mesmo da seção; muda o que sobra em cada horizonte.
+
+$$
+\begin{aligned}
+\text{(a)}\quad & (1-\phi B)(1-B)=1-(1+\phi)B+\phi B^2 && [\text{distributiva}]\\
+\text{(b)}\quad & (\dots)(1-B^4)=1-(1+\phi)B+\phi B^2-B^4+(1+\phi)B^5-\phi B^6 && [\times1 \text{ e } \times(-B^4)]\\
+\text{(c)}\quad & y_t=(1+\phi)y_{t-1}-\phi y_{t-2}+y_{t-4}-(1+\phi)y_{t-5}+\phi y_{t-6} && [\text{isola}]\\
+& \phantom{y_t=}+a_t-\Theta a_{t-4} && [\text{MA sazonal}]\\
+\text{(d)}\quad & \widehat y(1)=(1+\phi)y_T-\phi y_{T-1}+y_{T-3}-(1+\phi)y_{T-4}+\phi y_{T-5}-\Theta\widehat a_{T-3} && [a_{T+1}\to0]\\
+\text{(e)}\quad & \widehat y(2)=(1+\phi)\widehat y(1)-\phi y_T+y_{T-2}-(1+\phi)y_{T-3}+\phi y_{T-4}-\Theta\widehat a_{T-2} && [y_{T+1}\to\widehat y(1)]\\
+\text{(f)}\quad & \widehat y(4)=(1+\phi)\widehat y(3)-\phi\widehat y(2)+y_T-(1+\phi)y_{T-1}+\phi y_{T-2}-\Theta\widehat a_T && [\text{último resíduo}]\\
+\text{(g)}\quad & \widehat y(5)=(1+\phi)\widehat y(4)-\phi\widehat y(3)+\widehat y(1)-(1+\phi)y_T+\phi y_{T-1} && [\text{sem resíduo}]
+\end{aligned}
+$$
+
+- **(a)–(c)** Três polinômios no lado AR. Com $\phi=0{,}4$, os coeficientes de $y_{t-1}$ a $y_{t-6}$ são 1,4; $-0{,}4$; 0; 1; $-1{,}4$; 0,4.
+- **(d)–(f)** O MA só tem $B^4$, então o resíduo que entra em $h$ é $\widehat a_{T+h-4}$: $\widehat a_{T-3}$ em $h=1$, até $\widehat a_T$ em $h=4$.
+- **(g)** Em $h=5$, o termo seria $a_{T+1}$, futuro: **os resíduos param em $h=4=s$**. No $(0,1,1)(0,1,1)_4$ desta seção, iam até $h=5=s+1$, por causa do termo cruzado.
+- As perdas são as mesmas: $d+sD=1+4=5$.
+
+O diagnóstico de resíduos da Q12 (d), com Ljung-Box, Jarque-Bera, ARCH e estabilidade, e a propagação da sazonalidade estão em [Q12 comentada](../lista_comentada/q12.md).
+
+**Na lista:** Q12 ([nota comentada](../lista_comentada/q12.md)) e Q15 ([nota comentada](../lista_comentada/q15.md)).
+
 ## 6. O ciclo de modelagem de Box-Jenkins
 
 | Etapa | O que se faz | O que se olha |
@@ -279,6 +330,8 @@ SARIMA$(0,1,1)(0,1,1)_{12}$ com $\theta=0{,}2$ e $\Theta=0{,}7$. Escreva $\wideh
 | 4. Previsão | prever e avaliar fora da amostra | **RMSE e MAPE**; intervalos |
 
 **Se o diagnóstico falha, volta-se à etapa 1**: é um ciclo, não uma linha reta. Na prova, escreva as quatro etapas, uma frase cada, e a seta de volta. O ciclo completo, com a Q16, está no [cap. 6 da apostila](../apostila/cap6_aplicacao.md).
+
+**Na lista:** Q12 (d) e Q16 ([Q12](../lista_comentada/q12.md), [Q16](../lista_comentada/q16.md)).
 
 ## 7. Interpretar AIC, BIC, RMSE e MAPE, linha a linha
 
@@ -350,6 +403,8 @@ Qual modelo cada critério escolhe, e qual você usa?
 - O RMSE e o MAPE escolhem B.
 - **Fica com B**: empata no AIC, é menor e prevê melhor.
 
+**Na lista:** Q14 ([nota comentada](../lista_comentada/q14.md)) e Q16 (d) ([nota comentada](../lista_comentada/q16.md)).
+
 ## 8. Identificar a ordem pela FAC e pela FACP amostrais, linha a linha
 
 **Enunciado.** Com $T=100$, a FAC e a FACP amostrais de uma série estacionária foram:
@@ -418,6 +473,8 @@ Qual é o modelo?
 - A FAC decai devagar: 0,61 e 0,40 estão fora da banda, e o resto decresce.
 - A FACP tem só 0,61 fora da banda e **corta em 1**.
 - Logo, **AR(1)**.
+
+**Na lista:** Q16 (c) ([nota comentada](../lista_comentada/q16.md)) e Q3 ([nota comentada](../lista_comentada/q03.md)), para o corte da FAC.
 
 ## 9. Teste de raiz unitária: Dickey-Fuller, linha a linha
 
@@ -601,6 +658,8 @@ $T=100$, a 5%. O modelo 3 deu $\tau_\tau=-3{,}10$ e $\phi_3=7{,}20$, e o $t$ de 
 - $-3{,}10\lt-1{,}65$: rejeita.
 - **Não há raiz unitária**: a série é estacionária em torno de tendência, e não se diferencia.
 
+**Na lista:** Q10 ([nota comentada](../lista_comentada/q10.md)), sobre TS × DS, e Q9 ([nota comentada](../lista_comentada/q09.md)), sobre sobrediferenciação.
+
 ## 11. A noite de quarta e a manhã de quinta
 
 | Hora | O quê |
@@ -701,4 +760,16 @@ $T=100$, a 5%. O modelo 3 deu $\tau_\tau=-3{,}10$ e $\phi_3=7{,}20$, e o $t$ de 
 | inpc_adf_c5_phi1 | 4,61 |
 | inpc_adf_y_n_tau | -1,61 |
 | inpc_adf_y_n_c5 | -1,95 |
+| lc_q11_g0 | 1,9608 |
+| lc_q11_rho4 | 0,7 |
+| lc_q11_rho8 | 0,49 |
+| lc_q11_rho1 | 0 |
+| lc_q11_phi44 | 0,7 |
+| lc_q11_phi88 | 0 |
+| lc_q12_c1 | 1,4 |
+| lc_q12_c2 | -0,4 |
+| lc_q12_c4 | 1 |
+| lc_q12_c5 | -1,4 |
+| lc_q12_c6 | 0,4 |
+| lc_q12_perda | 5 |
 -->
