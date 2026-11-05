@@ -56,21 +56,27 @@ Os seis erros da P1 de Econometria I, com a ação traduzida para séries tempor
 | 01/11 | S1 Q3a | D/A | $y_t-y_{t-1}=\varepsilon_t$ (do passeio) e forma copiada do enunciado | derivar: multiplicar $(1-0{,}5B)y_t=\varepsilon_t$ por $(1-B)$ | 03/11 · 04/11 |
 | 01/11 | S1 Q4a | C/R | modelo escolhido pelo $\ln L$, sem AIC nem BIC | AIC e BIC com $k$ incluindo $\sigma^2$; menor vence | 03/11 · 04/11 |
 | 01/11 | S1 Q4b, Q5, Q6 | C/T | contas curtas em branco (cerca de 3 pontos) | 25 minutos de contas curtas antes das derivações | 03/11 · 04/11 |
-|  |  |  |  |  |  |
-|  |  |  |  |  |  |
+| 04/11 | S5 Q2b | D/H | $E(\varepsilon_ty_{t-1})=-1{,}5$; o certo é 0 (causalidade) | choque mais novo que o $y$ ⇒ zero; conferir $\rho_1=\phi$ no AR(1) | 05/11 |
+| 04/11 | S5 Q1b | C/A | $\rho_1$ dividido pelo $\gamma_0$ de $z_1$, dando $-2{,}125$ | $\rho_k=\gamma_k/\gamma_0$ do **mesmo** processo; $\lvert\rho\rvert\le1$ | 05/11 |
+| 04/11 | S5 Q2a | C/N | raiz com a série e sinal trocado ($x=2$ no lugar de $-2$) | $1+0{,}5x=0\Rightarrow x=-2$ | 05/11 |
+| 04/11 | S5 Q2d | C/R | FAC que corta em 1 lida como AR(1) | AR corta na FACP; MA corta na FAC | 05/11 |
+| 04/11 | S5 extra | C/R | $\tau$ maior que o crítico lido como rejeição; $\phi_3$ contra o crítico do $\tau$ | $\tau$ menor rejeita; $\phi$ maior que o próprio crítico rejeita | 05/11 |
+| 04/11 | S5 Q3 | D/E | SMA(1)$_4$ em branco | os quatro termos da Q1b com $B^4$ | 05/11 |
+| 04/11 | S5 Q4a | C/E | ciclo de Box-Jenkins confundido com o Dickey-Fuller | I, E, D, P; o DF fica dentro da I | 05/11 |
+| 04/11 | S5 Q4b, c | C/T | interpretação da tabela em branco; 35 min na Q1 | 15 min por questão; itens curtos primeiro | 05/11 |
 |  |  |  |  |  |  |
 
 ## Placar por causa
 
 Atualize depois de cada simulado. A causa com mais linhas vira o foco do treino seguinte.
 
-| causa | S1 (01/11) | S2 (03/11) | S3 (04/11) |
+| causa | S1 (01/11) | S2 (03/11) | S5 (04/11) |
 |---|---|---|---|
-| H hipótese | 0 |  |  |
-| A álgebra ou sinal | 1 |  |  |
-| N notação ou convenção | 3 |  |  |
-| L leitura | 0 |  |  |
-| R regra de decisão | 1 |  |  |
-| V conclusão | 1 |  |  |
-| E esquecimento | 1 |  |  |
-| T tempo | 1 |  |  |
+| H hipótese | 0 |  | 1 |
+| A álgebra ou sinal | 1 |  | 1 |
+| N notação ou convenção | 3 |  | 1 |
+| L leitura | 0 |  | 0 |
+| R regra de decisão | 1 |  | 2 |
+| V conclusão | 1 |  | 0 |
+| E esquecimento | 1 |  | 2 |
+| T tempo | 1 |  | 1 |

@@ -18,7 +18,7 @@ aliases:
 
 > [!IMPORTANT]
 > **Última leitura antes da prova (05/11)**
-> A [auditoria final](auditoria_final.md) cruza o quadro, as quatro questões prováveis e a lista Q1–Q16, com o fio de leitura de cada questão e os 30 minutos antes da prova.
+> A [correção do Simulado 05](correcao_simulado_05.md) traz os gaps e o resgate de SARIMA e Box-Jenkins. A [auditoria final](auditoria_final.md) cruza o quadro, as quatro questões prováveis e a lista Q1–Q16, com o fio de leitura de cada questão e os 30 minutos antes da prova.
 
 > [!IMPORTANT]
 > **O professor anunciou o formato (04/11)**

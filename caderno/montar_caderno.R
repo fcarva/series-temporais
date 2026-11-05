@@ -521,9 +521,18 @@ volume_auditoria <- function() {
            OPC_IMPRESSAO[!OPC_IMPRESSAO %in% c("--toc", "--toc-depth=1")], passes = 2, impressao = TRUE)
 }
 
+# A correção do Simulado 05, com o resgate de SARIMA e Box-Jenkins
+volume_correcao5 <- function() {
+  partes <- list("Correção do Simulado 05" = c("prova/correcao_simulado_05.md"))
+  md <- file.path(BUILD, "correcao5.md"); montar_md(partes, md)
+  capa("Simulado 05", "A correção da tentativa de 04/11 e o resgate de SARIMA e Box-Jenkins", file.path(BUILD, "capa_correcao5.tex"))
+  compilar("caderno_correcao_s5", md, file.path(BUILD, "capa_correcao5.tex"),
+           OPC_IMPRESSAO[!OPC_IMPRESSAO %in% c("--toc", "--toc-depth=1")], passes = 2, impressao = TRUE)
+}
+
 ## ---- execução ------------------------------------------------------------------------
 alvos <- commandArgs(trailingOnly = TRUE)
-if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao", "basico", "naoerrar", "simulado02", "plano", "quadro", "auditoria")
+if (!length(alvos)) alvos <- c("teoria", "lista", "trabalho", "lista01", "guia", "prova", "simulados", "comentada", "amao", "amao_blocos", "apostila", "completo", "correcao", "basico", "naoerrar", "simulado02", "plano", "quadro", "auditoria", "correcao5")
 cat("pandoc:  ", PANDOC, "\nlualatex:", LUALATEX, "\n")
 if ("teoria" %in% alvos) volume_teoria()
 if ("lista" %in% alvos) volume_lista()
@@ -543,5 +552,6 @@ if ("naoerrar" %in% alvos) volume_naoerrar()
 if ("simulado02" %in% alvos) volume_simulado02()
 if ("quadro" %in% alvos) volume_quadro()
 if ("auditoria" %in% alvos) volume_auditoria()
+if ("correcao5" %in% alvos) volume_correcao5()
 if ("plano" %in% alvos) volume_plano()
 cat("\nPDFs em caderno/pdf/\n")
